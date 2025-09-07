@@ -63,15 +63,4 @@ public record TaskRecord(
             case COMPLETED -> false;
         };
     }
-
-    /**
-     * Advanced pattern matching for generating detailed status
-     */
-    public String getDetailedStatus() {
-        return switch (state) {
-            case TODO -> "Task awaiting execution - Priority: " + priority.name();
-            case IN_PROGRESS -> "Task currently being worked on - Priority: " + priority.name();
-            case COMPLETED -> "Task successfully completed";
-        };
-    }
 }

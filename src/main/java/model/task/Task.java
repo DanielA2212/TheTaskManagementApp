@@ -90,16 +90,6 @@ public class Task implements ITask {
         return TaskState.fromStateType(state.getStateType());
     }
 
-    /**
-     * Gets the internal ITaskState implementation
-     * Used by internal classes and unit tests
-     * @return the internal state implementation
-     */
-    /* Package-private access - only visible to other classes in the same package */
-    ITaskState getInternalState() {
-        return state;
-    }
-
     @Override
     public void setState(ITaskState state) {
         ITaskState oldState = this.state;
@@ -141,16 +131,6 @@ public class Task implements ITask {
     @Override
     public void accept(TaskVisitor visitor) {
         visitor.visit(this);
-    }
-
-    /**
-     * Sets the creation date of the task
-     * @param createdDate the creation date
-     * @deprecated This method is used only for deserialization from database
-     */
-    @Deprecated(since = "1.0", forRemoval = false)
-    void setCreatedDate(Date createdDate) {
-        this.createdDate = createdDate;
     }
 
     /**

@@ -47,10 +47,9 @@ public class Main {
 
                 // Keep a strong-typed reference to the concrete VM for initialization
                 TasksViewModel tvm = new TasksViewModel(proxyDAO, taskManagerView);
-                IViewModel viewModel = tvm;
-                viewModelContainer[0] = viewModel;
+                viewModelContainer[0] = tvm;
                 // The View receives the ViewModel
-                taskManagerView.setViewModel(viewModel);
+                taskManagerView.setViewModel(tvm);
 
                 tvm.registerAttributeObservers();
                 tvm.loadTasks();

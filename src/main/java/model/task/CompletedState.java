@@ -19,21 +19,6 @@ public class CompletedState implements ITaskState {
     }
 
     @Override
-    public ITaskState next() {
-        return this; // Can't go further from Completed
-    }
-
-    @Override
-    public ITaskState previous() {
-        return InProgressState.getInstance();
-    }
-
-    @Override
-    public boolean canModify() {
-        return false; // Completed tasks should not be easily modified
-    }
-
-    @Override
     public StateType getStateType() {
         return StateType.COMPLETED;
     }

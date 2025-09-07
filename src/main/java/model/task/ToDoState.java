@@ -19,16 +19,6 @@ public class ToDoState implements ITaskState {
     }
 
     @Override
-    public ITaskState next() {
-        return InProgressState.getInstance();
-    }
-
-    @Override
-    public ITaskState previous() {
-        return this; // Can't go back from ToDo
-    }
-
-    @Override
     public StateType getStateType() {
         return StateType.TODO;
     }

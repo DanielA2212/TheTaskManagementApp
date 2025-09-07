@@ -19,16 +19,6 @@ public class InProgressState implements ITaskState {
     }
 
     @Override
-    public ITaskState next() {
-        return CompletedState.getInstance();
-    }
-
-    @Override
-    public ITaskState previous() {
-        return ToDoState.getInstance();
-    }
-
-    @Override
     public StateType getStateType() {
         return StateType.IN_PROGRESS;
     }

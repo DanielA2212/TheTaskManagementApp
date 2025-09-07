@@ -6,15 +6,6 @@ package model.task;
  */
 public interface ITaskState {
     String getDisplayName();
-    ITaskState next();
-    ITaskState previous();
-
-    /**
-     * Returns true if this state allows the task to be modified
-     */
-    default boolean canModify() {
-        return true;
-    }
 
     /**
      * Returns the state type for equality comparisons
