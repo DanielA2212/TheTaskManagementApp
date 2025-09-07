@@ -1,0 +1,22 @@
+# Maven build
+/target/
+
+# IntelliJ
+.idea/
+*.iml
+
+# Local DB and logs
+/taskDB/
+/derby.log
+
+# Shaded build byproducts
+/dependency-reduced-pom.xml
+/original-*.jar
+
+# Old manual artifacts
+/TaskManagementApp.jar
+
+# OS junk
+.DS_Store
+Thumbs.db
+
