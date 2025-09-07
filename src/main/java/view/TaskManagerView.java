@@ -379,9 +379,11 @@ public class TaskManagerView extends JPanel implements TasksObserver, TaskAttrib
         String description = descriptionInputTA.getText().trim();
         TaskPriority priority = (TaskPriority) taskPriorityComboBox.getSelectedItem();
 
-        if (!title.isEmpty() && viewModel instanceof TasksViewModel) {
-            ((TasksViewModel) viewModel).addButtonPressed(title, description, priority);
+        TasksViewModel viewModel = (TasksViewModel) getViewModel();
+        if (!title.isEmpty()) {
+            viewModel.addButtonPressed(title, description, priority);
             clearForm();
+            deleteAllButton.setEnabled(true);
         }
     }
 
@@ -422,6 +424,7 @@ public class TaskManagerView extends JPanel implements TasksObserver, TaskAttrib
             );
             if (result == JOptionPane.YES_OPTION) {
                 ((TasksViewModel) viewModel).deleteAllTasks();
+                deleteAllButton.setEnabled(false);
             }
         }
     }
@@ -568,6 +571,10 @@ public class TaskManagerView extends JPanel implements TasksObserver, TaskAttrib
             // Store tasks for selection mapping
             currentTasks = tasks;
             updateStatusBar(tasks);
+
+            // Enable Delete All only when there are visible rows
+            boolean hasRows = tasks != null && !tasks.isEmpty();
+            deleteAllButton.setEnabled(hasRows);
         });
     }
 
