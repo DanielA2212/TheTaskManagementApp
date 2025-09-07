@@ -15,6 +15,7 @@ import java.util.List;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serial;
+import java.awt.event.ActionEvent;
 
 public class TaskManagerView extends JPanel implements TasksObserver, TaskAttributeObserver, IView {
     @Serial
@@ -348,119 +349,18 @@ public class TaskManagerView extends JPanel implements TasksObserver, TaskAttrib
     }
 
     private void setupButtonActions() {
-        addButton.addActionListener(e -> {
-            String title = taskTitleInputF.getText().trim();
-            String description = descriptionInputTA.getText().trim();
-            TaskPriority priority = (TaskPriority) taskPriorityComboBox.getSelectedItem();
-
-            if (!title.isEmpty() && viewModel instanceof TasksViewModel) {
-                ((TasksViewModel) viewModel).addButtonPressed(title, description, priority);
-                clearForm();
-            }
-        });
-
-        clearSelectionButton.addActionListener(e -> {
-            taskTable.clearSelection();
-            selectedTask = null;
-            clearForm();
-        });
-
-        updateButton.addActionListener(e -> {
-            if (selectedTask != null && viewModel instanceof TasksViewModel) {
-                String title = taskTitleInputF.getText().trim();
-                String description = descriptionInputTA.getText().trim();
-                ITaskState state = (ITaskState) taskStateComboBox.getSelectedItem();
-                TaskPriority priority = (TaskPriority) taskPriorityComboBox.getSelectedItem();
-
-                if (!title.isEmpty()) {
-                    ((TasksViewModel) viewModel).updateButtonPressed(selectedTask.getId(), title, description, state, priority);
-                    clearForm();
-                }
-            }
-        });
-
-        deleteButton.addActionListener(e -> {
-            if (selectedTask != null && viewModel instanceof TasksViewModel) {
-                ((TasksViewModel) viewModel).deleteButtonPressed(selectedTask.getId());
-                clearForm();
-            }
-        });
-
-        deleteAllButton.addActionListener(e -> {
-            if (viewModel instanceof TasksViewModel) {
-                int result = JOptionPane.showConfirmDialog(
-                    window,
-                    "Are you sure you want to delete all tasks?",
-                    "Confirm Delete All",
-                    JOptionPane.YES_NO_OPTION
-                );
-                if (result == JOptionPane.YES_OPTION) {
-                    ((TasksViewModel) viewModel).deleteAllTasks();
-                }
-            }
-        });
-
-        upButton.addActionListener(e -> {
-            if (selectedTask != null && viewModel instanceof TasksViewModel) {
-                ((TasksViewModel) viewModel).upButtonPressed(selectedTask.getId());
-            }
-        });
-
-        downButton.addActionListener(e -> {
-            if (selectedTask != null && viewModel instanceof TasksViewModel) {
-                ((TasksViewModel) viewModel).downButtonPressed(selectedTask.getId());
-            }
-        });
-
-        reportButton.addActionListener(e -> {
-            if (viewModel instanceof TasksViewModel) {
-                String text = ((TasksViewModel) viewModel).generateReportTextSync();
-                JTextArea ta = new JTextArea(text, 20, 60);
-                ta.setCaretPosition(0);
-                ta.setEditable(false);
-                JOptionPane.showMessageDialog(window, new JScrollPane(ta), "Report", JOptionPane.INFORMATION_MESSAGE);
-            }
-        });
-
-        exportCsvButton.addActionListener(e -> {
-            if (viewModel instanceof TasksViewModel) {
-                JFileChooser chooser = new JFileChooser();
-                chooser.setDialogTitle("Export CSV");
-                if (chooser.showSaveDialog(window) == JFileChooser.APPROVE_OPTION) {
-                    File file = chooser.getSelectedFile();
-                    try {
-                        ((TasksViewModel) viewModel).exportReportCsv(file);
-                        JOptionPane.showMessageDialog(window, "Exported to " + file.getAbsolutePath(), "CSV Export", JOptionPane.INFORMATION_MESSAGE);
-                    } catch (IOException ex) {
-                        JOptionPane.showMessageDialog(window, "Export failed: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-                    }
-                }
-            }
-        });
-
-        // Enhanced state filter with combinator pattern
-        stateFilterComboBox.addActionListener(e -> {
-            String selectedState = (String) stateFilterComboBox.getSelectedItem();
-            if (viewModel instanceof TasksViewModel) {
-                ((TasksViewModel) viewModel).filterByState(selectedState);
-            }
-        });
-
-        // Sorting option change - Strategy pattern
-        sortComboBox.addActionListener(e -> {
-            if (viewModel instanceof TasksViewModel) {
-                SortingOption option = (SortingOption) sortComboBox.getSelectedItem();
-                ((TasksViewModel) viewModel).changeSorting(option);
-            }
-        });
-
-        searchClearButton.addActionListener(e -> {
-            searchField.setText("");
-            if (viewModel instanceof TasksViewModel) {
-                // Clear all filters using combinator pattern
-                ((TasksViewModel) viewModel).clearFilters();
-            }
-        });
+        addButton.addActionListener(this::onAddButton);
+        clearSelectionButton.addActionListener(this::onClearSelection);
+        updateButton.addActionListener(this::onUpdateButton);
+        deleteButton.addActionListener(this::onDeleteButton);
+        deleteAllButton.addActionListener(this::onDeleteAllButton);
+        upButton.addActionListener(this::onUpButton);
+        downButton.addActionListener(this::onDownButton);
+        reportButton.addActionListener(this::onReportButton);
+        exportCsvButton.addActionListener(this::onExportCsvButton);
+        stateFilterComboBox.addActionListener(this::onStateFilterChanged);
+        sortComboBox.addActionListener(this::onSortChanged);
+        searchClearButton.addActionListener(this::onSearchClear);
 
         // Add real-time search as user types using combinator pattern
         searchField.addKeyListener(new java.awt.event.KeyAdapter() {
@@ -471,7 +371,136 @@ public class TaskManagerView extends JPanel implements TasksObserver, TaskAttrib
         });
 
         // Also trigger search when Enter is pressed
-        searchField.addActionListener(e -> applySearchAndFilters());
+        searchField.addActionListener(this::onSearchEnter);
+    }
+
+    @SuppressWarnings("unused")
+    private void onAddButton(ActionEvent e) {
+        String title = taskTitleInputF.getText().trim();
+        String description = descriptionInputTA.getText().trim();
+        TaskPriority priority = (TaskPriority) taskPriorityComboBox.getSelectedItem();
+
+        if (!title.isEmpty() && viewModel instanceof TasksViewModel) {
+            ((TasksViewModel) viewModel).addButtonPressed(title, description, priority);
+            clearForm();
+        }
+    }
+
+    @SuppressWarnings("unused")
+    private void onClearSelection(ActionEvent e) {
+        taskTable.clearSelection();
+        selectedTask = null;
+        clearForm();
+    }
+
+    @SuppressWarnings("unused")
+    private void onUpdateButton(ActionEvent e) {
+        if (selectedTask != null && viewModel instanceof TasksViewModel) {
+            String title = taskTitleInputF.getText().trim();
+            String description = descriptionInputTA.getText().trim();
+            ITaskState state = (ITaskState) taskStateComboBox.getSelectedItem();
+            TaskPriority priority = (TaskPriority) taskPriorityComboBox.getSelectedItem();
+
+            if (!title.isEmpty()) {
+                ((TasksViewModel) viewModel).updateButtonPressed(selectedTask.getId(), title, description, state, priority);
+                clearForm();
+            }
+        }
+    }
+
+    @SuppressWarnings("unused")
+    private void onDeleteButton(ActionEvent e) {
+        if (selectedTask != null && viewModel instanceof TasksViewModel) {
+            ((TasksViewModel) viewModel).deleteButtonPressed(selectedTask.getId());
+            clearForm();
+        }
+    }
+
+    @SuppressWarnings("unused")
+    private void onDeleteAllButton(ActionEvent e) {
+        if (viewModel instanceof TasksViewModel) {
+            int result = JOptionPane.showConfirmDialog(
+                window,
+                "Are you sure you want to delete all tasks?",
+                "Confirm Delete All",
+                JOptionPane.YES_NO_OPTION
+            );
+            if (result == JOptionPane.YES_OPTION) {
+                ((TasksViewModel) viewModel).deleteAllTasks();
+            }
+        }
+    }
+
+    @SuppressWarnings("unused")
+    private void onUpButton(ActionEvent e) {
+        if (selectedTask != null && viewModel instanceof TasksViewModel) {
+            ((TasksViewModel) viewModel).upButtonPressed(selectedTask.getId());
+        }
+    }
+
+    @SuppressWarnings("unused")
+    private void onDownButton(ActionEvent e) {
+        if (selectedTask != null && viewModel instanceof TasksViewModel) {
+            ((TasksViewModel) viewModel).downButtonPressed(selectedTask.getId());
+        }
+    }
+
+    @SuppressWarnings("unused")
+    private void onReportButton(ActionEvent e) {
+        if (viewModel instanceof TasksViewModel) {
+            String text = ((TasksViewModel) viewModel).generateReportTextSync();
+            JTextArea ta = new JTextArea(text, 20, 60);
+            ta.setCaretPosition(0);
+            ta.setEditable(false);
+            JOptionPane.showMessageDialog(window, new JScrollPane(ta), "Report", JOptionPane.INFORMATION_MESSAGE);
+        }
+    }
+
+    @SuppressWarnings("unused")
+    private void onExportCsvButton(ActionEvent e) {
+        if (viewModel instanceof TasksViewModel) {
+            JFileChooser chooser = new JFileChooser();
+            chooser.setDialogTitle("Export CSV");
+            if (chooser.showSaveDialog(window) == JFileChooser.APPROVE_OPTION) {
+                File file = chooser.getSelectedFile();
+                try {
+                    ((TasksViewModel) viewModel).exportReportCsv(file);
+                    JOptionPane.showMessageDialog(window, "Exported to " + file.getAbsolutePath(), "CSV Export", JOptionPane.INFORMATION_MESSAGE);
+                } catch (IOException ex) {
+                    JOptionPane.showMessageDialog(window, "Export failed: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        }
+    }
+
+    @SuppressWarnings("unused")
+    private void onStateFilterChanged(ActionEvent e) {
+        String selectedState = (String) stateFilterComboBox.getSelectedItem();
+        if (viewModel instanceof TasksViewModel) {
+            ((TasksViewModel) viewModel).filterByState(selectedState);
+        }
+    }
+
+    @SuppressWarnings("unused")
+    private void onSortChanged(ActionEvent e) {
+        if (viewModel instanceof TasksViewModel) {
+            SortingOption option = (SortingOption) sortComboBox.getSelectedItem();
+            ((TasksViewModel) viewModel).changeSorting(option);
+        }
+    }
+
+    @SuppressWarnings("unused")
+    private void onSearchClear(ActionEvent e) {
+        searchField.setText("");
+        if (viewModel instanceof TasksViewModel) {
+            // Clear all filters using combinator pattern
+            ((TasksViewModel) viewModel).clearFilters();
+        }
+    }
+
+    @SuppressWarnings("unused")
+    private void onSearchEnter(ActionEvent e) {
+        applySearchAndFilters();
     }
 
     /**

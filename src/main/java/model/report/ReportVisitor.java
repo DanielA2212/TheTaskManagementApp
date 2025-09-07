@@ -72,30 +72,4 @@ public class ReportVisitor implements TaskVisitor {
     public List<TaskRecord> getTaskRecords() {
         return new ArrayList<>(taskRecords);
     }
-
-    /**
-     * Pattern matching based statistics
-     */
-    public String getStatistics() {
-        if (taskRecords.isEmpty()) {
-            return "No tasks available for statistics.";
-        }
-
-        return switch (taskRecords.size()) {
-            case 0 -> "No tasks";
-            case 1 -> "Single task: " + taskRecords.get(0).categorize();
-            default -> {
-                long urgentCount = taskRecords.stream().filter(TaskRecord::isUrgent).count();
-                yield String.format("Multiple tasks (%d total, %d urgent)",
-                                  taskRecords.size(), urgentCount);
-            }
-        };
-    }
-
-    /**
-     * Clear all collected records
-     */
-    public void reset() {
-        taskRecords.clear();
-    }
 }
