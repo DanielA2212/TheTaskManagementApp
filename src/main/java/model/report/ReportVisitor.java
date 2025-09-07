@@ -54,10 +54,13 @@ public class ReportVisitor implements TaskVisitor {
         // Detailed categorization using pattern matching from TaskRecord
         report.append("TASK CATEGORIZATION:\n");
         for (TaskRecord record : taskRecords) {
-            report.append(String.format("- %s: %s (%s)\n",
-                         record.title(),
-                         record.categorize(), // Uses pattern matching
-                         record.getDetailedStatus())); // Uses pattern matching
+            String desc = record.description() == null ? "" : record.description();
+            boolean hasDesc = !desc.isBlank();
+            if (hasDesc) {
+                report.append(String.format("- %s: %s\n", record.title(), desc));
+            } else {
+                report.append(String.format("- %s\n", record.title()));
+            }
         }
 
         return report.toString();

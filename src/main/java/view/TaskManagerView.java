@@ -136,7 +136,7 @@ public class TaskManagerView extends JPanel implements TasksObserver, TaskAttrib
         // Create window
         window = new JFrame("Task Manager");
         window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        window.setSize(1200, 760);
+        window.setSize(760, 720);
         window.setLocationRelativeTo(null);
 
         setupLayout();
@@ -319,10 +319,20 @@ public class TaskManagerView extends JPanel implements TasksObserver, TaskAttrib
         // Button panel (excluding add and clear selection buttons)
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         buttonPanel.add(updateButton);
+        updateButton.setEnabled(false);
+
         buttonPanel.add(deleteButton);
+        deleteButton.setEnabled(false);
+
         buttonPanel.add(deleteAllButton);
+        deleteAllButton.setEnabled(false);
+
         buttonPanel.add(upButton);
+        upButton.setEnabled(false);
+
         buttonPanel.add(downButton);
+        downButton.setEnabled(false);
+
         buttonPanel.add(reportButton);
         buttonPanel.add(exportCsvButton);
 
