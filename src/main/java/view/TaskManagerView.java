@@ -573,7 +573,7 @@ public class TaskManagerView extends JPanel implements TasksObserver, TaskAttrib
             updateStatusBar(tasks);
 
             // Enable Delete All only when there are visible rows
-            boolean hasRows = tasks != null && !tasks.isEmpty();
+            boolean hasRows = !tasks.isEmpty();
             deleteAllButton.setEnabled(hasRows);
         });
     }
