@@ -4,11 +4,13 @@ import model.task.ITask;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.JList;
 import java.awt.Component;
+import java.io.Serial;
 
 /**
  * Custom cell renderer for Task objects in lists
  */
 public class TaskCellRenderer extends DefaultListCellRenderer {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     @Override

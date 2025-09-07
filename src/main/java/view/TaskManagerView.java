@@ -374,7 +374,6 @@ public class TaskManagerView extends JPanel implements TasksObserver, TaskAttrib
         searchField.addActionListener(this::onSearchEnter);
     }
 
-    @SuppressWarnings("unused")
     private void onAddButton(ActionEvent e) {
         String title = taskTitleInputF.getText().trim();
         String description = descriptionInputTA.getText().trim();
@@ -386,14 +385,12 @@ public class TaskManagerView extends JPanel implements TasksObserver, TaskAttrib
         }
     }
 
-    @SuppressWarnings("unused")
     private void onClearSelection(ActionEvent e) {
         taskTable.clearSelection();
         selectedTask = null;
         clearForm();
     }
 
-    @SuppressWarnings("unused")
     private void onUpdateButton(ActionEvent e) {
         if (selectedTask != null && viewModel instanceof TasksViewModel) {
             String title = taskTitleInputF.getText().trim();
@@ -408,7 +405,6 @@ public class TaskManagerView extends JPanel implements TasksObserver, TaskAttrib
         }
     }
 
-    @SuppressWarnings("unused")
     private void onDeleteButton(ActionEvent e) {
         if (selectedTask != null && viewModel instanceof TasksViewModel) {
             ((TasksViewModel) viewModel).deleteButtonPressed(selectedTask.getId());
@@ -416,7 +412,6 @@ public class TaskManagerView extends JPanel implements TasksObserver, TaskAttrib
         }
     }
 
-    @SuppressWarnings("unused")
     private void onDeleteAllButton(ActionEvent e) {
         if (viewModel instanceof TasksViewModel) {
             int result = JOptionPane.showConfirmDialog(
@@ -431,21 +426,18 @@ public class TaskManagerView extends JPanel implements TasksObserver, TaskAttrib
         }
     }
 
-    @SuppressWarnings("unused")
     private void onUpButton(ActionEvent e) {
         if (selectedTask != null && viewModel instanceof TasksViewModel) {
             ((TasksViewModel) viewModel).upButtonPressed(selectedTask.getId());
         }
     }
 
-    @SuppressWarnings("unused")
     private void onDownButton(ActionEvent e) {
         if (selectedTask != null && viewModel instanceof TasksViewModel) {
             ((TasksViewModel) viewModel).downButtonPressed(selectedTask.getId());
         }
     }
 
-    @SuppressWarnings("unused")
     private void onReportButton(ActionEvent e) {
         if (viewModel instanceof TasksViewModel) {
             String text = ((TasksViewModel) viewModel).generateReportTextSync();
@@ -456,7 +448,6 @@ public class TaskManagerView extends JPanel implements TasksObserver, TaskAttrib
         }
     }
 
-    @SuppressWarnings("unused")
     private void onExportCsvButton(ActionEvent e) {
         if (viewModel instanceof TasksViewModel) {
             JFileChooser chooser = new JFileChooser();
@@ -473,7 +464,6 @@ public class TaskManagerView extends JPanel implements TasksObserver, TaskAttrib
         }
     }
 
-    @SuppressWarnings("unused")
     private void onStateFilterChanged(ActionEvent e) {
         String selectedState = (String) stateFilterComboBox.getSelectedItem();
         if (viewModel instanceof TasksViewModel) {
@@ -481,7 +471,6 @@ public class TaskManagerView extends JPanel implements TasksObserver, TaskAttrib
         }
     }
 
-    @SuppressWarnings("unused")
     private void onSortChanged(ActionEvent e) {
         if (viewModel instanceof TasksViewModel) {
             SortingOption option = (SortingOption) sortComboBox.getSelectedItem();
@@ -489,7 +478,6 @@ public class TaskManagerView extends JPanel implements TasksObserver, TaskAttrib
         }
     }
 
-    @SuppressWarnings("unused")
     private void onSearchClear(ActionEvent e) {
         searchField.setText("");
         if (viewModel instanceof TasksViewModel) {
@@ -498,7 +486,6 @@ public class TaskManagerView extends JPanel implements TasksObserver, TaskAttrib
         }
     }
 
-    @SuppressWarnings("unused")
     private void onSearchEnter(ActionEvent e) {
         applySearchAndFilters();
     }

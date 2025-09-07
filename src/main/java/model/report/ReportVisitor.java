@@ -27,22 +27,23 @@ public class ReportVisitor implements TaskVisitor {
         StringBuilder report = new StringBuilder();
         report.append("=== TASK MANAGEMENT REPORT ===\n\n");
 
-        // Pattern matching categorization
-        var urgentTasks = taskRecords.stream()
-            .filter(TaskRecord::isUrgent)
-            .toList();
-
-        var todoTasks = taskRecords.stream()
-            .filter(record -> record.state().name().equals("TODO"))
-            .toList();
-
-        var inProgressTasks = taskRecords.stream()
-            .filter(record -> record.state().name().equals("IN_PROGRESS"))
-            .toList();
-
-        var completedTasks = taskRecords.stream()
-            .filter(record -> record.state().name().equals("COMPLETED"))
-            .toList();
+        // Pattern matching categorization using switch (match/case style)
+        List<TaskRecord> urgentTasks = new ArrayList<>();
+        List<TaskRecord> todoTasks = new ArrayList<>();
+        List<TaskRecord> inProgressTasks = new ArrayList<>();
+        List<TaskRecord> completedTasks = new ArrayList<>();
+        for (TaskRecord record : taskRecords) {
+            // Urgency (independent of state)
+            if (record.isUrgent()) {
+                urgentTasks.add(record);
+            }
+            // State-based buckets
+            switch (record.state()) {
+                case TODO -> todoTasks.add(record);
+                case IN_PROGRESS -> inProgressTasks.add(record);
+                case COMPLETED -> completedTasks.add(record);
+            }
+        }
 
         // Generate summary using pattern matching
         report.append("SUMMARY:\n");
