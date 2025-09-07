@@ -2,7 +2,6 @@ package view;
 
 import model.task.*;
 import model.task.decorator.DeadlineReminderDecorator;
-import model.task.decorator.PriorityTagDecorator;
 import viewmodel.IViewModel;
 import viewmodel.TasksViewModel;
 import viewmodel.strategy.SortingOption;
@@ -524,14 +523,14 @@ public class TaskManagerView extends JPanel implements TasksObserver, TaskAttrib
         SwingUtilities.invokeLater(() -> {
             tableModel.setRowCount(0); // Clear existing rows
             for (ITask task : tasks) {
-                // Apply decorators for display
-                ITask decorated = new PriorityTagDecorator(new DeadlineReminderDecorator(task, 3));
+                // Decorate description only; show plain title and priority in its own column
+                ITask decorated = new DeadlineReminderDecorator(task, 3);
                 String createdDate = task.getCreationDate() != null ? dateFormat.format(task.getCreationDate()) : "N/A";
                 String updatedDate = task.getUpdatedDate() != null ? dateFormat.format(task.getUpdatedDate()) : "N/A";
                 Object[] rowData = {
                     task.getId(),
-                    decorated.getTitle(), // decorated title
-                    decorated.getDescription(), // decorated description
+                    task.getTitle(),
+                    decorated.getDescription(),
                     task.getState().getDisplayName(),
                     task.getPriority().getDisplayName(),
                     createdDate,

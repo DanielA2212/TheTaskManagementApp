@@ -70,6 +70,7 @@ public class TasksDAODerby implements ITasksDAO {
         try (Statement statement = connection.createStatement()) {
             statement.executeUpdate(createTableSQL);
             System.out.println("Tasks table created successfully");
+            alignIdentitySequence();
         } catch (SQLException e) {
             if (!"X0Y32".equals(e.getSQLState())) { // Table already exists
                 System.err.println("Table creation error: " + e.getMessage());
@@ -77,7 +78,27 @@ public class TasksDAODerby implements ITasksDAO {
             } else {
                 // Table exists; ensure it has required columns
                 ensureTasksTableSchema();
+                alignIdentitySequence();
             }
+        }
+    }
+
+    /**
+     * Align identity sequence so that the next generated id is MAX(id)+1 or 1 if the table is empty.
+     */
+    private void alignIdentitySequence() throws SQLException {
+        int nextId = 1;
+        try (Statement stmt = connection.createStatement();
+             ResultSet rs = stmt.executeQuery("SELECT MAX(id) FROM tasks")) {
+            if (rs.next()) {
+                int maxId = rs.getInt(1);
+                if (!rs.wasNull() && maxId > 0) {
+                    nextId = maxId + 1;
+                }
+            }
+        }
+        try (Statement stmt = connection.createStatement()) {
+            stmt.executeUpdate("ALTER TABLE tasks ALTER COLUMN id RESTART WITH " + nextId);
         }
     }
 
@@ -122,21 +143,23 @@ public class TasksDAODerby implements ITasksDAO {
     public void addTask(ITask task) throws TasksDAOException {
         String insertSQL = "INSERT INTO tasks (title, description, priority, state, created_date, updated_date) VALUES (?, ?, ?, ?, ?, ?)";
 
-        try (PreparedStatement pstmt = connection.prepareStatement(insertSQL, Statement.RETURN_GENERATED_KEYS)) {
-            pstmt.setString(1, task.getTitle());
-            pstmt.setString(2, task.getDescription());
-            pstmt.setString(3, task.getPriority().toString());
-            // Use public TaskState from ITask and convert to StateType string
-            pstmt.setString(4, task.getState().toStateType().toString());
-            pstmt.setTimestamp(5, new Timestamp(task.getCreationDate().getTime()));
-            pstmt.setTimestamp(6, new Timestamp(task.getUpdatedDate().getTime()));
+        try {
+            // Removed identity reset here to avoid ALTER TABLE while a ResultSet may be open.
+            try (PreparedStatement pstmt = connection.prepareStatement(insertSQL, Statement.RETURN_GENERATED_KEYS)) {
+                pstmt.setString(1, task.getTitle());
+                pstmt.setString(2, task.getDescription());
+                pstmt.setString(3, task.getPriority().toString());
+                pstmt.setString(4, task.getState().toStateType().toString());
+                pstmt.setTimestamp(5, new Timestamp(task.getCreationDate().getTime()));
+                pstmt.setTimestamp(6, new Timestamp(task.getUpdatedDate().getTime()));
 
-            pstmt.executeUpdate();
+                pstmt.executeUpdate();
 
-            try (ResultSet keys = pstmt.getGeneratedKeys()) {
-                if (keys.next()) {
-                    int generatedId = keys.getInt(1);
-                    task.setId(generatedId);
+                try (ResultSet keys = pstmt.getGeneratedKeys()) {
+                    if (keys.next()) {
+                        int generatedId = keys.getInt(1);
+                        task.setId(generatedId);
+                    }
                 }
             }
         } catch (SQLException e) {
