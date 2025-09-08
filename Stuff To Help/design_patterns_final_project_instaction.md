@@ -110,8 +110,7 @@ You are expected to define and implement additional interfaces (as
 expected).
 
 public interface ITask { int getId(); String getTitle(); String
-getDescription(); TaskState getState(); void accept(TaskVisitor
-visitor); }
+getDescription(); TaskState getState(); }
 
 public interface ITasksDAO { ITask\[\] getTasks() throws
 TasksDAOException; ITask getTask(int id) throws TasksDAOException; void
@@ -183,7 +182,7 @@ c.  Link to the video you created (item 1). The link should be
     clickable.
 d.  Detailed explanation (either in English or Hebrew) for the
     implementation of the four design patterns you chose and for the
-    implementation of Visitor and Promise. The explanation for each
+    implementation of Visitor and Combinator. The explanation for each
     pattern's implementation should be no more than 50 words, and it
     should include the names of the classes that were involved in that
     implementation
@@ -221,4 +220,19 @@ java.awt.event.ActionListener; =\> אופן המימוש של ה-Design Patterns
 
 לא ניתן לממש את Observer באמצעות ה-interfaces שצייינת.
 
-Document Modifications ...
+2.  האם צריך לעדכן ערכים של רכיבים בview דרך הviewModel או שהview צריך
+    להיות אחראי בלבד על שינוי הערכים של הרכיבים שהם המשתנים שלו? ==\>
+    קיימים מקרים שבהם העידכון של ה-view יתבצע כתוצאה מהפעלת מתודה
+    .ViewModel-כשהקריאה להפעלתה מגיעה מקוד ששייך ל view-מסויימת על ה
+    דוגמא אחד היא כאשר כתגובה לפעולה של המשתמש (לחיצה על כפתור מסויים)
+    יש הפעלה של מתודה על ה-ViewModel ומתוך אותה מתודה יש הפעלה ב- thread
+    אחר של מתודה על ה-Model. במקרה כזה, כאשר תחזור תשובה מה- Model תהיה
+    קריאה להפעלת מתודה על ה-View (מתודה שכמובן תוגדר ב- IView) על מנת
+    לעדכן את המשתמש.
+
+Document Modifications September 8th, 2025 The void accept(TaskVisitor
+visitor) method was removed from the definition of the ITask interface.
+It was added by mistake.
+
+September 8th, 2025 In item 4d (in Submission Guidelines), instead of
+"Promise" that was mentioned by mistake, we now have "Combinator".
