@@ -261,16 +261,30 @@ public class TasksViewModel implements IViewModel {
     public void updateTask(int id, String newTitle, String newDescription, ITaskState newState, TaskPriority newPriority) {
         getService().submit(() -> {
             try {
-                Task task = (Task) tasksDAO.getTask(id);
-                if (task == null) return;
+                Task found = (Task) allTasks.stream()
+                        .filter(t -> t.getId() == id)
+                        .findFirst()
+                        .orElse(null);
+                if (found == null) {
+                    found = (Task) tasksDAO.getTask(id);
+                    if (found == null) return;
+                    // Insert new instance if not present yet
+                    Task finalFound = found; // effectively final for this replaceAll
+                    allTasks.replaceAll(t -> t.getId() == id ? finalFound : t);
+                }
+                // Create effectively final reference for lambdas below
+                final Task taskRef = found;
 
-                task.setTitle(newTitle);
-                task.setDescription(newDescription);
-                task.setState(newState);
-                task.setPriority(newPriority);
+                // Apply updates (triggers observers)
+                taskRef.setTitle(newTitle);
+                taskRef.setDescription(newDescription);
+                taskRef.setState(newState);
+                taskRef.setPriority(newPriority);
 
-                tasksDAO.updateTask(task);
-                allTasks.replaceAll(t -> t.getId() == id ? task : t);
+                tasksDAO.updateTask(taskRef);
+                allTasks.replaceAll(t -> t.getId() == id ? taskRef : t);
+                applyFilterAndSort();
+                notifyObservers();
             } catch (TasksDAOException e) {
                 System.err.println("Error updating task: " + e.getMessage());
             }
