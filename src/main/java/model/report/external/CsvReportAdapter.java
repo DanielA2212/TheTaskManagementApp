@@ -1,12 +1,13 @@
-package model.report;
+package model.report.external;
 
-import model.report.external.CsvLibrary;
+import model.report.TaskRecord;
 
 import java.text.SimpleDateFormat;
 import java.util.List;
 
 /**
- * Adapter that adapts an external CSV library to our ReportExporter interface
+ * Adapter that adapts an external CSV library to our ReportExporter interface.
+ * Moved from model.report package to external to group export-related concerns.
  */
 public class CsvReportAdapter implements ReportExporter {
     private final CsvLibrary csvLibrary;

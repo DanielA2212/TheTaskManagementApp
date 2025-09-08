@@ -1,5 +1,6 @@
-package model.report;
+package model.report.external;
 
+import model.report.TaskRecord;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
@@ -16,10 +17,7 @@ import java.util.List;
 import java.util.Locale;
 
 /**
- * PDF writer for task reports using PDFBox.
- * Now produces the same textual structure as the friend project's report output:
- * --- Report ---, counts, buckets (To Do, InProgress, Completed) with Task.toString()-like lines,
- * and terminating --- End of Report --- marker.
+ * External PDF writer moved from model.report to external package.
  */
 public final class PdfReportWriter {
     private PdfReportWriter() {}
@@ -29,7 +27,6 @@ public final class PdfReportWriter {
             var regularFont = loadFont(doc, false);
             var boldFont = loadFont(doc, true);
 
-            // Categorize
             java.util.List<TaskRecord> todo = new java.util.ArrayList<>();
             java.util.List<TaskRecord> inProgress = new java.util.ArrayList<>();
             java.util.List<TaskRecord> completed = new java.util.ArrayList<>();
@@ -40,7 +37,6 @@ public final class PdfReportWriter {
                     case COMPLETED -> completed.add(r);
                 }
             }
-            // For stable ordering, sort inside each bucket like friend style isn't strict, but we sort by id
             Comparator<TaskRecord> cmp = Comparator.comparingInt(TaskRecord::id);
             todo.sort(cmp);
             inProgress.sort(cmp);
@@ -63,12 +59,9 @@ public final class PdfReportWriter {
                 cs.showText("Completed: " + completed.size()); cs.newLine();
                 cs.showText("In Progress: " + inProgress.size()); cs.newLine();
                 cs.showText("To Do: " + todo.size()); cs.newLine(); cs.newLine();
-
-                // Buckets
-                // approximate consumed height
-                writeBucket(cs, regularFont, "--- To Do Stuff ---", todo, df);
-                writeBucket(cs, regularFont, "--- In Progress Stuff ---", inProgress, df);
-                writeBucket(cs, regularFont, "--- Completed Stuff ---", completed, df);
+                writeBucket(cs, regularFont, "--- ToDo Bucket ---", todo, df);
+                writeBucket(cs, regularFont, "--- InProgress Bucket ---", inProgress, df);
+                writeBucket(cs, regularFont, "--- Completed Bucket ---", completed, df);
                 cs.showText("--- End of Report ---"); cs.newLine();
                 cs.endText();
             }
@@ -86,14 +79,14 @@ public final class PdfReportWriter {
 
     private static String formatLine(TaskRecord r, SimpleDateFormat df) {
         String created = r.creationDate() == null ? "" : df.format(r.creationDate());
-        return "Task {" +
-                "ID = " + r.id() +
-                ", Title = '" + safe(r.title()) + "'" +
-                ", Description = '" + truncate(safe(r.description())) + "'" +
-                ", State = " + r.state() +
-                ", Priority = " + r.priority() +
-                ", Created = " + created +
-                ", Updated = " + (r.updatedDate()==null?"":df.format(r.updatedDate())) +
+        return "Task{" +
+                "id=" + r.id() +
+                ", title='" + safe(r.title()) + "'" +
+                ", description='" + truncate(safe(r.description())) + "'" +
+                ", state=" + r.state() +
+                ", priority=" + r.priority() +
+                ", created=" + created +
+                ", updated=" + (r.updatedDate()==null?"":df.format(r.updatedDate())) +
                 '}';
     }
 
@@ -109,8 +102,7 @@ public final class PdfReportWriter {
         return new PDType1Font(bold ? Standard14Fonts.FontName.HELVETICA_BOLD : Standard14Fonts.FontName.HELVETICA);
     }
 
-    private static String truncate(String s) {
-        if (s.length() <= 60) return s; return s.substring(0,57) + "...";
-    }
+    private static String truncate(String s) { return s.length() <= 60 ? s : s.substring(0,57) + "..."; }
     private static String safe(String s) { return s == null ? "" : s; }
 }
+

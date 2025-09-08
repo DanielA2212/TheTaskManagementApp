@@ -2,7 +2,7 @@ package viewmodel;
 
 import model.dao.ITasksDAO;
 import model.dao.TasksDAOException;
-import model.report.*;
+import model.report.ReportVisitor;
 import model.task.TaskPriority;
 import model.task.ITask;
 import model.task.Task;
@@ -19,6 +19,9 @@ import viewmodel.combinator.TaskFilters;
 import viewmodel.strategy.SortingStrategy;
 import viewmodel.strategy.SortByCreationDateStrategy;
 import viewmodel.strategy.SortingOption;
+import model.report.external.ReportExporter;
+import model.report.external.CsvReportAdapter;
+import model.report.external.PdfReportWriter;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -432,7 +435,7 @@ public class TasksViewModel implements IViewModel {
         try (FileWriter fw = new FileWriter(csvFile)) { fw.write(csv); }
 
         // PDF
-        model.report.PdfReportWriter.write(records, pdfFile);
+        PdfReportWriter.write(records, pdfFile);
     }
 
 
