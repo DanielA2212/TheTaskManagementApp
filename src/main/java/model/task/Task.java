@@ -1,7 +1,6 @@
 package model.task;
 
 import view.TaskAttributeSubject;
-import model.report.TaskVisitor;
 import java.util.Date;
 
 /**
@@ -13,7 +12,7 @@ public class Task implements ITask {
     private String title;
     private String description;
     private ITaskState state;
-    private Date createdDate;
+    private final Date createdDate;
     private Date updatedDate;
     private TaskPriority priority;
 
@@ -123,14 +122,6 @@ public class Task implements ITask {
     @Override
     public Date getUpdatedDate() {
         return updatedDate;
-    }
-
-    /**
-     * Accept method for Visitor pattern (required by project specs)
-     */
-    @Override
-    public void accept(TaskVisitor visitor) {
-        visitor.visit(this);
     }
 
     /**

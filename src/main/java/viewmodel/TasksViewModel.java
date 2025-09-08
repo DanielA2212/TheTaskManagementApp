@@ -385,7 +385,7 @@ public class TasksViewModel implements IViewModel {
     public String generateReportTextSync() {
         ReportVisitor visitor = new ReportVisitor();
         for (ITask task : allTasks) {
-            task.accept(visitor);
+            visitor.visit(task);
         }
         return visitor.generateReport();
     }
@@ -407,7 +407,7 @@ public class TasksViewModel implements IViewModel {
 
         ReportVisitor visitor = new ReportVisitor();
         for (ITask task : allTasks) {
-            task.accept(visitor);
+            visitor.visit(task);
         }
         var records = visitor.getTaskRecords();
 

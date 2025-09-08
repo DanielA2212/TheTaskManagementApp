@@ -1,7 +1,6 @@
 package model.task;
 
 import java.util.Date;
-import model.report.TaskVisitor;
 
 /**
  * Interface for Task objects
@@ -68,8 +67,4 @@ public interface ITask {
      */
     Date getUpdatedDate();
 
-    /**
-     * Accept method for Visitor pattern (required by project specs)
-     */
-    void accept(TaskVisitor visitor);
 }

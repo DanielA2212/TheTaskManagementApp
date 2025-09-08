@@ -1,6 +1,5 @@
 package model.task.decorator;
 
-import model.report.TaskVisitor;
 import model.task.ITask;
 import model.task.ITaskState;
 import model.task.TaskPriority;
@@ -53,9 +52,6 @@ public class TaskDecorator implements ITask {
 
     @Override
     public Date getUpdatedDate() { return delegate.getUpdatedDate(); }
-
-    @Override
-    public void accept(TaskVisitor visitor) { delegate.accept(visitor); }
 
     @Override
     public String toString() { return getClass().getSimpleName() + "(" + delegate + ")"; }

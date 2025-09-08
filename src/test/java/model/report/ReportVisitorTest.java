@@ -23,7 +23,7 @@ public class ReportVisitorTest {
         Task t3 = task(3, "Cleanup", "done", TaskPriority.LOW, CompletedState.getInstance());
 
         ReportVisitor visitor = new ReportVisitor();
-        List.of(t1, t2, t3).forEach(task -> task.accept(visitor));
+        List.of(t1, t2, t3).forEach(visitor::visit);
         String report = visitor.generateReport();
 
         assertTrue(report.contains("Total Tasks: 3"));
@@ -38,8 +38,8 @@ public class ReportVisitorTest {
         Task t2 = task(2, "B", "d2", TaskPriority.LOW, CompletedState.getInstance());
 
         ReportVisitor visitor = new ReportVisitor();
-        t1.accept(visitor);
-        t2.accept(visitor);
+        visitor.visit(t1);
+        visitor.visit(t2);
 
         ReportExporter exporter = new CsvReportAdapter(new model.report.external.CsvLibrary());
         String csv = exporter.export(visitor.getTaskRecords());
@@ -49,4 +49,3 @@ public class ReportVisitorTest {
         assertTrue(csv.contains("B"));
     }
 }
-
