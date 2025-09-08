@@ -16,125 +16,101 @@ import java.util.List;
 import java.util.Locale;
 
 /**
- * Simple PDF writer for task reports using PDFBox.
- * Produces a layout similar to the legacy report.pdf: title, summary, and table.
+ * PDF writer for task reports using PDFBox.
+ * Now produces the same textual structure as the friend project's report output:
+ * --- Report ---, counts, buckets (To Do, InProgress, Completed) with Task.toString()-like lines,
+ * and terminating --- End of Report --- marker.
  */
 public final class PdfReportWriter {
     private PdfReportWriter() {}
 
     public static void write(List<TaskRecord> records, File pdfFile) throws IOException {
         try (PDDocument doc = new PDDocument()) {
-            // Load fonts (fallback to Helvetica if resources missing)
             var regularFont = loadFont(doc, false);
             var boldFont = loadFont(doc, true);
-            ReportSections sections = buildSections(records);
+
+            // Categorize
+            java.util.List<TaskRecord> todo = new java.util.ArrayList<>();
+            java.util.List<TaskRecord> inProgress = new java.util.ArrayList<>();
+            java.util.List<TaskRecord> completed = new java.util.ArrayList<>();
+            for (TaskRecord r : records) {
+                switch (r.state()) {
+                    case TODO -> todo.add(r);
+                    case IN_PROGRESS -> inProgress.add(r);
+                    case COMPLETED -> completed.add(r);
+                }
+            }
+            // For stable ordering, sort inside each bucket like friend style isn't strict, but we sort by id
+            Comparator<TaskRecord> cmp = Comparator.comparingInt(TaskRecord::id);
+            todo.sort(cmp);
+            inProgress.sort(cmp);
+            completed.sort(cmp);
+
             PDPage page = new PDPage(PDRectangle.LETTER);
             doc.addPage(page);
             float margin = 50f;
             float y = page.getMediaBox().getHeight() - margin;
             float leading = 14f;
+            SimpleDateFormat df = new SimpleDateFormat("MMM d, yyyy, h:mm:ss a", Locale.US);
 
             try (PDPageContentStream cs = new PDPageContentStream(doc, page)) {
-                // Title
-                cs.beginText();
-                cs.setFont(boldFont, 18);
-                cs.newLineAtOffset(margin, y);
-                cs.showText("Task Status Report");
-                cs.endText();
-                y -= leading * 2;
-
-                // Summary header
                 cs.beginText();
                 cs.setFont(boldFont, 12);
+                cs.setLeading(leading);
                 cs.newLineAtOffset(margin, y);
-                cs.showText("Summary");
+                cs.showText("--- Report ---"); cs.newLine();
+                cs.setFont(regularFont, 11);
+                cs.showText("Completed: " + completed.size()); cs.newLine();
+                cs.showText("In Progress: " + inProgress.size()); cs.newLine();
+                cs.showText("To Do: " + todo.size()); cs.newLine(); cs.newLine();
+
+                // Buckets
+                // approximate consumed height
+                writeBucket(cs, regularFont, "--- To Do Stuff ---", todo, df);
+                writeBucket(cs, regularFont, "--- In Progress Stuff ---", inProgress, df);
+                writeBucket(cs, regularFont, "--- Completed Stuff ---", completed, df);
+                cs.showText("--- End of Report ---"); cs.newLine();
                 cs.endText();
-                y -= leading;
-
-                // Summary line
-                cs.beginText();
-                cs.setFont(regularFont, 10);
-                cs.newLineAtOffset(margin, y);
-                cs.showText(String.format(Locale.US,
-                        "Total Tasks: %d  |  Urgent: %d  |  Todo: %d  |  In Progress: %d  |  Completed: %d",
-                        sections.total, sections.urgent, sections.todo, sections.inProgress, sections.completed));
-                cs.endText();
-                y -= leading * 2;
-
-                // Table header
-                cs.beginText();
-                cs.setFont(boldFont, 10);
-                cs.newLineAtOffset(margin, y);
-                cs.showText("ID  Title                           State        Priority   Created");
-                cs.endText();
-                y -= leading;
-
-                cs.setFont(regularFont, 9);
-                SimpleDateFormat df = new SimpleDateFormat("MMM d, yyyy, h:mm:ss a", Locale.US);
-
-                for (TaskRecord r : sections.ordered) {
-                    if (y < margin + leading * 4) break; // simple cutoff (no pagination)
-                    String created = r.creationDate() != null ? df.format(r.creationDate()) : "";
-                    String line = String.format(Locale.US, "%-3d %-30.30s %-12s %-10s %s",
-                            r.id(), safe(r.title()), r.state().getDisplayName(), r.priority().getDisplayName(), created);
-                    cs.beginText();
-                    cs.newLineAtOffset(margin, y);
-                    cs.showText(line);
-                    cs.endText();
-                    y -= leading;
-                    if (r.description() != null && !r.description().isBlank() && y >= margin + leading * 4) {
-                        cs.beginText();
-                        cs.newLineAtOffset(margin + 10, y);
-                        cs.showText(truncate(r.description()));
-                        cs.endText();
-                        y -= leading;
-                    }
-                }
             }
             doc.save(pdfFile);
         }
     }
 
+    private static void writeBucket(PDPageContentStream cs, org.apache.pdfbox.pdmodel.font.PDFont font, String title, List<TaskRecord> bucket, SimpleDateFormat df) throws IOException {
+        cs.setFont(font, 11);
+        cs.showText(title); cs.newLine();
+        for (TaskRecord r : bucket) {
+            cs.showText(formatLine(r, df)); cs.newLine();
+        }
+    }
+
+    private static String formatLine(TaskRecord r, SimpleDateFormat df) {
+        String created = r.creationDate() == null ? "" : df.format(r.creationDate());
+        return "Task {" +
+                "ID = " + r.id() +
+                ", Title = '" + safe(r.title()) + "'" +
+                ", Description = '" + truncate(safe(r.description())) + "'" +
+                ", State = " + r.state() +
+                ", Priority = " + r.priority() +
+                ", Created = " + created +
+                ", Updated = " + (r.updatedDate()==null?"":df.format(r.updatedDate())) +
+                '}';
+    }
+
     private static org.apache.pdfbox.pdmodel.font.PDFont loadFont(PDDocument doc, boolean bold) {
         String name = bold ? "OpenSans-Bold.ttf" : "OpenSans-Regular.ttf";
-        // 1. Check root TheFonts directory (user-provided)
-        java.io.File external = new java.io.File("TheFonts/" + name);
+        File external = new File("TheFonts/" + name);
         if (external.exists()) {
-            try {
-                return PDType0Font.load(doc, external);
-            } catch (IOException ignored) { }
+            try { return PDType0Font.load(doc, external); } catch (IOException ignored) { }
         }
-        // 2. Check classpath resource (legacy resources/fonts)
         try (var is = PdfReportWriter.class.getResourceAsStream("/fonts/" + name)) {
-            if (is != null) {
-                return PDType0Font.load(doc, is);
-            }
+            if (is != null) return PDType0Font.load(doc, is);
         } catch (IOException ignored) { }
-        // 3. Fallback
         return new PDType1Font(bold ? Standard14Fonts.FontName.HELVETICA_BOLD : Standard14Fonts.FontName.HELVETICA);
     }
 
     private static String truncate(String s) {
-        if (s.length() <= 100) return s; else return s.substring(0, 100 - 3) + "...";
+        if (s.length() <= 60) return s; return s.substring(0,57) + "...";
     }
-
     private static String safe(String s) { return s == null ? "" : s; }
-
-    private record ReportSections(int total, int urgent, int todo, int inProgress, int completed, List<TaskRecord> ordered) {}
-
-    private static ReportSections buildSections(List<TaskRecord> records) {
-        List<TaskRecord> completed = records.stream().filter(r -> r.state() == model.task.TaskState.COMPLETED).toList();
-        List<TaskRecord> inProg = records.stream().filter(r -> r.state() == model.task.TaskState.IN_PROGRESS).toList();
-        List<TaskRecord> todo = records.stream().filter(r -> r.state() == model.task.TaskState.TODO).toList();
-        List<TaskRecord> ordered = new java.util.ArrayList<>();
-        ordered.addAll(completed);
-        ordered.addAll(inProg);
-        ordered.addAll(todo);
-        Comparator<TaskRecord> cmp = Comparator
-                .comparing(TaskRecord::creationDate, Comparator.nullsLast(Comparator.naturalOrder()))
-                .thenComparingInt(TaskRecord::id);
-        ordered.sort(cmp);
-        int urgent = (int) records.stream().filter(TaskRecord::isUrgent).count();
-        return new ReportSections(records.size(), urgent, todo.size(), inProg.size(), completed.size(), ordered);
-    }
 }

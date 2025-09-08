@@ -49,7 +49,7 @@ public class ReportVisitor implements TaskVisitor {
         report.append("SUMMARY:\n");
         report.append(String.format("Total Tasks: %d\n", taskRecords.size()));
         report.append(String.format("Urgent Tasks: %d\n", urgentTasks.size()));
-        report.append(String.format("Todo: %d | In Progress: %d | Completed: %d\n\n",
+        report.append(String.format("To Do: %d | In Progress: %d | Completed: %d\n\n",
                      todoTasks.size(), inProgressTasks.size(), completedTasks.size()));
 
         // Recompute categorization lists for ordered CSV-style output
@@ -103,5 +103,51 @@ public class ReportVisitor implements TaskVisitor {
      */
     public List<TaskRecord> getTaskRecords() {
         return new ArrayList<>(taskRecords);
+    }
+
+    /**
+     * Generate a friend-style report
+     * This method provides a simplified report format as might be used for a friend or informal sharing
+     */
+    public String generateFriendStyleReport() {
+        List<TaskRecord> todo = new ArrayList<>();
+        List<TaskRecord> inProgress = new ArrayList<>();
+        List<TaskRecord> completed = new ArrayList<>();
+        for (TaskRecord r : taskRecords) {
+            switch (r.state()) {
+                case TODO -> todo.add(r);
+                case IN_PROGRESS -> inProgress.add(r);
+                case COMPLETED -> completed.add(r);
+            }
+        }
+        StringBuilder sb = new StringBuilder();
+        sb.append("--- Report ---\n");
+        sb.append("Completed: ").append(completed.size()).append('\n');
+        sb.append("In Progress: ").append(inProgress.size()).append('\n');
+        sb.append("To Do: ").append(todo.size()).append('\n');
+        sb.append("--- To Do Stuff ---\n");
+        todo.forEach(t -> sb.append(formatLine(t)).append('\n'));
+        sb.append("--- In Progress Stuff ---\n");
+        inProgress.forEach(t -> sb.append(formatLine(t)).append('\n'));
+        sb.append("--- Completed Stuff ---\n");
+        completed.forEach(t -> sb.append(formatLine(t)).append('\n'));
+        sb.append("--- End Of Report ---\n");
+        return sb.toString();
+    }
+
+    private String formatLine(TaskRecord r) {
+        return "Task {" +
+                "ID = " + r.id() +
+                ", Title = '" + (r.title() == null ? "" : r.title()) + "'" +
+                ", Description = '" + (r.description() == null ? "" : truncate(r.description())) + "'" +
+                ", State = " + r.state() +
+                ", Priority = " + r.priority() +
+                ", Created = " + r.creationDate() +
+                ", Updated = " + r.updatedDate() +
+                '}';
+    }
+
+    private String truncate(String s){
+        if(s.length() <= 60) return s; return s.substring(0,57) + "...";
     }
 }

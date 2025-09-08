@@ -387,7 +387,8 @@ public class TasksViewModel implements IViewModel {
         for (ITask task : allTasks) {
             visitor.visit(task);
         }
-        return visitor.generateReport();
+        // Use friend-style formatting to match target PDF & GUI expectation
+        return visitor.generateFriendStyleReport();
     }
 
     /**
