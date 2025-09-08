@@ -52,19 +52,50 @@ public class ReportVisitor implements TaskVisitor {
         report.append(String.format("Todo: %d | In Progress: %d | Completed: %d\n\n",
                      todoTasks.size(), inProgressTasks.size(), completedTasks.size()));
 
-        // Detailed categorization using pattern matching from TaskRecord
-        report.append("TASK CATEGORIZATION:\n");
-        for (TaskRecord record : taskRecords) {
-            String desc = record.description() == null ? "" : record.description();
-            boolean hasDesc = !desc.isBlank();
-            if (hasDesc) {
-                report.append(String.format("- %s: %s\n", record.title(), desc));
-            } else {
-                report.append(String.format("- %s\n", record.title()));
+        // Recompute categorization lists for ordered CSV-style output
+        java.util.List<TaskRecord> completed = new java.util.ArrayList<>();
+        java.util.List<TaskRecord> inProgress = new java.util.ArrayList<>();
+        java.util.List<TaskRecord> todo = new java.util.ArrayList<>();
+        for (TaskRecord r : taskRecords) {
+            switch (r.state()) {
+                case COMPLETED -> completed.add(r);
+                case IN_PROGRESS -> inProgress.add(r);
+                case TODO -> todo.add(r);
             }
         }
+        // Sort within each bucket by creation date ascending then id
+        java.util.Comparator<TaskRecord> cmp = java.util.Comparator
+            .comparing(TaskRecord::creationDate, java.util.Comparator.nullsLast(java.util.Comparator.naturalOrder()))
+            .thenComparingInt(TaskRecord::id);
+        completed.sort(cmp);
+        inProgress.sort(cmp);
+        todo.sort(cmp);
 
+        report.append("TASK CATEGORIZATION:\n");
+        report.append("ID,Title,Description,State,Priority,CreationDate\n");
+        java.text.SimpleDateFormat csvDf = new java.text.SimpleDateFormat("MMM d, yyyy, h:mm:ss a", java.util.Locale.US);
+        java.util.function.Consumer<TaskRecord> lineWriter = rec -> {
+            String created = rec.creationDate() != null ? '\"' + csvDf.format(rec.creationDate()) + '\"' : "";
+            report.append(rec.id()).append(',')
+                  .append(escape(rec.title())).append(',')
+                  .append(escape(rec.description())).append(',')
+                  .append(rec.state().getDisplayName()).append(',')
+                  .append(rec.priority().getDisplayName()).append(',')
+                  .append(created)
+                  .append('\n');
+        };
+        completed.forEach(lineWriter);
+        inProgress.forEach(lineWriter);
+        todo.forEach(lineWriter);
         return report.toString();
+    }
+
+    private String escape(String s) {
+        if (s == null) return "";
+        if (s.contains(",") || s.contains("\"")) {
+            return '\"' + s.replace("\"", "\"\"") + '\"';
+        }
+        return s;
     }
 
     /**

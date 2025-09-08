@@ -202,20 +202,6 @@ public class TasksViewModel implements IViewModel {
         notifyObservers();
     }
 
-    /**
-     * Apply a quick filter using combinator pattern (can be combined with existing filters)
-     * This method is intended for advanced filtering functionality and testing
-     *
-     * @param quickFilter the quick filter to apply
-     */
-    protected void applyQuickFilter(TaskFilter quickFilter) {
-        if (quickFilter != null) {
-            // Combine the quick filter with existing filter using AND logic
-            this.currentFilter = this.currentFilter.and(quickFilter);
-            applyFilterAndSort();
-            notifyObservers();
-        }
-    }
 
     /**
      * Clear all filters and search
@@ -393,17 +379,6 @@ public class TasksViewModel implements IViewModel {
         };
     }
 
-    public void generateReport() {
-        getService().submit(() -> {
-            ReportVisitor visitor = new ReportVisitor();
-            // Process all tasks through the visitor
-            for (ITask task : allTasks) {
-                task.accept(visitor);
-            }
-            System.out.println(visitor.generateReport());
-        });
-    }
-
     /**
      * Generate the current report text synchronously for UI/tests
      */
@@ -418,18 +393,33 @@ public class TasksViewModel implements IViewModel {
     /**
      * Export current tasks to CSV using the Adapter for an external CSV library
      */
-    public void exportReportCsv(File destination) throws IOException {
+    public void exportReports(File destinationChosen) throws IOException {
+        // Derive base name without extension
+        String name = destinationChosen.getName();
+        int dot = name.lastIndexOf('.');
+        if (dot > 0) {
+            name = name.substring(0, dot);
+        }
+        File parent = destinationChosen.getParentFile();
+        if (parent == null) parent = new File(".");
+        File csvFile = new File(parent, name + ".csv");
+        File pdfFile = new File(parent, name + ".pdf");
+
         ReportVisitor visitor = new ReportVisitor();
         for (ITask task : allTasks) {
             task.accept(visitor);
         }
         var records = visitor.getTaskRecords();
+
+        // CSV
         ReportExporter exporter = new CsvReportAdapter(new model.report.external.CsvLibrary());
         String csv = exporter.export(records);
-        try (FileWriter fw = new FileWriter(destination)) {
-            fw.write(csv);
-        }
+        try (FileWriter fw = new FileWriter(csvFile)) { fw.write(csv); }
+
+        // PDF
+        model.report.PdfReportWriter.write(records, pdfFile);
     }
+
 
     public ExecutorService getService() {
         return service;

@@ -14,12 +14,10 @@ import java.text.SimpleDateFormat;
 import java.util.List;
 import java.io.File;
 import java.io.IOException;
-import java.io.Serial;
 import java.awt.event.ActionEvent;
 
 public class TaskManagerView extends JPanel implements TasksObserver, TaskAttributeObserver, IView {
-    @Serial
-    private static final long serialVersionUID = 1L;
+
 
     private final JFrame window;
     private final JPanel contentPane;
@@ -68,7 +66,7 @@ public class TaskManagerView extends JPanel implements TasksObserver, TaskAttrib
         deleteButton = new JButton("Delete Selected");
         deleteAllButton = new JButton("Delete All");
         reportButton = new JButton("Generate Report");
-        exportCsvButton = new JButton("Export CSV");
+        exportCsvButton = new JButton("Export CSV+PDF");
         upButton = new JButton("↑");
         downButton = new JButton("↓");
         clearSelectionButton = new JButton("Clear Selection");
@@ -394,28 +392,35 @@ public class TaskManagerView extends JPanel implements TasksObserver, TaskAttrib
     }
 
     private void onUpdateButton(ActionEvent e) {
-        if (selectedTask != null && viewModel instanceof TasksViewModel) {
+        TasksViewModel viewModel = (TasksViewModel) getViewModel();
+        if (selectedTask != null && viewModel != null) {
             String title = taskTitleInputF.getText().trim();
             String description = descriptionInputTA.getText().trim();
             ITaskState state = (ITaskState) taskStateComboBox.getSelectedItem();
             TaskPriority priority = (TaskPriority) taskPriorityComboBox.getSelectedItem();
 
             if (!title.isEmpty()) {
-                ((TasksViewModel) viewModel).updateButtonPressed(selectedTask.getId(), title, description, state, priority);
+                viewModel.updateButtonPressed(selectedTask.getId(), title, description, state, priority);
                 clearForm();
             }
         }
     }
 
     private void onDeleteButton(ActionEvent e) {
-        if (selectedTask != null && viewModel instanceof TasksViewModel) {
-            ((TasksViewModel) viewModel).deleteButtonPressed(selectedTask.getId());
+        TasksViewModel viewModel = (TasksViewModel) getViewModel();
+        if (selectedTask != null && viewModel != null) {
+            boolean lastOne = currentTasks != null && currentTasks.size() == 1;
+            viewModel.deleteButtonPressed(selectedTask.getId());
             clearForm();
+            if (lastOne) {
+                deleteAllButton.setEnabled(false);
+            }
         }
     }
 
     private void onDeleteAllButton(ActionEvent e) {
-        if (viewModel instanceof TasksViewModel) {
+        TasksViewModel viewModel = (TasksViewModel) getViewModel();
+        if (viewModel != null) {
             int result = JOptionPane.showConfirmDialog(
                 window,
                 "Are you sure you want to delete all tasks?",
@@ -423,27 +428,30 @@ public class TaskManagerView extends JPanel implements TasksObserver, TaskAttrib
                 JOptionPane.YES_NO_OPTION
             );
             if (result == JOptionPane.YES_OPTION) {
-                ((TasksViewModel) viewModel).deleteAllTasks();
+                viewModel.deleteAllTasks();
                 deleteAllButton.setEnabled(false);
             }
         }
     }
 
     private void onUpButton(ActionEvent e) {
-        if (selectedTask != null && viewModel instanceof TasksViewModel) {
-            ((TasksViewModel) viewModel).upButtonPressed(selectedTask.getId());
+        TasksViewModel viewModel = (TasksViewModel) getViewModel();
+        if (selectedTask != null && viewModel != null) {
+            viewModel.upButtonPressed(selectedTask.getId());
         }
     }
 
     private void onDownButton(ActionEvent e) {
-        if (selectedTask != null && viewModel instanceof TasksViewModel) {
-            ((TasksViewModel) viewModel).downButtonPressed(selectedTask.getId());
+        TasksViewModel viewModel = (TasksViewModel) getViewModel();
+        if (selectedTask != null && viewModel != null) {
+            viewModel.downButtonPressed(selectedTask.getId());
         }
     }
 
     private void onReportButton(ActionEvent e) {
-        if (viewModel instanceof TasksViewModel) {
-            String text = ((TasksViewModel) viewModel).generateReportTextSync();
+        TasksViewModel viewModel = (TasksViewModel) getViewModel();
+        if (viewModel != null) {
+            String text = viewModel.generateReportTextSync();
             JTextArea ta = new JTextArea(text, 20, 60);
             ta.setCaretPosition(0);
             ta.setEditable(false);
@@ -454,12 +462,15 @@ public class TaskManagerView extends JPanel implements TasksObserver, TaskAttrib
     private void onExportCsvButton(ActionEvent e) {
         if (viewModel instanceof TasksViewModel) {
             JFileChooser chooser = new JFileChooser();
-            chooser.setDialogTitle("Export CSV");
+            chooser.setDialogTitle("Export Reports (CSV + PDF)");
             if (chooser.showSaveDialog(window) == JFileChooser.APPROVE_OPTION) {
                 File file = chooser.getSelectedFile();
                 try {
-                    ((TasksViewModel) viewModel).exportReportCsv(file);
-                    JOptionPane.showMessageDialog(window, "Exported to " + file.getAbsolutePath(), "CSV Export", JOptionPane.INFORMATION_MESSAGE);
+                    ((TasksViewModel) viewModel).exportReports(file);
+                    JOptionPane.showMessageDialog(window,
+                        "Exported: \n" + file.getParent() + "/" + file.getName().replaceAll("\\.[^.]*$", "") + ".csv" +
+                        "\n" + file.getParent() + "/" + file.getName().replaceAll("\\.[^.]*$", "") + ".pdf",
+                        "Reports Exported", JOptionPane.INFORMATION_MESSAGE);
                 } catch (IOException ex) {
                     JOptionPane.showMessageDialog(window, "Export failed: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
                 }
@@ -468,24 +479,27 @@ public class TaskManagerView extends JPanel implements TasksObserver, TaskAttrib
     }
 
     private void onStateFilterChanged(ActionEvent e) {
+        TasksViewModel viewModel = (TasksViewModel) getViewModel();
         String selectedState = (String) stateFilterComboBox.getSelectedItem();
-        if (viewModel instanceof TasksViewModel) {
-            ((TasksViewModel) viewModel).filterByState(selectedState);
+        if (viewModel != null) {
+            viewModel.filterByState(selectedState);
         }
     }
 
     private void onSortChanged(ActionEvent e) {
-        if (viewModel instanceof TasksViewModel) {
+        TasksViewModel viewModel = (TasksViewModel) getViewModel();
+        if (viewModel != null) {
             SortingOption option = (SortingOption) sortComboBox.getSelectedItem();
-            ((TasksViewModel) viewModel).changeSorting(option);
+            viewModel.changeSorting(option);
         }
     }
 
     private void onSearchClear(ActionEvent e) {
+        TasksViewModel viewModel = (TasksViewModel) getViewModel();
         searchField.setText("");
-        if (viewModel instanceof TasksViewModel) {
+        if (viewModel != null) {
             // Clear all filters using combinator pattern
-            ((TasksViewModel) viewModel).clearFilters();
+            viewModel.clearFilters();
         }
     }
 

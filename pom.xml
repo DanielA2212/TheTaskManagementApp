@@ -61,6 +61,13 @@
             <version>${bytebuddy.version}</version>
             <scope>test</scope>
         </dependency>
+
+        <!-- Apache PDFBox for PDF report export -->
+        <dependency>
+            <groupId>org.apache.pdfbox</groupId>
+            <artifactId>pdfbox</artifactId>
+            <version>3.0.2</version>
+        </dependency>
     </dependencies>
 
     <build>
