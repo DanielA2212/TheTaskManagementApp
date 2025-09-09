@@ -99,15 +99,6 @@ public class TaskFilters {
     // ------------------------------------------------------------
     // Composite Examples
     // ------------------------------------------------------------
-    /** high priority & in progress */
-    public static TaskFilter highPriorityInProgress() {
-        return byPriority(TaskPriority.HIGH).and(byInProgressState());
-    }
-
-    /** completed tasks shortcut */
-    public static TaskFilter completedTasks() {
-        return byCompletedState();
-    }
 
     /** high priority NOT completed */
     public static TaskFilter urgentTasks() {
