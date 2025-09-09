@@ -111,25 +111,25 @@ public class ReportVisitor implements TaskVisitor {
         sb.append("Completed: ").append(completed.size()).append('\n');
         sb.append("In Progress: ").append(inProgress.size()).append('\n');
         sb.append("To Do: ").append(todo.size()).append('\n');
-        sb.append("--- ToDo Bucket ---\n");
+        sb.append("--- Tasks To Do ---\n");
         todo.forEach(t -> sb.append(formatLine(t)).append('\n'));
-        sb.append("--- InProgress Bucket ---\n");
+        sb.append("--- Tasks In Progress ---\n");
         inProgress.forEach(t -> sb.append(formatLine(t)).append('\n'));
-        sb.append("--- Completed Bucket ---\n");
+        sb.append("--- Tasks Completed ---\n");
         completed.forEach(t -> sb.append(formatLine(t)).append('\n'));
         sb.append("--- End of Report ---\n");
         return sb.toString();
     }
 
     private String formatLine(TaskRecord r) {
-        return "Task{" +
-                "id=" + r.id() +
-                ", title='" + (r.title() == null ? "" : r.title()) + "'" +
-                ", description='" + (r.description() == null ? "" : truncate(r.description())) + "'" +
-                ", state=" + r.state() +
-                ", priority=" + r.priority() +
-                ", created=" + r.creationDate() +
-                ", updated=" + r.updatedDate() +
+        return "Task {" +
+                "ID= " + r.id() +
+                ", Title= '" + (r.title() == null ? "" : r.title()) + "'" +
+                ", Description= '" + (r.description() == null ? "" : truncate(r.description())) + "'" +
+                ", State= " + r.state() +
+                ", Priority= " + r.priority() +
+                ", Created= " + r.creationDate() +
+                ", Updated= " + r.updatedDate() +
                 '}';
     }
 

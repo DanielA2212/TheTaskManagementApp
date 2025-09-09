@@ -59,9 +59,9 @@ public final class PdfReportWriter {
                 cs.showText("Completed: " + completed.size()); cs.newLine();
                 cs.showText("In Progress: " + inProgress.size()); cs.newLine();
                 cs.showText("To Do: " + todo.size()); cs.newLine(); cs.newLine();
-                writeBucket(cs, regularFont, "--- ToDo Bucket ---", todo, df);
-                writeBucket(cs, regularFont, "--- InProgress Bucket ---", inProgress, df);
-                writeBucket(cs, regularFont, "--- Completed Bucket ---", completed, df);
+                writeBucket(cs, regularFont, "--- Tasks To Do ---", todo, df);
+                writeBucket(cs, regularFont, "--- Tasks In Progress ---", inProgress, df);
+                writeBucket(cs, regularFont, "--- Tasks Completed ---", completed, df);
                 cs.showText("--- End of Report ---"); cs.newLine();
                 cs.endText();
             }
@@ -79,14 +79,14 @@ public final class PdfReportWriter {
 
     private static String formatLine(TaskRecord r, SimpleDateFormat df) {
         String created = r.creationDate() == null ? "" : df.format(r.creationDate());
-        return "Task{" +
-                "id=" + r.id() +
-                ", title='" + safe(r.title()) + "'" +
-                ", description='" + truncate(safe(r.description())) + "'" +
-                ", state=" + r.state() +
-                ", priority=" + r.priority() +
-                ", created=" + created +
-                ", updated=" + (r.updatedDate()==null?"":df.format(r.updatedDate())) +
+        return "Task {" +
+                "ID= " + r.id() +
+                ", Title=' " + safe(r.title()) + "'" +
+                ", Description= '" + truncate(safe(r.description())) + "'" +
+                ", State= " + r.state() +
+                ", Priority= " + r.priority() +
+                ", Created= " + created +
+                ", Updated= " + (r.updatedDate()==null?"":df.format(r.updatedDate())) +
                 '}';
     }
 
