@@ -318,7 +318,7 @@ public class TasksDAODerby implements ITasksDAO {
             case "TODO" -> ToDoState.getInstance();
             case "IN_PROGRESS" -> InProgressState.getInstance();
             case "COMPLETED" -> CompletedState.getInstance();
-            default -> ToDoState.getInstance(); // Default to TODO if unknown
+            default -> ToDoState.getInstance(); // Default to TO DO if unknown
         };
     }
 

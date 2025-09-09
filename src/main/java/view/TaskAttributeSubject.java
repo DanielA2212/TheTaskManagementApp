@@ -11,7 +11,7 @@ import java.util.Date;
  * Subject class for Task attribute changes using Observer pattern
  */
 public class TaskAttributeSubject {
-    private static TaskAttributeSubject instance = new TaskAttributeSubject();
+    private static final TaskAttributeSubject instance = new TaskAttributeSubject();
     private final List<TaskAttributeObserver> observers = new ArrayList<>();
 
     private TaskAttributeSubject() {}
@@ -22,10 +22,6 @@ public class TaskAttributeSubject {
 
     public void addObserver(TaskAttributeObserver observer) {
         observers.add(observer);
-    }
-
-    public void removeObserver(TaskAttributeObserver observer) {
-        observers.remove(observer);
     }
 
     public void notifyStateChanged(ITask task, ITaskState oldState, ITaskState newState) {

@@ -11,7 +11,7 @@ import java.util.Date;
 public class Task implements ITask {
     /** unique identifier (assigned by DAO) */
     private int id;
-    /** short human readable title (non-null, non-blank) */
+    /** short human-readable title (non-null, non-blank) */
     private String title;
     /** detailed description (never null) */
     private String description;

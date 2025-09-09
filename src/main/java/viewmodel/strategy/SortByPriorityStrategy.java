@@ -16,6 +16,6 @@ public class SortByPriorityStrategy implements SortingStrategy {
 
     @Override
     public String getDisplayName() {
-        return "Sort by Priority";
+        return "Sort By Priority";
     }
 }

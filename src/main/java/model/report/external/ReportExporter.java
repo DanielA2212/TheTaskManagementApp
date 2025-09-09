@@ -5,7 +5,6 @@ import java.util.List;
 
 /**
  * Target interface for exporting reports (Adapter pattern)
- * Moved to external package to group all export-related components.
  */
 public interface ReportExporter {
     /**

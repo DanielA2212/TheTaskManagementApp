@@ -16,6 +16,6 @@ public class SortByTitleStrategy implements SortingStrategy {
 
     @Override
     public String getDisplayName() {
-        return "Sort by Title";
+        return "Sort By Title";
     }
 }

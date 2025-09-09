@@ -13,7 +13,7 @@ public interface SortingStrategy {
      */
     void sort(List<ITask> tasks);
     /**
-     * @return human readable name for UI selection
+     * @return human-readable name for UI selection
      */
     String getDisplayName();
 }

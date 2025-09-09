@@ -22,7 +22,6 @@ import viewmodel.strategy.SortingOption;
 import model.report.external.ReportExporter;
 import model.report.external.CsvReportAdapter;
 import model.report.external.PdfReportWriter;
-
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;

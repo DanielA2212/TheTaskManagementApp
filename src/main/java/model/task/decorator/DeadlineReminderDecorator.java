@@ -2,7 +2,6 @@ package model.task.decorator;
 
 import model.task.ITask;
 import model.task.TaskState;
-
 import java.util.Date;
 
 /**

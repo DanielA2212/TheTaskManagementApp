@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Locale;
 
 /**
- * External PDF writer moved from model.report to external package.
+ * External PDF writer
  */
 public final class PdfReportWriter {
     private PdfReportWriter() {}

@@ -7,7 +7,6 @@ import java.util.List;
 
 /**
  * Adapter that adapts an external CSV library to our ReportExporter interface.
- * Moved from model.report package to external to group export-related concerns.
  */
 public class CsvReportAdapter implements ReportExporter {
     /** underlying external CSV library (never null) */

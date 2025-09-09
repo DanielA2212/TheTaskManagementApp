@@ -6,7 +6,6 @@ import model.task.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import view.IView;
-import view.TasksObserver;
 import viewmodel.combinator.TaskFilter;
 
 import java.util.ArrayList;
@@ -23,7 +22,6 @@ public class TasksViewModelTest {
 
     // Mock objects
     private ITasksDAO mockDAO;
-    private IView mockView;
     private TasksViewModel viewModel;
     private List<ITask> observedTasks;
 
@@ -31,7 +29,7 @@ public class TasksViewModelTest {
     public void setUp() throws TasksDAOException {
         // Create mocks
         mockDAO = mock(ITasksDAO.class);
-        mockView = mock(IView.class);
+        IView mockView = mock(IView.class);
 
         // Sample tasks for testing
         Task task1 = new Task("Task 1", "Description 1", TaskPriority.LOW);
@@ -80,7 +78,7 @@ public class TasksViewModelTest {
 
         // Verify only matching task is shown
         assertEquals(1, observedTasks.size());
-        assertEquals("Important Task", observedTasks.get(0).getTitle());
+        assertEquals("Important Task", observedTasks.getFirst().getTitle());
     }
 
     @Test
@@ -94,7 +92,7 @@ public class TasksViewModelTest {
 
         // Verify only completed tasks are shown
         assertEquals(1, observedTasks.size());
-        assertEquals("Completed Task", observedTasks.get(0).getTitle());
+        assertEquals("Completed Task", observedTasks.getFirst().getTitle());
     }
 
     @Test
@@ -141,6 +139,6 @@ public class TasksViewModelTest {
 
         // Verify filtering works correctly
         assertEquals(1, observedTasks.size());
-        assertEquals("Important Task", observedTasks.get(0).getTitle());
+        assertEquals("Important Task", observedTasks.getFirst().getTitle());
     }
 }

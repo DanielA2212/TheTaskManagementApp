@@ -4,7 +4,6 @@ import model.task.ITask;
 import model.task.ITaskState;
 import model.task.TaskPriority;
 import model.task.TaskState;
-
 import java.util.Date;
 
 /**

@@ -37,8 +37,8 @@ public interface TaskAttributeObserver {
     /**
      * Called when a task's description changes.
      * @param task affected task
-     * @param oldDescription previous text (may be empty)
-     * @param newDescription new text (may be empty)
+     * @param oldDescription previous text (maybe empty)
+     * @param newDescription new text (maybe empty)
      */
     void onDescriptionChanged(ITask task, String oldDescription, String newDescription);
 

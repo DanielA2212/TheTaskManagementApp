@@ -2,7 +2,6 @@ package viewmodel.strategy;
 
 import model.task.*;
 import org.junit.jupiter.api.Test;
-
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;

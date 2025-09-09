@@ -2,9 +2,7 @@ package model.task.decorator;
 
 import model.task.*;
 import org.junit.jupiter.api.Test;
-
 import java.util.Date;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 public class DecoratorTest {

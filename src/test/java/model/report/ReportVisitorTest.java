@@ -1,12 +1,11 @@
 package model.report;
 
+import model.report.external.CsvReportAdapter;
+import model.report.external.ReportExporter;
 import model.task.*;
 import org.junit.jupiter.api.Test;
-
 import java.util.List;
-
 import static org.junit.jupiter.api.Assertions.*;
-
 public class ReportVisitorTest {
 
     private Task task(int id, String title, String desc, TaskPriority p, ITaskState state) {

@@ -5,7 +5,6 @@ import model.task.decorator.DeadlineReminderDecorator;
 import viewmodel.IViewModel;
 import viewmodel.TasksViewModel;
 import viewmodel.strategy.SortingOption;
-
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
@@ -67,8 +66,8 @@ public class TaskManagerView extends JPanel implements TasksObserver, TaskAttrib
         deleteAllButton = new JButton("Delete All");
         reportButton = new JButton("Generate Report");
         exportCsvButton = new JButton("Export CSV+PDF");
-        upButton = new JButton("↑");
-        downButton = new JButton("↓");
+        upButton = new JButton("Next State");
+        downButton = new JButton("Previous State");
         clearSelectionButton = new JButton("Clear Selection");
         searchClearButton = new JButton("X"); // Initialize search clear button
 

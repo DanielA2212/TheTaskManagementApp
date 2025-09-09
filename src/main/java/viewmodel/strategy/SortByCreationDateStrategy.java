@@ -16,6 +16,6 @@ public class SortByCreationDateStrategy implements SortingStrategy {
 
     @Override
     public String getDisplayName() {
-        return "Sort by Creation Date";
+        return "Sort By Creation Date";
     }
 }
