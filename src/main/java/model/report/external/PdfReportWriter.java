@@ -17,11 +17,19 @@ import java.util.List;
 import java.util.Locale;
 
 /**
- * External PDF writer
+ * Utility for exporting task records to a simple PDF report.
+ * <p>Acts as an external reporting component adapted through the application.
+ * Uses PDFBox for PDF generation. Stateless & thread-safe.</p>
  */
 public final class PdfReportWriter {
     private PdfReportWriter() {}
 
+    /**
+     * Writes a PDF report summarizing tasks grouped by state (To Do / In Progress / Completed).
+     * @param records immutable snapshot of task records (null treated as empty)
+     * @param pdfFile destination file (parent directories should exist); overwritten if present
+     * @throws IOException if writing or font loading fails
+     */
     public static void write(List<TaskRecord> records, File pdfFile) throws IOException {
         try (PDDocument doc = new PDDocument()) {
             var regularFont = loadFont(doc, false);
@@ -105,4 +113,3 @@ public final class PdfReportWriter {
     private static String truncate(String s) { return s.length() <= 60 ? s : s.substring(0,57) + "..."; }
     private static String safe(String s) { return s == null ? "" : s; }
 }
-

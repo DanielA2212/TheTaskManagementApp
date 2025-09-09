@@ -15,6 +15,12 @@ import java.io.File;
 import java.io.IOException;
 import java.awt.event.ActionEvent;
 
+/**
+ * Swing-based view component (View in MVVM) for managing tasks.
+ * <p>Responsible only for UI concerns: rendering, user interaction, and delegating
+ * actions to the ViewModel. Receives model updates via Observer interfaces
+ * (TasksObserver + TaskAttributeObserver) to keep the table and form in sync.</p>
+ */
 public class TaskManagerView extends JPanel implements TasksObserver, TaskAttributeObserver, IView {
 
 
@@ -46,6 +52,10 @@ public class TaskManagerView extends JPanel implements TasksObserver, TaskAttrib
 
     private static final String SEARCH_PLACEHOLDER = "Search…";
 
+    /**
+     * Constructs the task manager view and initializes all Swing components.
+     * The caller must assign a ViewModel via setViewModel and then call start().
+     */
     public TaskManagerView() {
         // Create UI base components
         contentPane = new JPanel(new BorderLayout(10, 10));
@@ -134,7 +144,7 @@ public class TaskManagerView extends JPanel implements TasksObserver, TaskAttrib
         // Create window
         window = new JFrame("Task Manager");
         window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        window.setSize(760, 720);
+        window.setSize(868, 700);
         window.setLocationRelativeTo(null);
 
         setupLayout();
@@ -193,6 +203,7 @@ public class TaskManagerView extends JPanel implements TasksObserver, TaskAttrib
     }
 
     // Granular observer methods - these update specific UI components instead of refreshing everything
+    /** {@inheritDoc} */
     @Override
     public void onTitleChanged(ITask task, String oldTitle, String newTitle) {
         SwingUtilities.invokeLater(() -> {
@@ -203,6 +214,7 @@ public class TaskManagerView extends JPanel implements TasksObserver, TaskAttrib
         });
     }
 
+    /** {@inheritDoc} */
     @Override
     public void onStateChanged(ITask task, ITaskState oldState, ITaskState newState) {
         SwingUtilities.invokeLater(() -> {
@@ -213,6 +225,7 @@ public class TaskManagerView extends JPanel implements TasksObserver, TaskAttrib
         });
     }
 
+    /** {@inheritDoc} */
     @Override
     public void onPriorityChanged(ITask task, TaskPriority oldPriority, TaskPriority newPriority) {
         SwingUtilities.invokeLater(() -> {
@@ -223,6 +236,7 @@ public class TaskManagerView extends JPanel implements TasksObserver, TaskAttrib
         });
     }
 
+    /** {@inheritDoc} */
     @Override
     public void onDescriptionChanged(ITask task, String oldDescription, String newDescription) {
         SwingUtilities.invokeLater(() -> {
@@ -233,6 +247,7 @@ public class TaskManagerView extends JPanel implements TasksObserver, TaskAttrib
         });
     }
 
+    /** {@inheritDoc} */
     @Override
     public void onUpdatedDateChanged(ITask task, java.util.Date oldDate, java.util.Date newDate) {
         SwingUtilities.invokeLater(() -> {
@@ -283,9 +298,9 @@ public class TaskManagerView extends JPanel implements TasksObserver, TaskAttrib
         inputPanel.add(taskStateComboBox, gbc);
 
         // Priority row
-        gbc.gridx = 0; gbc.gridy = 3;
+        gbc.gridx = 0; gbc.gridy = 3; gbc.fill = GridBagConstraints.NONE;
         inputPanel.add(new JLabel("Priority:"), gbc);
-        gbc.gridx = 1;
+        gbc.gridx = 1; gbc.fill = GridBagConstraints.HORIZONTAL; gbc.weightx = 1.0;
         inputPanel.add(taskPriorityComboBox, gbc);
 
         // Create a combined search and filter panel
@@ -560,6 +575,7 @@ public class TaskManagerView extends JPanel implements TasksObserver, TaskAttrib
         updateButtonStates();
     }
 
+    /** {@inheritDoc} */
     @Override
     public void onTasksChanged(List<ITask> tasks) {
         SwingUtilities.invokeLater(() -> {
@@ -595,11 +611,13 @@ public class TaskManagerView extends JPanel implements TasksObserver, TaskAttrib
         statusBar.setText("Showing " + (tasks == null ? 0 : tasks.size()) + " tasks");
     }
 
+    /** @return currently bound ViewModel (maybe null before wiring) */
     @Override
     public IViewModel getViewModel() {
         return viewModel;
     }
 
+    /** Assigns the ViewModel and registers as observer. */
     @Override
     public void setViewModel(IViewModel viewModel) {
         this.viewModel = viewModel;
@@ -608,6 +626,7 @@ public class TaskManagerView extends JPanel implements TasksObserver, TaskAttrib
         }
     }
 
+    /** Makes the window visible and registers granular attribute observers. */
     @Override
     public void start() {
         // Register as a granular observer for specific attribute changes when fully initialized
@@ -622,11 +641,13 @@ public class TaskManagerView extends JPanel implements TasksObserver, TaskAttrib
     }
 
     // Required TaskAttributeObserver methods
+    /** {@inheritDoc} */
     @Override
     public void onTaskAdded(ITask task) {
         SwingUtilities.invokeLater(this::loadTasks);
     }
 
+    /** {@inheritDoc} */
     @Override
     public void onTaskRemoved(ITask task) {
         SwingUtilities.invokeLater(() -> {
