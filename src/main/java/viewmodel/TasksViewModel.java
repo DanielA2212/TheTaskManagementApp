@@ -132,10 +132,7 @@ public class TasksViewModel implements IViewModel {
     public void addObserver(TasksObserver observer) {
         observers.add(observer);
     }
-    /** Remove a bulk tasks observer. */
-    public void removeObserver(TasksObserver observer) {
-        observers.remove(observer);
-    }
+
     /** Notify all registered bulk tasks observers. */
     public void notifyObservers() {
         for (TasksObserver observer : observers) {
