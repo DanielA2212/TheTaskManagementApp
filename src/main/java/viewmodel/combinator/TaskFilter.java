@@ -15,26 +15,25 @@ public interface TaskFilter {
     boolean test(ITask task);
 
     /**
-     * Combines this filter with another using AND logic
-     * @param other the other filter to combine with
-     * @return a new filter that requires both filters to match
+     * Combines this filter with another using AND logic.
+     * Null other returns this filter.
      */
     default TaskFilter and(TaskFilter other) {
+        if (other == null) return this;
         return task -> this.test(task) && other.test(task);
     }
 
     /**
-     * Combines this filter with another using OR logic
-     * @param other the other filter to combine with
-     * @return a new filter that requires either filter to match
+     * Combines this filter with another using OR logic.
+     * Null other returns this filter.
      */
     default TaskFilter or(TaskFilter other) {
+        if (other == null) return this;
         return task -> this.test(task) || other.test(task);
     }
 
     /**
-     * Negates this filter
-     * @return a new filter that matches when this filter doesn't match
+     * Negates this filter.
      */
     default TaskFilter negate() {
         return task -> !this.test(task);
@@ -45,6 +44,6 @@ public interface TaskFilter {
      * @return a filter that always returns true
      */
     static TaskFilter all() {
-        return task -> true;
+        return _ -> true;
     }
 }

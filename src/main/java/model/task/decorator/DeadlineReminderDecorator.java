@@ -6,16 +6,27 @@ import model.task.TaskState;
 import java.util.Date;
 
 /**
- * Decorator that appends a simple reminder to the description when the task is pending and old.
+ * Decorator that appends a simple reminder to the description when the task is pending and older than a configured threshold.
  */
 public class DeadlineReminderDecorator extends TaskDecorator {
+    /** number of days after which a reminder is appended */
     private final int daysThreshold;
 
+    /**
+     * @param delegate underlying task (non-null)
+     * @param daysThreshold positive number of days for staleness threshold
+     * @throws IllegalArgumentException if delegate null or daysThreshold <= 0
+     */
     public DeadlineReminderDecorator(ITask delegate, int daysThreshold) {
         super(delegate);
+        if (daysThreshold <= 0) throw new IllegalArgumentException("daysThreshold must be > 0");
         this.daysThreshold = daysThreshold;
     }
 
+    /**
+     * Adds a reminder suffix when task is not completed and older than threshold.
+     * @return possibly augmented description (never null)
+     */
     @Override
     public String getDescription() {
         String base = delegate.getDescription();
@@ -32,4 +43,3 @@ public class DeadlineReminderDecorator extends TaskDecorator {
         return diffMs > thresholdMs;
     }
 }
-

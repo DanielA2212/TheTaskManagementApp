@@ -18,7 +18,13 @@ import java.util.List;
 import java.util.Date;
 
 /**
- * Derby database implementation of ITasksDAO
+ * Derby database implementation of ITasksDAO.
+ * <p>Responsibilities:</p>
+ * <ul>
+ *   <li>Managing embedded Derby connection lifecycle.</li>
+ *   <li>Ensuring schema creation & evolution.</li>
+ *   <li>Performing CRUD operations with Task hydration.</li>
+ * </ul>
  * Implements Singleton pattern as required by project specifications
  */
 @SuppressWarnings({"ALL"})
@@ -42,7 +48,9 @@ public class TasksDAODerby implements ITasksDAO {
     }
 
     /**
-     * Gets the singleton instance of TasksDAODerby
+     * Gets the singleton instance of TasksDAODerby.
+     * @return singleton instance
+     * @throws TasksDAOException on connection / initialization failure
      */
     public static synchronized TasksDAODerby getInstance() throws TasksDAOException {
         if (instance == null) {
@@ -51,8 +59,13 @@ public class TasksDAODerby implements ITasksDAO {
         return instance;
     }
 
+    // ------------------------------------------------------------
+    // Schema Management
+    // ------------------------------------------------------------
+
     /**
-     * Creates the tasks table if it doesn't exist; otherwise ensures schema is up-to-date
+     * Creates the tasks table if it doesn't exist; otherwise ensures schema is up-to-date.
+     * @throws SQLException on DDL failure
      */
     @SuppressWarnings({"SqlNoDataSourceInspection", "SqlDialectInspection"})
     private void createTasksTable() throws SQLException {
@@ -88,6 +101,7 @@ public class TasksDAODerby implements ITasksDAO {
 
     /**
      * Align identity sequence so that the next generated id is MAX(id)+1 or 1 if the table is empty.
+     * @throws SQLException on failure
      */
     @SuppressWarnings({"SqlNoDataSourceInspection", "SqlDialectInspection"})
     private void alignIdentitySequence() throws SQLException {
@@ -109,6 +123,7 @@ public class TasksDAODerby implements ITasksDAO {
 
     /**
      * Ensures existing TASKS table has all required columns; adds missing ones with sensible defaults.
+     * @throws SQLException on failure
      */
     private void ensureTasksTableSchema() throws SQLException {
         DatabaseMetaData meta = connection.getMetaData();
@@ -145,9 +160,15 @@ public class TasksDAODerby implements ITasksDAO {
         }
     }
 
+    // ------------------------------------------------------------
+    // CRUD Operations
+    // ------------------------------------------------------------
+
     @Override
     @SuppressWarnings({"SqlNoDataSourceInspection", "SqlDialectInspection"})
     public void addTask(ITask task) throws TasksDAOException {
+        if (task == null) throw new IllegalArgumentException("task cannot be null");
+
         String insertSQL = "INSERT " + "INTO tasks (title, description, priority, state, created_date, updated_date) VALUES (?, ?, ?, ?, ?, ?)";
         try {
             try (PreparedStatement pstmt = connection.prepareStatement(insertSQL, Statement.RETURN_GENERATED_KEYS)) {
@@ -195,6 +216,8 @@ public class TasksDAODerby implements ITasksDAO {
     @Override
     @SuppressWarnings({"SqlNoDataSourceInspection", "SqlDialectInspection"})
     public void updateTask(ITask task) throws TasksDAOException {
+        if (task == null) throw new IllegalArgumentException("task cannot be null");
+
         String updateSQL = "UPDATE tasks SET title = ?, description = ?, priority = ?, state = ?, updated_date = ? WHERE id = ?";
 
         try (PreparedStatement pstmt = connection.prepareStatement(updateSQL)) {
@@ -214,6 +237,8 @@ public class TasksDAODerby implements ITasksDAO {
     @Override
     @SuppressWarnings({"SqlNoDataSourceInspection", "SqlDialectInspection"})
     public void deleteTask(int id) throws TasksDAOException {
+        if (id <= 0) throw new IllegalArgumentException("id must be positive");
+
         String deleteSQL = "DELETE " + "FROM tasks WHERE id = ?";
 
         try (PreparedStatement pstmt = connection.prepareStatement(deleteSQL)) {
@@ -239,6 +264,8 @@ public class TasksDAODerby implements ITasksDAO {
     @Override
     @SuppressWarnings({"SqlNoDataSourceInspection", "SqlDialectInspection"})
     public ITask getTask(int id) throws TasksDAOException {
+        if (id <= 0) throw new IllegalArgumentException("id must be positive");
+
         String selectSQL = "SELECT * " + "FROM tasks WHERE id = ?";
 
         try (PreparedStatement pstmt = connection.prepareStatement(selectSQL)) {
@@ -257,7 +284,10 @@ public class TasksDAODerby implements ITasksDAO {
     }
 
     /**
-     * Helper method to create a Task object from ResultSet
+     * Helper method to create a Task object from ResultSet.
+     * @param rs result set positioned on a row
+     * @return hydrated task
+     * @throws SQLException on column access error
      */
     @SuppressWarnings({"SqlNoDataSourceInspection", "SqlDialectInspection"})
     private ITask createTaskFromResultSet(ResultSet rs) throws SQLException {
@@ -279,7 +309,9 @@ public class TasksDAODerby implements ITasksDAO {
     }
 
     /**
-     * Helper method to create ITaskState from string
+     * Helper method to create ITaskState from string.
+     * @param stateType state column raw value
+     * @return matching state (defaults to ToDoState if unknown)
      */
     private ITaskState createStateFromString(String stateType) {
         return switch (stateType) {
@@ -291,7 +323,8 @@ public class TasksDAODerby implements ITasksDAO {
     }
 
     /**
-     * Closes the database connection
+     * Closes the database connection.
+     * @throws TasksDAOException on close failure
      */
     @SuppressWarnings("unused")
     public void close() throws TasksDAOException {

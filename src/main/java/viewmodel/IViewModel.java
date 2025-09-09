@@ -1,15 +1,20 @@
 package viewmodel;
 
-import model.dao.ITasksDAO;
-import view.IView;
-import view.TasksObserver;
-
+/**
+ * ViewModel contract in MVVM. Mediates between model (ITasksDAO) and view.
+ * Implementations must notify registered observers when the visible task list changes.
+ */
 public interface IViewModel {
-    void addObserver(TasksObserver observer);
-    void removeObserver(TasksObserver observer);
+    /** Register an observer for task list changes. */
+    void addObserver(view.TasksObserver observer);
+    /** Unregister an observer. */
     void notifyObservers();
-    void setView(IView view);
-    void setModel(ITasksDAO tasksDAO);
-    IView getView();
-    ITasksDAO getModel();
+    /** Associate a view. */
+    void setView(view.IView view);
+    /** Assign backing model/DAO. */
+    void setModel(model.dao.ITasksDAO tasksDAO);
+    /** @return current view (maybe null before wiring) */
+    view.IView getView();
+    /** @return current DAO (maybe null before wiring) */
+    model.dao.ITasksDAO getModel();
 }

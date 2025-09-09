@@ -8,77 +8,55 @@ import java.util.Map;
 
 /**
  * Proxy implementation of ITasksDAO
- * Provides caching for queries and invalidates cache on mutations
+ * Provides caching for queries and invalidates cache on mutations.
  */
 public class TasksDAOProxy implements ITasksDAO {
+    /** wrapped real DAO (never null) */
     private final ITasksDAO tasksDAO;
-
-    // Simple in-memory caches
+    /** cached array snapshot of all tasks (null => stale) */
     private ITask[] cachedTasks = null;
+    /** id -> task cache (cleared with invalidation) */
     private final Map<Integer, ITask> taskByIdCache = new HashMap<>();
 
     /**
-     * Constructor that wraps the real DAO implementation
+     * @param tasksDAO real DAO to wrap
+     * @throws IllegalArgumentException if tasksDAO null
      */
     public TasksDAOProxy(ITasksDAO tasksDAO) {
+        if (tasksDAO == null) throw new IllegalArgumentException("tasksDAO cannot be null");
         this.tasksDAO = tasksDAO;
     }
 
-    private void invalidateCache() {
-        cachedTasks = null;
-        taskByIdCache.clear();
-    }
+    /** invalidate all caches */
+    private void invalidateCache() { cachedTasks = null; taskByIdCache.clear(); }
 
     @Override
     public void addTask(ITask task) throws TasksDAOException {
-        tasksDAO.addTask(task);
-        invalidateCache();
-    }
+        tasksDAO.addTask(task); invalidateCache(); }
 
     @Override
     public ITask[] getTasks() throws TasksDAOException {
-        if (cachedTasks != null) {
-            System.out.println("Proxy cache hit: getTasks()");
-            // Return a shallow copy to avoid external mutation
-            return Arrays.copyOf(cachedTasks, cachedTasks.length);
-        }
-        System.out.println("Proxy cache miss: getTasks(), querying DAO");
+        if (cachedTasks != null) { return Arrays.copyOf(cachedTasks, cachedTasks.length); }
         ITask[] tasks = tasksDAO.getTasks();
         cachedTasks = Arrays.copyOf(tasks, tasks.length);
-        // Populate id cache
         taskByIdCache.clear();
-        for (ITask t : cachedTasks) {
-            taskByIdCache.put(t.getId(), t);
-        }
+        for (ITask t : cachedTasks) { taskByIdCache.put(t.getId(), t); }
         return tasks;
     }
 
     @Override
-    public void updateTask(ITask task) throws TasksDAOException {
-        tasksDAO.updateTask(task);
-        invalidateCache();
-    }
+    public void updateTask(ITask task) throws TasksDAOException { tasksDAO.updateTask(task); invalidateCache(); }
 
     @Override
-    public void deleteTask(int id) throws TasksDAOException {
-        tasksDAO.deleteTask(id);
-        invalidateCache();
-    }
+    public void deleteTask(int id) throws TasksDAOException { tasksDAO.deleteTask(id); invalidateCache(); }
 
     @Override
-    public void deleteTasks() throws TasksDAOException {
-        tasksDAO.deleteTasks();
-        invalidateCache();
-    }
+    public void deleteTasks() throws TasksDAOException { tasksDAO.deleteTasks(); invalidateCache(); }
 
     @Override
     public ITask getTask(int id) throws TasksDAOException {
         ITask cached = taskByIdCache.get(id);
-        if (cached != null) {
-            System.out.println("Proxy cache hit: getTask(" + id + ")");
-            return cached;
-        }
-        System.out.println("Proxy cache miss: getTask(" + id + ")");
+        if (cached != null) return cached;
         ITask task = tasksDAO.getTask(id);
         taskByIdCache.put(id, task);
         return task;

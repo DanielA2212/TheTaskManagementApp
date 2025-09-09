@@ -7,13 +7,18 @@ import model.task.CompletedState;
 import model.task.TaskPriority;
 
 /**
- * Concrete implementations of TaskFilter using Combinator pattern
- * Provides flexible task filtering capabilities that can be combined
+ * Utility factory for common TaskFilter compositions (Combinator pattern).
+ * All methods are null-safe: null inputs yield permissive filters.
  */
 public class TaskFilters {
 
+    // ------------------------------------------------------------
+    // State Filters
+    // ------------------------------------------------------------
     /**
-     * Filter tasks by state using ITaskState interface
+     * Filter tasks by a specific state instance.
+     * @param state target state (null -> matches all)
+     * @return filter predicate
      */
     public static TaskFilter byState(ITaskState state) {
         if (state == null) {
@@ -23,29 +28,24 @@ public class TaskFilters {
         return task -> task.getState() != null && task.getState().toStateType() == state.getStateType();
     }
 
-    /**
-     * Filter tasks by ToDo state
-     */
+    /** @return filter matching To Do tasks */
     public static TaskFilter byToDoState() {
         return byState(ToDoState.getInstance());
     }
 
-    /**
-     * Filter tasks by InProgress state
-     */
+    /** @return filter matching In Progress tasks */
     public static TaskFilter byInProgressState() {
         return byState(InProgressState.getInstance());
     }
 
-    /**
-     * Filter tasks by Completed state
-     */
+    /** @return filter matching Completed tasks */
     public static TaskFilter byCompletedState() {
         return byState(CompletedState.getInstance());
     }
 
     /**
-     * Filter tasks by state display name (for UI integration)
+     * Filter by human display name.
+     * @param stateDisplayName display name or "All"/null for match-all
      */
     public static TaskFilter byStateDisplayName(String stateDisplayName) {
         if (stateDisplayName == null || stateDisplayName.equals("All")) {
@@ -54,16 +54,22 @@ public class TaskFilters {
         return task -> task.getState().getDisplayName().equals(stateDisplayName);
     }
 
+    // ------------------------------------------------------------
+    // Priority Filter
+    // ------------------------------------------------------------
     /**
-     * Filter tasks by priority
+     * @param priority priority (null -> match-all)
+     * @return filter comparing task priority
      */
     public static TaskFilter byPriority(TaskPriority priority) {
+        if (priority == null) return TaskFilter.all();
         return task -> task.getPriority() == priority;
     }
 
-    /**
-     * Filter tasks by title (case-insensitive partial match)
-     */
+    // ------------------------------------------------------------
+    // Text Filters
+    // ------------------------------------------------------------
+    /** case-insensitive title substring match */
     public static TaskFilter byTitle(String title) {
         if (title == null || title.trim().isEmpty()) {
             return TaskFilter.all();
@@ -72,9 +78,7 @@ public class TaskFilters {
         return task -> task.getTitle().toLowerCase().contains(searchText);
     }
 
-    /**
-     * Filter tasks by description (case-insensitive partial match)
-     */
+    /** case-insensitive description substring match */
     public static TaskFilter byDescription(String description) {
         if (description == null || description.trim().isEmpty()) {
             return TaskFilter.all();
@@ -83,9 +87,7 @@ public class TaskFilters {
         return task -> task.getDescription().toLowerCase().contains(searchText);
     }
 
-    /**
-     * Filter tasks by search text (searches both title and description)
-     */
+    /** search text in title OR description */
     public static TaskFilter bySearchText(String searchText) {
         if (searchText == null || searchText.trim().isEmpty()) {
             return TaskFilter.all();
@@ -94,38 +96,34 @@ public class TaskFilters {
         return byTitle(searchText).or(byDescription(searchText));
     }
 
-    // Common filter combinations using combinator pattern
-
-    /**
-     * Filter for high priority tasks that are in progress
-     */
+    // ------------------------------------------------------------
+    // Composite Examples
+    // ------------------------------------------------------------
+    /** high priority & in progress */
     public static TaskFilter highPriorityInProgress() {
         return byPriority(TaskPriority.HIGH).and(byInProgressState());
     }
 
-    /**
-     * Filter for completed tasks
-     */
+    /** completed tasks shortcut */
     public static TaskFilter completedTasks() {
         return byCompletedState();
     }
 
-    /**
-     * Filter for urgent tasks (high priority and not completed)
-     */
+    /** high priority NOT completed */
     public static TaskFilter urgentTasks() {
         return byPriority(TaskPriority.HIGH).and(byCompletedState().negate());
     }
 
-    /**
-     * Filter for pending tasks (ToDo or InProgress)
-     */
+    /** To Do OR InProgress */
     public static TaskFilter pendingTasks() {
         return byToDoState().or(byInProgressState());
     }
 
     /**
-     * Create a combined filter using search and state filter using combinator pattern
+     * Combine search + state filters.
+     * @param searchText optional search text
+     * @param stateFilter display name or All/null
+     * @return composite AND filter
      */
     public static TaskFilter createCombinedFilter(String searchText, String stateFilter) {
         TaskFilter searchFilter = bySearchText(searchText);

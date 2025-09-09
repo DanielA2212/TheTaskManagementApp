@@ -7,7 +7,13 @@ import model.task.TaskPriority;
  * Decorator that tags the task title with priority labels.
  */
 public class PriorityTagDecorator extends TaskDecorator {
-    public PriorityTagDecorator(ITask delegate) { super(delegate); }
+    /**
+     * @param delegate task to decorate (non-null)
+     * @throws IllegalArgumentException if delegate is null
+     */
+    public PriorityTagDecorator(ITask delegate) {
+        super(delegate);
+    }
 
     @Override
     public String getTitle() {
@@ -20,4 +26,3 @@ public class PriorityTagDecorator extends TaskDecorator {
         };
     }
 }
-

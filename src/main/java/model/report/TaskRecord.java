@@ -36,6 +36,7 @@ public record TaskRecord(
     /**
      * Pattern matching for task categorization using TaskState enum
      * Demonstrates pattern matching as required by project specifications
+     * @return human readable category label
      */
     public String categorize() {
         return switch (state) {
@@ -56,6 +57,7 @@ public record TaskRecord(
     /**
      * Pattern matching for determining task urgency using TaskState enum
      * Demonstrates pattern matching as required by project specifications
+     * @return true if task is high priority and not completed
      */
     public boolean isUrgent() {
         return switch (state) {
