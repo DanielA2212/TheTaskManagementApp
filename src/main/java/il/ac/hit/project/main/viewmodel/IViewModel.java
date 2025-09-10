@@ -9,7 +9,7 @@ public interface IViewModel {
     void addObserver(il.ac.hit.project.main.view.TasksObserver observer);
     /** Unregister an observer. */
     void notifyObservers();
-    /** Associate a il.ac.hit.project.main.view. */
+    /** Associate an il.ac.hit.project.main.view. */
     void setView(il.ac.hit.project.main.view.IView view);
     /** Assign backing il.ac.hit.project.main.model/DAO. */
     void setModel(il.ac.hit.project.main.model.dao.ITasksDAO tasksDAO);

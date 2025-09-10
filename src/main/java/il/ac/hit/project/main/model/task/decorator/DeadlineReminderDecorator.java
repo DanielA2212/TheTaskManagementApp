@@ -1,6 +1,6 @@
 package il.ac.hit.project.main.model.task.decorator;
 
-import il.ac.hit.project.main.model.task.ITask;
+import il.ac.hit.project.main.model.task.ITaskDetails;
 import il.ac.hit.project.main.model.task.TaskState;
 import java.util.Date;
 
@@ -16,7 +16,7 @@ public class DeadlineReminderDecorator extends TaskDecorator {
      * @param daysThreshold positive number of days for staleness threshold
      * @throws IllegalArgumentException if delegate null or daysThreshold <= 0
      */
-    public DeadlineReminderDecorator(ITask delegate, int daysThreshold) {
+    public DeadlineReminderDecorator(ITaskDetails delegate, int daysThreshold) {
         super(delegate);
         if (daysThreshold <= 0) throw new IllegalArgumentException("daysThreshold must be > 0");
         this.daysThreshold = daysThreshold;

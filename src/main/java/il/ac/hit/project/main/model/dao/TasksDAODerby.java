@@ -168,23 +168,24 @@ public class TasksDAODerby implements ITasksDAO {
     @SuppressWarnings({"SqlNoDataSourceInspection", "SqlDialectInspection"})
     public void addTask(ITask task) throws TasksDAOException {
         if (task == null) throw new IllegalArgumentException("task cannot be null");
+        ITaskDetails details = (ITaskDetails) task;
 
         String insertSQL = "INSERT " + "INTO tasks (title, description, priority, state, created_date, updated_date) VALUES (?, ?, ?, ?, ?, ?)";
         try {
             try (PreparedStatement pstmt = connection.prepareStatement(insertSQL, Statement.RETURN_GENERATED_KEYS)) {
                 pstmt.setString(1, task.getTitle());
                 pstmt.setString(2, task.getDescription());
-                pstmt.setString(3, task.getPriority().toString());
+                pstmt.setString(3, details.getPriority().toString());
                 pstmt.setString(4, task.getState().toStateType().toString());
-                pstmt.setTimestamp(5, new Timestamp(task.getCreationDate().getTime()));
-                pstmt.setTimestamp(6, new Timestamp(task.getUpdatedDate().getTime()));
+                pstmt.setTimestamp(5, new Timestamp(details.getCreationDate().getTime()));
+                pstmt.setTimestamp(6, new Timestamp(details.getUpdatedDate().getTime()));
 
                 pstmt.executeUpdate();
 
                 try (ResultSet keys = pstmt.getGeneratedKeys()) {
                     if (keys.next()) {
                         int generatedId = keys.getInt(1);
-                        task.setId(generatedId);
+                        details.setId(generatedId);
                     }
                 }
             }
@@ -217,15 +218,16 @@ public class TasksDAODerby implements ITasksDAO {
     @SuppressWarnings({"SqlNoDataSourceInspection", "SqlDialectInspection"})
     public void updateTask(ITask task) throws TasksDAOException {
         if (task == null) throw new IllegalArgumentException("task cannot be null");
+        ITaskDetails details = (ITaskDetails) task;
 
         String updateSQL = "UPDATE tasks SET title = ?, description = ?, priority = ?, state = ?, updated_date = ? WHERE id = ?";
 
         try (PreparedStatement pstmt = connection.prepareStatement(updateSQL)) {
             pstmt.setString(1, task.getTitle());
             pstmt.setString(2, task.getDescription());
-            pstmt.setString(3, task.getPriority().toString());
+            pstmt.setString(3, details.getPriority().toString());
             pstmt.setString(4, task.getState().toStateType().toString());
-            pstmt.setTimestamp(5, new Timestamp(task.getUpdatedDate().getTime()));
+            pstmt.setTimestamp(5, new Timestamp(details.getUpdatedDate().getTime()));
             pstmt.setInt(6, task.getId());
 
             pstmt.executeUpdate();

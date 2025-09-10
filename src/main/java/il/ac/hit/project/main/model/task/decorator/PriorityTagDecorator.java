@@ -1,6 +1,6 @@
 package il.ac.hit.project.main.model.task.decorator;
 
-import il.ac.hit.project.main.model.task.ITask;
+import il.ac.hit.project.main.model.task.ITaskDetails;
 import il.ac.hit.project.main.model.task.TaskPriority;
 
 /**
@@ -11,7 +11,7 @@ public class PriorityTagDecorator extends TaskDecorator {
      * @param delegate task to decorate (non-null)
      * @throws IllegalArgumentException if delegate is null
      */
-    public PriorityTagDecorator(ITask delegate) {
+    public PriorityTagDecorator(ITaskDetails delegate) {
         super(delegate);
     }
 

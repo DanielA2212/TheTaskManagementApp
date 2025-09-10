@@ -44,7 +44,7 @@ public class TasksDAODerbyTest {
         assertEquals(1, tasks.length);
         assertEquals("Test Task", tasks[0].getTitle());
         assertEquals("Test Description", tasks[0].getDescription());
-        assertEquals(TaskPriority.HIGH, tasks[0].getPriority());
+        assertEquals(TaskPriority.HIGH, ((ITaskDetails) tasks[0]).getPriority());
     }
 
     @Test

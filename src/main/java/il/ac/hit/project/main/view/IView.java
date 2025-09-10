@@ -8,7 +8,7 @@ public interface IView {
     /** @return associated il.ac.hit.project.main.view-il.ac.hit.project.main.model (maybe null before initialization) */
     IViewModel getViewModel();
     /**
-     * Associate this il.ac.hit.project.main.view with a il.ac.hit.project.main.view-il.ac.hit.project.main.model.
+     * Associate this il.ac.hit.project.main.view with an il.ac.hit.project.main.view-il.ac.hit.project.main.model.
      * @param viewModel non-null il.ac.hit.project.main.view-il.ac.hit.project.main.model
      */
     void setViewModel(IViewModel viewModel);

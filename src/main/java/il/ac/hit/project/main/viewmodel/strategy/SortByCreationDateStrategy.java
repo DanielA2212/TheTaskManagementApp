@@ -1,6 +1,7 @@
 package il.ac.hit.project.main.viewmodel.strategy;
 
 import il.ac.hit.project.main.model.task.ITask;
+import il.ac.hit.project.main.model.task.ITaskDetails;
 import java.util.List;
 import java.util.Comparator;
 
@@ -11,7 +12,7 @@ public class SortByCreationDateStrategy implements SortingStrategy {
 
     @Override
     public void sort(List<ITask> tasks) {
-        tasks.sort(Comparator.comparing(ITask::getCreationDate));
+        tasks.sort(Comparator.comparing(t -> ((ITaskDetails) t).getCreationDate()));
     }
 
     @Override

@@ -544,7 +544,7 @@ public class TaskManagerView extends JPanel implements TasksObserver, TaskAttrib
             descriptionInputTA.setText(selectedTask.getDescription());
             // Map TaskState enum to ITaskState instance for the combo box
             taskStateComboBox.setSelectedItem(toITaskState(selectedTask.getState()));
-            taskPriorityComboBox.setSelectedItem(selectedTask.getPriority());
+            taskPriorityComboBox.setSelectedItem(((ITaskDetails) selectedTask).getPriority());
         }
     }
 
@@ -582,15 +582,15 @@ public class TaskManagerView extends JPanel implements TasksObserver, TaskAttrib
             tableModel.setRowCount(0); // Clear existing rows
             for (ITask task : tasks) {
                 // Decorate description only; show plain title and priority in its own column
-                ITask decorated = new DeadlineReminderDecorator(task, 3);
-                String createdDate = task.getCreationDate() != null ? dateFormat.format(task.getCreationDate()) : "N/A";
-                String updatedDate = task.getUpdatedDate() != null ? dateFormat.format(task.getUpdatedDate()) : "N/A";
+                ITask decorated = new DeadlineReminderDecorator((ITaskDetails) task, 3);
+                String createdDate = ((ITaskDetails) task).getCreationDate() != null ? dateFormat.format(((ITaskDetails) task).getCreationDate()) : "N/A";
+                String updatedDate = ((ITaskDetails) task).getUpdatedDate() != null ? dateFormat.format(((ITaskDetails) task).getUpdatedDate()) : "N/A";
                 Object[] rowData = {
                     task.getId(),
                     task.getTitle(),
                     decorated.getDescription(),
                     task.getState().getDisplayName(),
-                    task.getPriority().getDisplayName(),
+                    ((ITaskDetails) task).getPriority().getDisplayName(),
                     createdDate,
                     updatedDate
                 };

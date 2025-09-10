@@ -1,6 +1,6 @@
 package il.ac.hit.project.main.model.task.decorator;
 
-import il.ac.hit.project.main.model.task.ITask;
+import il.ac.hit.project.main.model.task.ITaskDetails;
 import il.ac.hit.project.main.model.task.ITaskState;
 import il.ac.hit.project.main.model.task.TaskPriority;
 import il.ac.hit.project.main.model.task.TaskState;
@@ -9,15 +9,15 @@ import java.util.Date;
 /**
  * Base Decorator for ITask that delegates all behavior to the wrapped task by default.
  */
-public class TaskDecorator implements ITask {
+public class TaskDecorator implements ITaskDetails {
     /** wrapped task instance (never null) */
-    protected final ITask delegate;
+    protected final ITaskDetails delegate;
 
     /**
      * @param delegate non-null task to decorate
      * @throws IllegalArgumentException if delegate is null
      */
-    public TaskDecorator(ITask delegate) {
+    public TaskDecorator(ITaskDetails delegate) {
         if (delegate == null) throw new IllegalArgumentException("delegate cannot be null");
         this.delegate = delegate;
     }

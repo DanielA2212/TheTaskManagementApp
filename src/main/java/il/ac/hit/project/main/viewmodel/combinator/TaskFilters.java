@@ -5,6 +5,7 @@ import il.ac.hit.project.main.model.task.ToDoState;
 import il.ac.hit.project.main.model.task.InProgressState;
 import il.ac.hit.project.main.model.task.CompletedState;
 import il.ac.hit.project.main.model.task.TaskPriority;
+import il.ac.hit.project.main.model.task.ITaskDetails;
 
 /**
  * Utility factory for common TaskFilter compositions (Combinator pattern).
@@ -63,7 +64,7 @@ public class TaskFilters {
      */
     public static TaskFilter byPriority(TaskPriority priority) {
         if (priority == null) return TaskFilter.all();
-        return task -> task.getPriority() == priority;
+        return task -> ((ITaskDetails) task).getPriority() == priority;
     }
 
     // ------------------------------------------------------------

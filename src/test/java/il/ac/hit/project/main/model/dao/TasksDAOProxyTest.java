@@ -18,7 +18,7 @@ public class TasksDAOProxyTest {
         final List<ITask> store = new ArrayList<>();
         @Override public ITask[] getTasks() { getTasksCalls++; return store.toArray(new ITask[0]); }
         @Override public ITask getTask(int id) { return store.stream().filter(t->t.getId()==id).findFirst().orElse(null); }
-        @Override public void addTask(ITask task) { store.add(task); task.setId(store.size()); }
+        @Override public void addTask(ITask task) { store.add(task); ((ITaskDetails) task).setId(store.size()); }
         @Override public void updateTask(ITask task) { /* no-op for stub */ }
         @Override public void deleteTasks() { store.clear(); }
         @Override public void deleteTask(int id) { store.removeIf(t->t.getId()==id); }
@@ -57,7 +57,7 @@ public class TasksDAOProxyTest {
         proxy.getTasks();
         assertEquals(1, stub.getTasksCalls);
         ITask t = stub.store.getFirst();
-        t.setTitle("Changed");
+        ((ITaskDetails) t).setTitle("Changed");
         proxy.updateTask(t);
         proxy.getTasks();
         assertEquals(2, stub.getTasksCalls, "Update should invalidate cache");

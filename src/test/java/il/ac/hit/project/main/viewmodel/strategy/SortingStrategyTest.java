@@ -52,9 +52,8 @@ public class SortingStrategyTest {
         new SortByPriorityStrategy().sort(tasks);
 
         // Enum order is LOW < MEDIUM < HIGH
-        assertEquals(TaskPriority.LOW, tasks.get(0).getPriority());
-        assertEquals(TaskPriority.MEDIUM, tasks.get(1).getPriority());
-        assertEquals(TaskPriority.HIGH, tasks.get(2).getPriority());
+        assertEquals(TaskPriority.LOW, ((ITaskDetails) tasks.get(0)).getPriority());
+        assertEquals(TaskPriority.MEDIUM, ((ITaskDetails) tasks.get(1)).getPriority());
+        assertEquals(TaskPriority.HIGH, ((ITaskDetails) tasks.get(2)).getPriority());
     }
 }
-

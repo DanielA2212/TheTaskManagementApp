@@ -2,6 +2,8 @@ package il.ac.hit.project.main.model.report;
 
 import il.ac.hit.project.main.model.task.TaskState;
 import il.ac.hit.project.main.model.task.TaskPriority;
+import il.ac.hit.project.main.model.task.ITask;
+import il.ac.hit.project.main.model.task.ITaskDetails;
 import java.util.Date;
 
 /**
@@ -21,15 +23,23 @@ public record TaskRecord(
     /**
      * Creates a TaskRecord from an ITask using pattern matching
      */
-    public static TaskRecord fromTask(il.ac.hit.project.main.model.task.ITask task) {
+    public static TaskRecord fromTask(ITask task) {
+        TaskPriority p = TaskPriority.MEDIUM;
+        Date created = null;
+        Date updated = null;
+        if (task instanceof ITaskDetails d) {
+            p = d.getPriority();
+            created = d.getCreationDate();
+            updated = d.getUpdatedDate();
+        }
         return new TaskRecord(
             task.getId(),
             task.getTitle(),
             task.getDescription(),
-            task.getState(), // Now returns TaskState enum as required
-            task.getPriority(),
-            task.getCreationDate(),
-            task.getUpdatedDate()
+            task.getState(),
+            p,
+            created,
+            updated
         );
     }
 
