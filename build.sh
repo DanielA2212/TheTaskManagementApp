@@ -18,7 +18,7 @@ if [ $? -eq 0 ]; then
     # Create JAR file
     echo "Creating JAR file..."
     cd build/classes
-    jar cfe ../jar/task-management-app.jar com.taskmanager.view.TaskManagementGUI com/taskmanager/**/*.class
+    jar cfe ../jar/task-management-app.jar com.taskmanager.il.ac.hit.project.main.view.TaskManagementGUI com/taskmanager/**/*.class
     cd ../..
     
     # Copy H2 JAR to build directory

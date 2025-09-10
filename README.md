@@ -14,13 +14,13 @@ Build and Run
 
 Key Modules
 - Model
-  - model.task.* (Task, ITask, State impls: ToDoState/InProgressState/CompletedState, TaskPriority, TaskState enum)
-  - model.task.decorator.* (TaskDecorator, PriorityTagDecorator, DeadlineReminderDecorator) – Decorator pattern
-  - model.dao.* (ITasksDAO, TasksDAODerby (Singleton), TasksDAOProxy (Proxy + caching), exceptions)
-  - model.report.* (TaskRecord record, ReportVisitor, TaskVisitor interface)
-  - model.report.external.* (CsvReportAdapter (Adapter), CsvLibrary (simulated external lib), PdfReportWriter (external-style utility), ReportExporter)
-- ViewModel: viewmodel.* (TasksViewModel + combinator filters + strategies)
-- View: view.* (TaskManagerView, observers & subjects for fine‑grained attribute notifications)
+  - il.ac.hit.project.main.model.task.* (Task, ITask, State impls: ToDoState/InProgressState/CompletedState, TaskPriority, TaskState enum)
+  - il.ac.hit.project.main.model.task.decorator.* (TaskDecorator, PriorityTagDecorator, DeadlineReminderDecorator) – Decorator pattern
+  - il.ac.hit.project.main.model.dao.* (ITasksDAO, TasksDAODerby (Singleton), TasksDAOProxy (Proxy + caching), exceptions)
+  - il.ac.hit.project.main.model.report.* (TaskRecord record, ReportVisitor, TaskVisitor interface)
+  - il.ac.hit.project.main.model.report.external.* (CsvReportAdapter (Adapter), CsvLibrary (simulated external lib), PdfReportWriter (external-style utility), ReportExporter)
+- ViewModel: il.ac.hit.project.main.viewmodel.* (TasksViewModel + combinator filters + strategies)
+- View: il.ac.hit.project.main.view.* (TaskManagerView, observers & subjects for fine‑grained attribute notifications)
 
 Architectural Highlights
 - MVVM: View binds only to ViewModel; ViewModel mediates DAO; Model is isolated from Swing.

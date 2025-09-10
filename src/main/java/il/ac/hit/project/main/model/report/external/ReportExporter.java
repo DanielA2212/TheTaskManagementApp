@@ -1,0 +1,17 @@
+package il.ac.hit.project.main.model.report.external;
+
+import il.ac.hit.project.main.model.report.TaskRecord;
+import java.util.List;
+
+/**
+ * Target interface for exporting reports (Adapter pattern)
+ */
+public interface ReportExporter {
+    /**
+     * Export the given task records to a textual representation (e.g. CSV/JSON)
+     * @param records list of TaskRecord
+     * @return exported content as String
+     */
+    String export(List<TaskRecord> records);
+}
+
