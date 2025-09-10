@@ -6,12 +6,17 @@ import java.text.SimpleDateFormat;
 import java.util.List;
 
 /**
- * Adapter that adapts an external CSV library to our ReportExporter interface.
+ * Adapter that adapts an external CSV library to our ReportExporter interface
+ * This class implements the Adapter design pattern
  */
 public class CsvReportAdapter implements ReportExporter {
-    /** underlying external CSV library (never null) */
+    /**
+     * Underlying external CSV library (never null)
+     */
     private final CsvLibrary csvLibrary;
-    /** date formatter for timestamp columns (thread confined) */
+    /**
+     * Date formatter for timestamp columns (thread confined)
+     */
     private final SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     /**
@@ -49,5 +54,10 @@ public class CsvReportAdapter implements ReportExporter {
         return csvLibrary.writeCsv(header, rows);
     }
 
+    /**
+     * Helper to safely handle null strings for CSV export
+     * @param s input string
+     * @return non-null string
+     */
     private String safe(String s) { return s == null ? "" : s; }
 }

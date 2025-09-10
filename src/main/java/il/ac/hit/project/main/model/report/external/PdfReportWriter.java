@@ -21,6 +21,8 @@ import java.util.Locale;
  * <p>Acts as an external reporting component adapted through the application.
  * Uses PDFBox for PDF generation. Stateless & thread-safe.</p>
  */
+// Utility for exporting task records to a simple PDF report
+// This class is stateless and thread-safe
 public final class PdfReportWriter {
     private PdfReportWriter() {}
 
@@ -29,34 +31,36 @@ public final class PdfReportWriter {
      * @param records immutable snapshot of task records (null treated as empty)
      * @param pdfFile destination file (parent directories should exist); overwritten if present
      * @throws IOException if writing or font loading fails
+     * // Uses PDFBox for PDF generation
      */
     public static void write(List<TaskRecord> records, File pdfFile) throws IOException {
         try (PDDocument doc = new PDDocument()) {
             var regularFont = loadFont(doc, false);
             var boldFont = loadFont(doc, true);
-
+            // Split records by state
             java.util.List<TaskRecord> todo = new java.util.ArrayList<>();
             java.util.List<TaskRecord> inProgress = new java.util.ArrayList<>();
             java.util.List<TaskRecord> completed = new java.util.ArrayList<>();
             for (TaskRecord r : records) {
                 switch (r.state()) {
-                    case TODO -> todo.add(r);
+                    case TO_DO -> todo.add(r);
                     case IN_PROGRESS -> inProgress.add(r);
                     case COMPLETED -> completed.add(r);
                 }
             }
+            // Sort each bucket by ID
             Comparator<TaskRecord> cmp = Comparator.comparingInt(TaskRecord::id);
             todo.sort(cmp);
             inProgress.sort(cmp);
             completed.sort(cmp);
-
+            // Prepare PDF page
             PDPage page = new PDPage(PDRectangle.LETTER);
             doc.addPage(page);
             float margin = 50f;
             float y = page.getMediaBox().getHeight() - margin;
             float leading = 14f;
             SimpleDateFormat df = new SimpleDateFormat("MMM d, yyyy, h:mm:ss a", Locale.US);
-
+            // Write content to PDF
             try (PDPageContentStream cs = new PDPageContentStream(doc, page)) {
                 cs.beginText();
                 cs.setFont(boldFont, 12);
@@ -77,6 +81,15 @@ public final class PdfReportWriter {
         }
     }
 
+    /**
+     * Write a bucket of tasks to the PDF content stream
+     * @param cs PDF content stream
+     * @param font font to use
+     * @param title section title
+     * @param bucket list of tasks
+     * @param df date formatter
+     * @throws IOException if writing fails
+     */
     private static void writeBucket(PDPageContentStream cs, org.apache.pdfbox.pdmodel.font.PDFont font, String title, List<TaskRecord> bucket, SimpleDateFormat df) throws IOException {
         cs.setFont(font, 11);
         cs.showText(title); cs.newLine();
@@ -85,6 +98,12 @@ public final class PdfReportWriter {
         }
     }
 
+    /**
+     * Format a task record as a single line for the PDF
+     * @param r task record
+     * @param df date formatter
+     * @return formatted string
+     */
     private static String formatLine(TaskRecord r, SimpleDateFormat df) {
         String created = r.creationDate() == null ? "" : df.format(r.creationDate());
         return "Task {" +

@@ -18,7 +18,7 @@ public class TaskTest {
         assertEquals("Test Task", task.getTitle());
         assertEquals("Test Description", task.getDescription());
         assertEquals(TaskPriority.MEDIUM, task.getPriority());
-        assertEquals(TaskState.TODO, task.getState());
+        assertEquals(TaskState.TO_DO, task.getState());
     }
 
     @Test
@@ -28,7 +28,7 @@ public class TaskTest {
 
         // Get the initial state
         TaskState initialState = task.getState();
-        assertEquals(TaskState.TODO, initialState);
+        assertEquals(TaskState.TO_DO, initialState);
 
         // Move to next state (IN_PROGRESS)
         ITaskState inProgressState = createITaskStateFromTaskState(initialState.next());
@@ -65,7 +65,7 @@ public class TaskTest {
      */
     private ITaskState createITaskStateFromTaskState(TaskState taskState) {
         return switch (taskState) {
-            case TODO -> ToDoState.getInstance();
+            case TO_DO -> ToDoState.getInstance();
             case IN_PROGRESS -> InProgressState.getInstance();
             case COMPLETED -> CompletedState.getInstance();
         };

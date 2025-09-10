@@ -9,7 +9,9 @@ import java.util.ArrayList;
  * Implements the Visitor pattern with Java records & pattern matching (TaskRecord + switch expressions).
  */
 public class ReportVisitor implements TaskVisitor {
-    /** collected task records (in visit order) */
+    /**
+     * Collected task records (in visit order)
+     */
     private final List<TaskRecord> taskRecords = new ArrayList<>();
 
     /**
@@ -39,7 +41,7 @@ public class ReportVisitor implements TaskVisitor {
         for (TaskRecord record : taskRecords) {
             if (record.isUrgent()) urgentTasks.add(record);
             switch (record.state()) {
-                case TODO -> todoTasks.add(record);
+                case TO_DO -> todoTasks.add(record);
                 case IN_PROGRESS -> inProgressTasks.add(record);
                 case COMPLETED -> completedTasks.add(record);
             }
@@ -60,7 +62,7 @@ public class ReportVisitor implements TaskVisitor {
             switch (r.state()) {
                 case COMPLETED -> completed.add(r);
                 case IN_PROGRESS -> inProgress.add(r);
-                case TODO -> todo.add(r);
+                case TO_DO -> todo.add(r);
             }
         }
         // Sort within each bucket by creation date ascending then id
@@ -84,6 +86,12 @@ public class ReportVisitor implements TaskVisitor {
         return report.toString();
     }
 
+    /**
+     * Escape a string for CSV output
+     * @param s input string
+     * @return escaped string
+     */
+// Handles commas and quotes for CSV compliance
     private String escape(String s) { if (s == null) return ""; return (s.contains(",") || s.contains("\"") ? '"' + s.replace("\"", "\"\"") + '"' : s); }
 
     /**
@@ -101,7 +109,7 @@ public class ReportVisitor implements TaskVisitor {
         List<TaskRecord> completed = new ArrayList<>();
         for (TaskRecord r : taskRecords) {
             switch (r.state()) {
-                case TODO -> todo.add(r);
+                case TO_DO -> todo.add(r);
                 case IN_PROGRESS -> inProgress.add(r);
                 case COMPLETED -> completed.add(r);
             }

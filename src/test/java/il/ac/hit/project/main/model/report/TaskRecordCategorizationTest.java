@@ -14,8 +14,8 @@ public class TaskRecordCategorizationTest {
 
     @Test
     void testTodoHighPriorityCategorization() {
-        TaskRecord r = new TaskRecord(1, "A", "desc", TaskState.TODO, TaskPriority.HIGH, new Date(), new Date());
-        assertEquals("Urgent Todo", r.categorize());
+        TaskRecord r = new TaskRecord(1, "A", "desc", TaskState.TO_DO, TaskPriority.HIGH, new Date(), new Date());
+        assertEquals("Urgent To Do", r.categorize());
         assertTrue(r.isUrgent());
     }
 
@@ -33,4 +33,3 @@ public class TaskRecordCategorizationTest {
         assertFalse(r.isUrgent());
     }
 }
-

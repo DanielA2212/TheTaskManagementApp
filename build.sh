@@ -1,33 +1,12 @@
 #!/bin/bash
+set -euo pipefail
 
-# Build script for Task Management Application
+echo "Building Task Management Application (Maven package)..."
 
-echo "Building Task Management Application..."
-
-# Create directories
-mkdir -p build/classes
-mkdir -p build/jar
-
-# Compile Java sources
-echo "Compiling Java sources..."
-javac -cp "lib/*" -d build/classes src/main/java/com/taskmanager/**/*.java
-
-if [ $? -eq 0 ]; then
-    echo "Compilation successful!"
-    
-    # Create JAR file
-    echo "Creating JAR file..."
-    cd build/classes
-    jar cfe ../jar/task-management-app.jar com.taskmanager.il.ac.hit.project.main.view.TaskManagementGUI com/taskmanager/**/*.class
-    cd ../..
-    
-    # Copy H2 JAR to build directory
-    cp lib/h2.jar build/jar/
-    
-    echo "Build completed successfully!"
-    echo "Executable JAR: build/jar/task-management-app.jar"
-    echo "To run: java -cp 'build/jar/*' com.taskmanager.view.TaskManagementGUI"
+if command -v mvn >/dev/null 2>&1; then
+  mvn -q -DskipTests package
+  echo "Build completed. Executable JAR: target/task-management-app-1.0.0.jar"
 else
-    echo "Compilation failed!"
-    exit 1
+  echo "Maven is not installed. Please install Maven or build via IntelliJ (Maven -> package)." >&2
+  exit 1
 fi

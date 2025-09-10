@@ -17,8 +17,8 @@ public class PriorityTagDecorator extends TaskDecorator {
 
     @Override
     public String getTitle() {
-        String base = delegate.getTitle();
-        TaskPriority p = delegate.getPriority();
+        String base = getDelegate().getTitle();
+        TaskPriority p = getDelegate().getPriority();
         return switch (p) {
             case HIGH -> "[HIGH] " + base;
             case MEDIUM -> "[MED] " + base;

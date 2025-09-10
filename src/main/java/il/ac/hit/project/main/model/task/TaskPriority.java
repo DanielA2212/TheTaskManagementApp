@@ -2,6 +2,7 @@ package il.ac.hit.project.main.model.task;
 
 /**
  * Priority levels for tasks (ascending urgency).
+ * Used to categorize tasks by importance
  */
 public enum TaskPriority {
     /** Low importance / can be deferred */
@@ -11,10 +12,13 @@ public enum TaskPriority {
     /** High importance / requires attention soon */
     HIGH("High");
 
-    /** human-readable display name */
+    /**
+     * Human-readable display name for the priority
+     */
     private final String displayName;
 
     /**
+     * Constructor for TaskPriority
      * @param displayName label shown in UI
      */
     TaskPriority(String displayName) {
@@ -22,7 +26,8 @@ public enum TaskPriority {
     }
 
     /**
-     * @return display name for UI rendering
+     * Get the display name for UI rendering
+     * @return display name
      */
     public String getDisplayName() {
         return displayName;

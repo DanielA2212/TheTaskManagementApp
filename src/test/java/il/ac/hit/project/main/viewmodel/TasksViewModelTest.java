@@ -131,7 +131,7 @@ public class TasksViewModelTest {
 
         // Create a custom filter using the combinator pattern
         TaskFilter highPriorityFilter = task -> ((il.ac.hit.project.main.model.task.ITaskDetails) task).getPriority() == TaskPriority.HIGH;
-        TaskFilter todoFilter = task -> task.getState() == TaskState.TODO;
+        TaskFilter todoFilter = task -> task.getState() == TaskState.TO_DO;
 
         // Apply combined filter (high priority AND todo)
         TaskFilter combinedFilter = highPriorityFilter.and(todoFilter);

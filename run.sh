@@ -1,14 +1,18 @@
 #!/bin/bash
+set -euo pipefail
 
-# Run script for Task Management Application
+JAR="target/task-management-app-1.0.0.jar"
 
 echo "Starting Task Management Application..."
 
-# Check if JAR exists
-if [ ! -f "build/jar/task-management-app.jar" ]; then
-    echo "JAR file not found. Building first..."
-    ./build.sh
+if [ ! -f "$JAR" ]; then
+  echo "Executable JAR not found at $JAR. Attempting to build with Maven..."
+  if command -v mvn >/dev/null 2>&1; then
+    mvn -q -DskipTests package
+  else
+    echo "Maven is not installed. Please install Maven or build the project in IntelliJ (Maven -> package)." >&2
+    exit 1
+  fi
 fi
 
-# Run the application
-java -cp 'build/jar/*' com.taskmanager.view.TaskManagementGUI
+exec java -jar "$JAR"

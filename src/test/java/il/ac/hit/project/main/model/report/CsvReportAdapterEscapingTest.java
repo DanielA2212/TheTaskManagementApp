@@ -19,7 +19,7 @@ public class CsvReportAdapterEscapingTest {
         TaskRecord rec = new TaskRecord(7,
                 "Title, With, Commas",
                 "He said \"Hello, World\"",
-                TaskState.TODO,
+                TaskState.TO_DO,
                 TaskPriority.HIGH,
                 new Date(),
                 new Date());

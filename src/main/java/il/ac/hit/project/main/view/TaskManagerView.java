@@ -163,19 +163,21 @@ public class TaskManagerView extends JPanel implements TasksObserver, TaskAttrib
         taskTable.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
         taskTable.getTableHeader().setReorderingAllowed(false);
 
-        // Zebra striping
-        DefaultTableCellRenderer zebra = new DefaultTableCellRenderer() {
-            @Override
-            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-                Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-                if (!isSelected) {
-                    c.setBackground((row % 2 == 0) ? new Color(250, 250, 250) : new Color(240, 245, 250));
-                }
-                return c;
-            }
-        };
+        // Centered renderer for all columns
+        DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
+        centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
+
+        // Set preferred widths for ID, State, Priority; center alignment for all columns
+        int[] widths = {5, 20, 20};
         for (int i = 0; i < tableModel.getColumnCount(); i++) {
-            taskTable.getColumnModel().getColumn(i).setCellRenderer(zebra);
+            if (i == 0) { // ID
+                taskTable.getColumnModel().getColumn(i).setPreferredWidth(widths[0]);
+            } else if (i == 3) { // State
+                taskTable.getColumnModel().getColumn(i).setPreferredWidth(widths[1]);
+            } else if (i == 4) { // Priority
+                taskTable.getColumnModel().getColumn(i).setPreferredWidth(widths[2]);
+            }
+            taskTable.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
         }
     }
 
@@ -550,7 +552,7 @@ public class TaskManagerView extends JPanel implements TasksObserver, TaskAttrib
 
     private ITaskState toITaskState(TaskState taskState) {
         return switch (taskState) {
-            case TODO -> ToDoState.getInstance();
+            case TO_DO -> ToDoState.getInstance();
             case IN_PROGRESS -> InProgressState.getInstance();
             case COMPLETED -> CompletedState.getInstance();
         };

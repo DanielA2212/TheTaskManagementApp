@@ -28,8 +28,8 @@ public class DeadlineReminderDecorator extends TaskDecorator {
      */
     @Override
     public String getDescription() {
-        String base = delegate.getDescription();
-        if (delegate.getState() != TaskState.COMPLETED && isOlderThan(delegate.getCreationDate(), daysThreshold)) {
+        String base = getDelegate().getDescription();
+        if (getDelegate().getState() != TaskState.COMPLETED && isOlderThan(getDelegate().getCreationDate(), daysThreshold)) {
             return (base == null ? "" : base) + " [REMINDER: Due soon]";
         }
         return base;

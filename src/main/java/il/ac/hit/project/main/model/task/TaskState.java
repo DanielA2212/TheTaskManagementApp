@@ -8,7 +8,7 @@ public enum TaskState {
     /**
      * Task is yet to be started
      */
-    TODO("To Do"),
+    TO_DO("To Do"),
 
     /**
      * Task is currently being worked on
@@ -45,7 +45,7 @@ public enum TaskState {
      */
     public static TaskState fromStateType(ITaskState.StateType stateType) {
         return switch (stateType) {
-            case TODO -> TODO;
+            case TODO -> TO_DO;
             case IN_PROGRESS -> IN_PROGRESS;
             case COMPLETED -> COMPLETED;
         };
@@ -57,7 +57,7 @@ public enum TaskState {
      */
     public ITaskState.StateType toStateType() {
         return switch (this) {
-            case TODO -> ITaskState.StateType.TODO;
+            case TO_DO -> ITaskState.StateType.TODO;
             case IN_PROGRESS -> ITaskState.StateType.IN_PROGRESS;
             case COMPLETED -> ITaskState.StateType.COMPLETED;
         };
@@ -69,7 +69,7 @@ public enum TaskState {
      */
     public TaskState next() {
         return switch (this) {
-            case TODO -> IN_PROGRESS;
+            case TO_DO -> IN_PROGRESS;
             case IN_PROGRESS -> COMPLETED;
             case COMPLETED -> COMPLETED; // Stay in completed state
         };
@@ -81,8 +81,8 @@ public enum TaskState {
      */
     public TaskState previous() {
         return switch (this) {
-            case TODO -> TODO; // Stay in todo state
-            case IN_PROGRESS -> TODO;
+            case TO_DO -> TO_DO; // Stay in to Do state
+            case IN_PROGRESS -> TO_DO;
             case COMPLETED -> IN_PROGRESS;
         };
     }

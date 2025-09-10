@@ -16,10 +16,16 @@ public enum SortingOption {
         this.strategy = strategy;
     }
 
+    /**
+     * @return human-friendly label for UI selectors
+     */
     public String getDisplayName() {
         return displayName;
     }
 
+    /**
+     * @return associated concrete sorting strategy
+     */
     public SortingStrategy getStrategy() {
         return strategy;
     }

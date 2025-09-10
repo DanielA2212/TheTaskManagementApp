@@ -34,6 +34,15 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+/**
+ * ViewModel for the Task Manager (MVVM).
+ * <p>
+ * Responsibilities:
+ * - Mediates between View (UI) and Model (DAO).
+ * - Maintains in-memory task cache and applies filters (Combinator pattern) and sorting (Strategy pattern).
+ * - Publishes changes to observers (Observer pattern via TasksObserver and TaskAttributeObserver).
+ * - Coordinates async operations via an ExecutorService.
+ */
 public class TasksViewModel implements IViewModel {
     // ------------------------------------------------------------
     // Observer Wiring & Core State
@@ -134,7 +143,13 @@ public class TasksViewModel implements IViewModel {
 
     /** Notify all registered bulk tasks observers. */
     public void notifyObservers() {
+        // First, update the bound view directly (per IView contract)
+        if (view instanceof TasksObserver vo) {
+            vo.onTasksChanged(tasks);
+        }
+        // Then notify any additional observers, avoiding duplicate call to the view
         for (TasksObserver observer : observers) {
+            if (observer == view) { continue; }
             observer.onTasksChanged(tasks);
         }
     }
@@ -520,7 +535,7 @@ public class TasksViewModel implements IViewModel {
     private ITaskState createITaskStateFromTaskState(TaskState state) {
         if (state == null) throw new IllegalArgumentException("state cannot be null");
         return switch (state) {
-            case TODO -> ToDoState.getInstance();
+            case TO_DO -> ToDoState.getInstance();
             case IN_PROGRESS -> InProgressState.getInstance();
             case COMPLETED -> CompletedState.getInstance();
         };

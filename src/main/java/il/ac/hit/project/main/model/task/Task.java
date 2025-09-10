@@ -168,4 +168,5 @@ public class Task implements ITaskDetails {
 
     @Override
     public int hashCode() { return Integer.hashCode(id); }
+    // Additional methods and logic for task management follow the same commenting and JavaDoc conventions
 }

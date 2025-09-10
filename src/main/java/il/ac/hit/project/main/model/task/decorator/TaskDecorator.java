@@ -11,7 +11,7 @@ import java.util.Date;
  */
 public class TaskDecorator implements ITaskDetails {
     /** wrapped task instance (never null) */
-    protected final ITaskDetails delegate;
+    private final ITaskDetails delegate;
 
     /**
      * @param delegate non-null task to decorate
@@ -21,6 +21,11 @@ public class TaskDecorator implements ITaskDetails {
         if (delegate == null) throw new IllegalArgumentException("delegate cannot be null");
         this.delegate = delegate;
     }
+
+    /**
+     * Protected accessor for subclasses (keeps field private per code style rule).
+     */
+    protected ITaskDetails getDelegate() { return delegate; }
 
     @Override
     public int getId() { return delegate.getId(); }
