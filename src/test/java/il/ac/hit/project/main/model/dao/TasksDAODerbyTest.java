@@ -4,7 +4,16 @@ import il.ac.hit.project.main.model.task.*;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.AfterAll;
 import static org.junit.jupiter.api.Assertions.*;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 
 /**
  * Unit tests for the TasksDAODerby implementation
@@ -12,7 +21,27 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 public class TasksDAODerbyTest {
 
+    private static final String TEST_DERBY_HOME = "target/test-derby-home";
     private ITasksDAO tasksDAO;
+
+    @BeforeAll
+    public static void configureDerbyHome() throws IOException {
+        Path home = Paths.get(TEST_DERBY_HOME).toAbsolutePath();
+        Files.createDirectories(home);
+        System.setProperty("derby.system.home", home.toString());
+    }
+
+    @AfterAll
+    public static void shutdownDerby() {
+        try {
+            DriverManager.getConnection("jdbc:derby:;shutdown=true");
+        } catch (SQLException e) {
+            // Derby throws SQLState 08006 on successful shutdown
+            if (!"08006".equals(e.getSQLState())) {
+                e.printStackTrace();
+            }
+        }
+    }
 
     @BeforeEach
     public void setUp() throws TasksDAOException {
