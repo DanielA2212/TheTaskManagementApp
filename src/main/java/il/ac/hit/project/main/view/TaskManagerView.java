@@ -76,8 +76,8 @@ public class TaskManagerView extends JPanel implements TasksObserver, TaskAttrib
         deleteAllButton = new JButton("Delete All");
         reportButton = new JButton("Generate Report");
         exportCsvButton = new JButton("Export CSV+PDF");
-        upButton = new JButton("Next State");
-        downButton = new JButton("Previous State");
+        upButton = new JButton("Next State ↑");
+        downButton = new JButton("Previous State ↓");
         clearSelectionButton = new JButton("Clear Selection");
         searchClearButton = new JButton("X"); // Initialize search clear button
 
