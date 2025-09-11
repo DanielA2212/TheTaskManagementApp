@@ -1,4 +1,4 @@
-package il.ac.hit.project.test.model.task;
+package model.task;
 
 import il.ac.hit.project.main.model.task.*;
 import org.junit.jupiter.api.Test;
