@@ -217,7 +217,7 @@ public class TasksViewModel implements IViewModel {
      * Set programmatic filter (tests/advanced scenarios).
      * @param filter composite filter (null -> all)
      */
-    protected void setFilter(TaskFilter filter) {
+    public void setFilter(TaskFilter filter) {
         this.currentFilter = filter != null ? filter : TaskFilter.all();
         applyFilterAndSort();
         notifyObservers();

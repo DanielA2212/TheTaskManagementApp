@@ -1,7 +1,8 @@
 package il.ac.hit.project.test.model.report;
 
-import il.ac.hit.project.test.model.report.external.PdfReportWriter;
-import il.ac.hit.project.test.model.task.*;
+import il.ac.hit.project.main.model.report.ReportVisitor;
+import il.ac.hit.project.main.model.report.external.PdfReportWriter;
+import il.ac.hit.project.main.model.task.*;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;

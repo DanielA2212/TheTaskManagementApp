@@ -4,7 +4,7 @@ import il.ac.hit.project.main.model.task.ITask;
 
 /**
  * Interface for Task Data Access Object
- * Defines the contract for task persistence operations as per project requirements
+ * Defines the contract for task persistence operations
  */
 public interface ITasksDAO {
     /**

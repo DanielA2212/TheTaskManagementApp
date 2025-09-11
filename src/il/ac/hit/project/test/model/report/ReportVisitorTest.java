@@ -1,8 +1,9 @@
 package il.ac.hit.project.test.model.report;
 
-import il.ac.hit.project.test.model.report.external.CsvReportAdapter;
-import il.ac.hit.project.test.model.report.external.ReportExporter;
-import il.ac.hit.project.test.model.task.*;
+import il.ac.hit.project.main.model.report.ReportVisitor;
+import il.ac.hit.project.main.model.report.external.CsvReportAdapter;
+import il.ac.hit.project.main.model.report.external.ReportExporter;
+import il.ac.hit.project.main.model.task.*;
 import org.junit.jupiter.api.Test;
 import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
@@ -40,7 +41,7 @@ public class ReportVisitorTest {
         visitor.visit(t1);
         visitor.visit(t2);
 
-        ReportExporter exporter = new CsvReportAdapter(new il.ac.hit.project.test.model.report.external.CsvLibrary());
+        ReportExporter exporter = new CsvReportAdapter(new il.ac.hit.project.main.model.report.external.CsvLibrary());
         String csv = exporter.export(visitor.getTaskRecords());
 
         assertTrue(csv.startsWith("ID,Title,Description,State,Priority,Created,Updated,Category"));

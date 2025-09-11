@@ -1,6 +1,8 @@
 package il.ac.hit.project.test.model.task.decorator;
 
-import il.ac.hit.project.test.model.task.*;
+import il.ac.hit.project.main.model.task.*;
+import il.ac.hit.project.main.model.task.decorator.DeadlineReminderDecorator;
+import il.ac.hit.project.main.model.task.decorator.PriorityTagDecorator;
 import org.junit.jupiter.api.Test;
 import java.util.Date;
 import static org.junit.jupiter.api.Assertions.*;

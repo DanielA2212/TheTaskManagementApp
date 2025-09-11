@@ -1,7 +1,8 @@
 package il.ac.hit.project.test.model.report;
 
-import il.ac.hit.project.test.model.task.TaskPriority;
-import il.ac.hit.project.test.model.task.TaskState;
+import il.ac.hit.project.main.model.report.TaskRecord;
+import il.ac.hit.project.main.model.task.TaskPriority;
+import il.ac.hit.project.main.model.task.TaskState;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 

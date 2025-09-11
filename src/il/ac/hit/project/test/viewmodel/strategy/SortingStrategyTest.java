@@ -1,6 +1,9 @@
 package il.ac.hit.project.test.viewmodel.strategy;
 
-import il.ac.hit.project.test.model.task.*;
+import il.ac.hit.project.main.model.task.*;
+import il.ac.hit.project.main.viewmodel.strategy.SortByCreationDateStrategy;
+import il.ac.hit.project.main.viewmodel.strategy.SortByPriorityStrategy;
+import il.ac.hit.project.main.viewmodel.strategy.SortByTitleStrategy;
 import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.Date;

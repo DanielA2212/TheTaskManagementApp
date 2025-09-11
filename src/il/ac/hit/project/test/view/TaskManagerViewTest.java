@@ -1,8 +1,9 @@
 package il.ac.hit.project.test.view;
 
-import il.ac.hit.project.test.model.dao.ITasksDAO;
-import il.ac.hit.project.test.model.task.*;
-import il.ac.hit.project.test.viewmodel.TasksViewModel;
+import il.ac.hit.project.main.model.dao.ITasksDAO;
+import il.ac.hit.project.main.model.task.*;
+import il.ac.hit.project.main.view.TaskManagerView;
+import il.ac.hit.project.main.viewmodel.TasksViewModel;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;

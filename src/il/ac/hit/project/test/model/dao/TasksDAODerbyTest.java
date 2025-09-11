@@ -1,6 +1,12 @@
 package il.ac.hit.project.test.model.dao;
 
-import il.ac.hit.project.test.model.task.*;
+import il.ac.hit.project.main.model.dao.ITasksDAO;
+import il.ac.hit.project.main.model.dao.TasksDAODerby;
+import il.ac.hit.project.main.model.dao.TasksDAOException;
+import il.ac.hit.project.main.model.task.ITask;
+import il.ac.hit.project.main.model.task.ITaskDetails;
+import il.ac.hit.project.main.model.task.Task;
+import il.ac.hit.project.main.model.task.TaskPriority;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

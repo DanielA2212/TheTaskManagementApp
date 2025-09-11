@@ -1,6 +1,8 @@
 package il.ac.hit.project.test.viewmodel.combinator;
 
-import il.ac.hit.project.test.model.task.*;
+import il.ac.hit.project.main.model.task.*;
+import il.ac.hit.project.main.viewmodel.combinator.TaskFilter;
+import il.ac.hit.project.main.viewmodel.combinator.TaskFilters;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 

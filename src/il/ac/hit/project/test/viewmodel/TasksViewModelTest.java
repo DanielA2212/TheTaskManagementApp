@@ -1,12 +1,13 @@
 package il.ac.hit.project.test.viewmodel;
 
-import il.ac.hit.project.test.model.dao.ITasksDAO;
-import il.ac.hit.project.test.model.dao.TasksDAOException;
-import il.ac.hit.project.test.model.task.*;
+import il.ac.hit.project.main.model.dao.ITasksDAO;
+import il.ac.hit.project.main.model.dao.TasksDAOException;
+import il.ac.hit.project.main.model.task.*;
+import il.ac.hit.project.main.viewmodel.TasksViewModel;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import il.ac.hit.project.test.view.IView;
-import il.ac.hit.project.test.viewmodel.combinator.TaskFilter;
+import il.ac.hit.project.main.view.IView;
+import il.ac.hit.project.main.viewmodel.combinator.TaskFilter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -130,7 +131,7 @@ public class TasksViewModelTest {
         Thread.sleep(100);
 
         // Create a custom filter using the combinator pattern
-        TaskFilter highPriorityFilter = task -> ((il.ac.hit.project.test.model.task.ITaskDetails) task).getPriority() == TaskPriority.HIGH;
+        TaskFilter highPriorityFilter = task -> ((il.ac.hit.project.main.model.task.ITaskDetails) task).getPriority() == TaskPriority.HIGH;
         TaskFilter todoFilter = task -> task.getState() == TaskState.TO_DO;
 
         // Apply combined filter (high priority AND todo)

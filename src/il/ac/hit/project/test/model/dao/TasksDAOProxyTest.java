@@ -1,6 +1,9 @@
 package il.ac.hit.project.test.model.dao;
 
-import il.ac.hit.project.test.model.task.*;
+import il.ac.hit.project.main.model.dao.ITasksDAO;
+import il.ac.hit.project.main.model.dao.TasksDAOException;
+import il.ac.hit.project.main.model.dao.TasksDAOProxy;
+import il.ac.hit.project.main.model.task.*;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
 import static org.junit.jupiter.api.Assertions.*;

@@ -1,5 +1,6 @@
 package il.ac.hit.project.test.model.task;
 
+import il.ac.hit.project.main.model.task.*;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
