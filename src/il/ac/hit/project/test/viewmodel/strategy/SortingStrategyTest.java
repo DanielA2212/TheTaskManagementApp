@@ -1,4 +1,4 @@
-package il.ac.hit.project.test.viewmodel.strategy;
+package viewmodel.strategy;
 
 import il.ac.hit.project.main.model.task.*;
 import il.ac.hit.project.main.viewmodel.strategy.SortByCreationDateStrategy;

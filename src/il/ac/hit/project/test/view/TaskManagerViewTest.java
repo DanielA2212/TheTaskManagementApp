@@ -1,4 +1,4 @@
-package il.ac.hit.project.test.view;
+package view;
 
 import il.ac.hit.project.main.model.dao.ITasksDAO;
 import il.ac.hit.project.main.model.task.*;

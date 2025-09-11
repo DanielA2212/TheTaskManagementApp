@@ -1,4 +1,4 @@
-package il.ac.hit.project.test.viewmodel.combinator;
+package viewmodel.combinator;
 
 import il.ac.hit.project.main.model.task.*;
 import il.ac.hit.project.main.viewmodel.combinator.TaskFilter;

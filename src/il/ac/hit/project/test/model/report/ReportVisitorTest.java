@@ -1,4 +1,4 @@
-package il.ac.hit.project.test.model.report;
+package model.report;
 
 import il.ac.hit.project.main.model.report.ReportVisitor;
 import il.ac.hit.project.main.model.report.external.CsvReportAdapter;

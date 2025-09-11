@@ -1,4 +1,4 @@
-package il.ac.hit.project.test.model.task.decorator;
+package model.task.decorator;
 
 import il.ac.hit.project.main.model.task.*;
 import il.ac.hit.project.main.model.task.decorator.DeadlineReminderDecorator;

@@ -1,4 +1,4 @@
-package il.ac.hit.project.test.model.report;
+package model.report;
 
 import il.ac.hit.project.main.model.report.TaskRecord;
 import il.ac.hit.project.main.model.task.TaskPriority;

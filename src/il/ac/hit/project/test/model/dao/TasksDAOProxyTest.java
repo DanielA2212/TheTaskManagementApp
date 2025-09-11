@@ -1,4 +1,4 @@
-package il.ac.hit.project.test.model.dao;
+package model.dao;
 
 import il.ac.hit.project.main.model.dao.ITasksDAO;
 import il.ac.hit.project.main.model.dao.TasksDAOException;
