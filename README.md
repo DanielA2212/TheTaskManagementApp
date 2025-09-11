@@ -1,87 +1,135 @@
-Task Management Application (Design Patterns Final Project)
+# Task Management Application (Design Patterns Final Project)
 
-Overview
-- Java Swing desktop app following MVVM with embedded Apache Derby DB
-- Mandatory patterns: Combinator (filters), Visitor (records + pattern matching)
-- Additional patterns implemented: Proxy (DAO caching), Singleton (DAO + state singletons), Observer (attribute + task lifecycle updates), Strategy (sorting), State (task lifecycle), Decorator (task feature augmentation), Adapter (CSV export), (Optionally utility external PDF writer integration)
+## Overview
+Java Swing desktop application implementing MVVM and multiple GoF / enterprise patterns over an embedded Apache Derby database.
 
-Build and Run
-- Requirements: JDK 24+, Maven 3.9+
-- Run tests: mvn test
-- Build (skip tests): mvn -DskipTests package
-- Run app: java -jar target/task-management-app-1.0.0.jar
-- Fonts: If OpenSans fonts are present under TheFonts/ they are auto‑loaded for PDF; falls back to Helvetica otherwise.
+## Key Implemented Patterns
+- Mandatory: Combinator (task filters), Visitor (report aggregation + record pattern matching)
+- Additional: Proxy (DAO caching), Singleton (DAO + task state instances), Observer (attribute + collection updates), Strategy (sorting), State (task lifecycle), Decorator (task feature augmentation), Adapter (CSV export), (Record + switch expressions in Visitor logic)
 
-Key Modules
-- Model
-  - il.ac.hit.project.model.task.* (Task, ITask, State impls: ToDoState/InProgressState/CompletedState, TaskPriority, TaskState enum)
-  - il.ac.hit.project.model.task.decorator.* (TaskDecorator, PriorityTagDecorator, DeadlineReminderDecorator) – Decorator pattern
-  - il.ac.hit.project.model.dao.* (ITasksDAO, TasksDAODerby (Singleton), TasksDAOProxy (Proxy + caching), exceptions)
-  - il.ac.hit.project.model.report.* (TaskRecord record, ReportVisitor, TaskVisitor interface)
-  - il.ac.hit.project.model.report.external.* (CsvReportAdapter (Adapter), CsvLibrary (simulated external lib), PdfReportWriter (external-style utility), ReportExporter)
-- ViewModel: il.ac.hit.project.viewmodel.* (TasksViewModel + combinator filters + strategies)
-- View: il.ac.hit.project.view.* (TaskManagerView, observers & subjects for fine‑grained attribute notifications)
+## Project Structure
+Custom (non-standard Maven) layout intentionally kept as a single `src` root.
+```
+src/
+  il/ac/hit/project/main/              -> Production code root
+    model/                             -> Domain, DAO, report, task patterns
+    view/                              -> Swing UI (View layer)
+    viewmodel/                         -> ViewModel, filters (Combinator), strategies
+    Main.java                          -> Entry point
+  il/ac/hit/project/test/              -> Test sources (JUnit 5)
+    model/ view/ viewmodel/            -> Parallel test packages
+myfonts/                               -> Optional PDF fonts (OpenSans)
+lib/                                   -> (If any manual jars; Maven handles managed deps)
+taskDB/                                -> Embedded Derby database files (runtime)
+```
+Maven configuration excludes `il/ac/hit/project/test/**` from main compilation and treats it as test sources.
 
-Architectural Highlights
-- MVVM: View binds only to ViewModel; ViewModel mediates DAO; Model is isolated from Swing.
-- Observer: TaskAttributeSubject notifies TaskAttributeObserver + TasksObserver to refresh UI tables immediately when task fields change.
-- Strategy: Sorting strategies encapsulated; default by creation date; extendable via SortingOption.
-- Combinator: TaskFilter / TaskFilters compose search + state + additional programmatic filters using functional AND/OR.
-- State: ITaskState concrete singletons + TaskState enum bridging UI + internal logic; forward/back transitions handled in ViewModel.
-- Visitor: ReportVisitor collects TaskRecord snapshots; uses switch pattern matching on enum for categorization.
-- Adapter: CsvReportAdapter adapts CsvLibrary to a simple ReportExporter interface.
-- Decorator: PriorityTagDecorator / DeadlineReminderDecorator wrap ITask to enrich behavior without altering core Task.
-- Proxy: TasksDAOProxy caches read operations; invalidates on write (add/update/delete) for reduced DB IO.
-- Singleton: DAO instance, task state singletons, attribute subject.
+## Build & Run
+Requirements: JDK 24+, Maven 3.9+.
+```
+# Run full test suite
+mvn clean test
 
-Reporting
-- In‑app Generate Report builds a friend‑style textual report (--- Report --- buckets) consistent with provided reference PDF.
-- Export functionality writes both CSV (adapter) and PDF (PdfReportWriter) given a destination filename base.
-- PDF writer groups tasks by state, renders counts, and lists each bucket; attempts to use bundled or external fonts.
+# Build shaded (fat) jar
+mvn clean package
 
-Testing Coverage (JUnit)
-- DAO: Derby CRUD + Proxy caching behavior
-- Reporting: CSV escaping, PDF smoke test, Visitor categorization, TaskRecord categorization logic
-- Core Model: Task invariants & decorator behavior
-- ViewModel: Filtering (Combinator), Sorting (Strategy), state transitions, task lifecycle operations
-- Patterns thus covered: State, Strategy, Proxy, Decorator, Adapter (indirect via CSV export), Visitor
-(Tests target critical components per requirements.)
+# Skip tests (faster iteration)
+mvn -DskipTests package
 
-Requirements Mapping
-- CRUD (Add/Edit/Delete/List): Implemented via TasksViewModel + DAO + UI table refresh observers
-- State pattern: ToDoState / InProgressState / CompletedState (singletons) + TaskState enum mapping
-- Observer pattern: Attribute-level and collection observers update UI immediately
-- Visitor + records + pattern matching: ReportVisitor + TaskRecord record + switch expressions for categorization
-- Combinator filters: TaskFilter + TaskFilters (search + state + composed filters)
-- Embedded Derby: TasksDAODerby with schema auto-create and graceful shutdown
-- MVVM separation: View (Swing), ViewModel (logic), Model (data + patterns)
-- Additional patterns (≥4): Proxy, Singleton, Strategy, Observer, State, Decorator, Adapter (exceeds minimum)
-- Reporting export (friend-style + CSV + PDF): Implemented
-- Unit tests for critical components: Implemented (see Testing Coverage)
+# Run application
+java -jar target/task-management-app-1.0.0-shaded.jar
+```
+Main class: `il.ac.hit.project.main.Main` (stored in shaded manifest).
 
-Usage Notes
-- Table updates: Attribute observer notifications trigger UI refresh; asynchronous DAO operations run on a fixed thread pool.
-- State transitions: Up/Down buttons invoke moveTaskStateUp/Down converting enum to singleton ITaskState.
-- IDs assigned by DAO post-insert; Task#setId used only by DAO layer.
+## Runtime & Console Warnings (Expected / Benign)
+- SLF4J no provider: Add `slf4j-simple` or `logback-classic` if you want logging output; else ignore.
+- Derby shutdown (SQLState XJ015 / 08006): Thrown intentionally on successful embedded DB shutdown.
+- `sun.misc.Unsafe` deprecation (Byte Buddy / Guava): Informational on newer JDK; upgrade dependencies as they release updates.
+- Native load (Jansi via embedded Maven): Can be silenced with `--enable-native-access=ALL-UNNAMED` or disabled by `-Djansi.disable=true`.
 
-Submission Checklist (retain for reference)
-- Video (>60s) explaining Combinator, Visitor, and at least 4 additional patterns (Decorator, Adapter, Proxy, Strategy, State, Observer, Singleton)
-- ZIP of project, runnable JAR, PDF (team details + video link + per-pattern class mapping)
-- Filenames: firstname_lastname.zip / .pdf / .jar
+## Domain & Architectural Highlights
+- MVVM separation: View (Swing) <-binds-> ViewModel <-mediates-> DAO/Model
+- Observer granularity: Attribute-level updates trigger efficient table refreshes.
+- State pattern: `ITaskState` singletons (ToDo/InProgress/Completed) controlling allowed transitions.
+- Strategy pattern: Pluggable sorting strategies (creation date, priority, etc.).
+- Combinator filters: Functional composition (search text, state predicates, custom AND/OR chains).
+- Visitor + Records: `ReportVisitor` builds immutable `TaskRecord` snapshots; switch expressions categorize tasks.
+- Proxy caching: `TasksDAOProxy` caches read sets until write invalidation (add/update/delete).
+- Decorator: Additional task behaviors layered without modifying core `Task` (e.g. priority tag / deadline reminder).
+- Adapter: `CsvReportAdapter` adapts a simulated external CSV library to unified export interface.
 
-Troubleshooting
-- Derby files under taskDB/; do not edit manually.
-- If table exists, Derby SQLState X0Y32 expected & harmless.
-- PDF font fallback occurs if OpenSans not found.
+## Reporting Features
+- In-app “Generate Report” friend-readable textual summary.
+- CSV export (Adapter pattern) with proper quoting/escaping (JUnit test coverage).
+- PDF export using PDFBox; groups tasks by state, counts + list sections. Optional OpenSans font usage (fallback Helvetica).
 
-Repository Hygiene
-- Ensure local helper directory Stuff To Help/ is excluded via .gitignore (add if missing) to avoid committing reference materials.
+## Testing (JUnit 5)
+Representative suites (green):
+- DAO: Derby CRUD + proxy caching
+- Reporting: CSV escaping, PDF smoke test, visitor categorization
+- Model: Task invariants, decorators
+- ViewModel: Filters (combinator), sorting (strategy), lifecycle transitions
+- View: Basic interaction smoke test (where feasible headful-safe)
 
-License / Attribution
-- PDFBox used under Apache License 2.0 (dependency declared in pom.xml if present).
+Run:
+```
+mvn test
+```
+Reports: `target/surefire-reports/` (TXT + XML).
 
-Changelog (Recent Adjustments)
-- Added Decorator + Adapter patterns and associated tests
-- Enhanced reporting (CSV+PDF export) & friend-style textual output for GUI
-- Centralized filtering & sorting combinators; improved observer granularity
-- Expanded tests for PDF, CSV escaping, decorators, and categorization
+## Dependencies (Core)
+- Apache Derby (embedded DB)
+- PDFBox (report PDF generation)
+- JUnit Jupiter, Mockito, Awaitility (tests only)
+- Byte Buddy (transitive via Mockito; pinned for Java 24 compatibility)
+
+## Common Tasks
+| Goal | Command / Notes |
+|------|-----------------|
+| Clean + test | `mvn clean test` |
+| Build fast (skip tests) | `mvn -DskipTests package` |
+| Run app | `java -jar target/task-management-app-1.0.0-shaded.jar` |
+| Regenerate DB schema | Delete `taskDB/` (while app stopped) then rerun app (auto-create) |
+| View test reports | Open `target/surefire-reports` |
+
+## Troubleshooting
+| Symptom | Explanation / Fix |
+|---------|-------------------|
+| SLF4J no-provider warning | Add logging binding or ignore |
+| Derby shutdown exception at exit | Normal successful shutdown |
+| Unsafe deprecation warnings | Harmless on current JDK; update libs later |
+| Table already exists error (X0Y32) | Harmless — schema already created |
+| Fonts missing in PDF | Fallback Helvetica used automatically |
+
+## Extending
+- Add new filter: implement `TaskFilter` lambda and compose via `TaskFilters.and(...)`.
+- Add new sort: implement `Comparator<Task>` strategy and register with ViewModel.
+- Add export format: implement a new adapter matching existing exporter interface.
+- Add decorator: extend `TaskDecorator` and wrap tasks where feature is needed.
+
+## Database Notes
+- Embedded Derby files under `taskDB/`; do not modify manually.
+- Tests isolate DB under `target/test-derby-home/` to avoid locking production folder.
+
+## Packaging & Distribution
+The shaded JAR contains all runtime dependencies except the JDK. No external configuration required; DB created on first run.
+
+## License / Attribution
+- PDFBox & dependencies: Apache License 2.0
+- Any fonts (OpenSans) subject to their respective licenses (see `myfonts/README.txt`).
+
+## Change Log (Recent)
+- Consolidated sources under single `src` root with Maven exclusion for tests
+- Migrated all tests to pure JUnit 5 (removed TestNG)
+- Added CSV escaping test and PDF smoke validation
+- Refined shade plugin filters to reduce overlapping resource warnings
+- Clarified reporting and pattern mapping in docs
+
+## Future Enhancements (Optional)
+- Introduce SLF4J + Logback for structured logging
+- Add configurable user preferences (persistence layer abstraction)
+- Headless-friendly UI interaction tests via Robot / AssertJ Swing (if needed)
+- Rich PDF styling (tables, colors) with caching of fonts
+
+---
+Maintainer quick start: `mvn clean package && java -jar target/task-management-app-1.0.0-shaded.jar`.
