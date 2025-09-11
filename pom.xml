@@ -17,7 +17,7 @@
         <maven.compiler.source>24</maven.compiler.source>
         <maven.compiler.target>24</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <main.class>il.ac.hit.project.main.Main</main.class>
+        <main.class>il.ac.hit.project.Main</main.class>
         <junit.jupiter.version>5.10.0</junit.jupiter.version>
         <mockito.version>5.12.0</mockito.version>
         <bytebuddy.version>1.15.10</bytebuddy.version>

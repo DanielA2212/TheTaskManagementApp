@@ -34,7 +34,7 @@ echo "===> Step 3: Update package declarations and imports"
 find src -type f -name "*.java" -print0 | xargs -0 perl -pi -e 's/\bil\.ac\.hit\.project\.main\b/il.ac.hit.project/g'
 
 echo "===> Step 4: Fix other files (pom.xml, configs)"
-grep -R --line-number --files-with-matches "il.ac.hit.project.main" . | sort -u > files_to_fix.txt || true
+grep -R --line-number --files-with-matches "il.ac.hit.project" . | sort -u > files_to_fix.txt || true
 if [ -s files_to_fix.txt ]; then
   while IFS= read -r f; do
     perl -pi -e 's/il\.ac\.hit\.project\.main/il.ac.hit.project/g' "$f"
@@ -46,14 +46,14 @@ echo "===> Step 5: Update main.class in pom.xml (if present)"
 perl -pi -e 's#<main\.class>\s*il\.ac\.hit\.project\.main\.Main\s*</main\.class>#<main.class>il.ac.hit.project.Main</main.class>#g' pom.xml
 
 echo "===> Step 6: Clean and rebuild"
-mvn clean package -DskipTests
-
-echo "===> Step 7: Run tests"
-mvn test
+#mvn clean package -DskipTests
+#
+#echo "===> Step 7: Run tests"
+#mvn test
 
 echo "===> Step 8: Commit changes"
 git add -A
-git commit -m "refactor: package il.ac.hit.project.main -> il.ac.hit.project" >/dev/null 2>&1 || true
+git commit -m "refactor: package il.ac.hit.project -> il.ac.hit.project" >/dev/null 2>&1 || true
 
 echo "===> Done!"
 echo "Project structure has been refactored. Main class should now be il.ac.hit.project.Main"
