@@ -15,4 +15,6 @@ public interface IView extends TasksObserver {
     void setViewModel(IViewModel viewModel);
     /** Start (show) the il.ac.hit.project.main.view (invoked on EDT). */
     void start();
+    /** Display a user-facing message with a type (INFO/SUCCESS/WARN/ERROR). */
+    void showMessage(String message, MessageType type);
 }

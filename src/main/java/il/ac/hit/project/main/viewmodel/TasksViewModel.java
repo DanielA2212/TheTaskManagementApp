@@ -14,6 +14,7 @@ import il.ac.hit.project.main.model.task.TaskState;
 import il.ac.hit.project.main.view.TasksObserver;
 import il.ac.hit.project.main.view.TaskAttributeObserver;
 import il.ac.hit.project.main.view.IView;
+import il.ac.hit.project.main.view.MessageType;
 import il.ac.hit.project.main.viewmodel.combinator.TaskFilter;
 import il.ac.hit.project.main.viewmodel.combinator.TaskFilters;
 import il.ac.hit.project.main.viewmodel.strategy.SortingStrategy;
@@ -256,8 +257,14 @@ public class TasksViewModel implements IViewModel {
                 this.allTasks = new ArrayList<>(Arrays.asList(tasksArray));
                 applyFilterAndSort();
                 notifyObservers();
+                if (view != null) {
+                    view.showMessage("Tasks loaded (" + allTasks.size() + ")", MessageType.INFO);
+                }
             } catch (TasksDAOException e){
                 System.err.println("Error loading tasks: " + e.getMessage());
+                if (view != null) {
+                    view.showMessage("Error loading tasks: " + e.getMessage(), MessageType.ERROR);
+                }
             }
         });
     }
@@ -300,8 +307,14 @@ public class TasksViewModel implements IViewModel {
                 tasksDAO.addTask(newTask);
                 this.allTasks.add(newTask);
                 Task.getAttributeSubject().notifyTaskAdded(newTask);
+                if (view != null) {
+                    view.showMessage("Task '" + title + "' added", MessageType.SUCCESS);
+                }
             } catch (TasksDAOException e) {
                 System.err.println("Error adding task: " + e.getMessage());
+                if (view != null) {
+                    view.showMessage("Error adding task: " + e.getMessage(), MessageType.ERROR);
+                }
             }
         });
     }
@@ -330,15 +343,15 @@ public class TasksViewModel implements IViewModel {
                         .orElse(null);
                 if (found == null) {
                     found = (Task) tasksDAO.getTask(id);
-                    if (found == null) return;
-                    // Insert new instance if not present yet
-                    Task finalFound = found; // effectively final for this replaceAll
+                    if (found == null) {
+                        if (view != null) view.showMessage("Task not found: id=" + id, MessageType.WARNING);
+                        return;
+                    }
+                    Task finalFound = found;
                     allTasks.replaceAll(t -> t.getId() == id ? finalFound : t);
                 }
-                // Create effectively final reference for lambdas below
                 final Task taskRef = found;
 
-                // Apply updates (triggers observers)
                 taskRef.setTitle(newTitle);
                 taskRef.setDescription(newDescription);
                 taskRef.setState(newState);
@@ -348,8 +361,14 @@ public class TasksViewModel implements IViewModel {
                 allTasks.replaceAll(t -> t.getId() == id ? taskRef : t);
                 applyFilterAndSort();
                 notifyObservers();
+                if (view != null) {
+                    view.showMessage("Task updated: id=" + id, MessageType.SUCCESS);
+                }
             } catch (TasksDAOException e) {
                 System.err.println("Error updating task: " + e.getMessage());
+                if (view != null) {
+                    view.showMessage("Error updating task: " + e.getMessage(), MessageType.ERROR);
+                }
             }
         });
     }
@@ -364,9 +383,10 @@ public class TasksViewModel implements IViewModel {
         getService().submit(() -> {
             try {
                 Task task = (Task) tasksDAO.getTask(taskId);
-                if (task == null) return;
-
-                // Convert TaskState to ITaskState for setState method
+                if (task == null) {
+                    if (view != null) view.showMessage("Task not found: id=" + taskId, MessageType.WARNING);
+                    return;
+                }
                 TaskState newState = task.getState().next();
                 ITaskState newITaskState = createITaskStateFromTaskState(newState);
                 task.setState(newITaskState);
@@ -375,8 +395,14 @@ public class TasksViewModel implements IViewModel {
                 allTasks.replaceAll(t -> t.getId() == taskId ? task : t);
                 applyFilterAndSort();
                 notifyObservers();
+                if (view != null) {
+                    view.showMessage("Task advanced to " + newState.getDisplayName(), MessageType.SUCCESS);
+                }
             } catch (TasksDAOException e) {
                 System.err.println("Error updating task state: " + e.getMessage());
+                if (view != null) {
+                    view.showMessage("Error updating task state: " + e.getMessage(), MessageType.ERROR);
+                }
             }
         });
     }
@@ -391,9 +417,10 @@ public class TasksViewModel implements IViewModel {
         getService().submit(() -> {
             try {
                 Task task = (Task) tasksDAO.getTask(taskId);
-                if (task == null) return;
-
-                // Convert TaskState to ITaskState for setState method
+                if (task == null) {
+                    if (view != null) view.showMessage("Task not found: id=" + taskId, MessageType.WARNING);
+                    return;
+                }
                 TaskState newState = task.getState().previous();
                 ITaskState newITaskState = createITaskStateFromTaskState(newState);
                 task.setState(newITaskState);
@@ -402,8 +429,14 @@ public class TasksViewModel implements IViewModel {
                 allTasks.replaceAll(t -> t.getId() == taskId ? task : t);
                 applyFilterAndSort();
                 notifyObservers();
+                if (view != null) {
+                    view.showMessage("Task moved to " + newState.getDisplayName(), MessageType.SUCCESS);
+                }
             } catch (TasksDAOException e) {
                 System.err.println("Error updating task state: " + e.getMessage());
+                if (view != null) {
+                    view.showMessage("Error updating task state: " + e.getMessage(), MessageType.ERROR);
+                }
             }
         });
     }
@@ -428,8 +461,14 @@ public class TasksViewModel implements IViewModel {
                 if (taskToRemove != null) {
                     Task.getAttributeSubject().notifyTaskRemoved(taskToRemove);
                 }
+                if (view != null) {
+                    view.showMessage("Task deleted: id=" + id, MessageType.SUCCESS);
+                }
             } catch (TasksDAOException e) {
                 System.err.println("Error deleting task: " + e.getMessage());
+                if (view != null) {
+                    view.showMessage("Error deleting task: " + e.getMessage(), MessageType.ERROR);
+                }
             }
         });
     }
@@ -447,8 +486,14 @@ public class TasksViewModel implements IViewModel {
                 this.allTasks.clear();
                 this.tasks.clear();
                 notifyObservers();
+                if (view != null) {
+                    view.showMessage("All tasks deleted", MessageType.SUCCESS);
+                }
             } catch (TasksDAOException e) {
                 System.err.println("Error deleting tasks: " + e.getMessage());
+                if (view != null) {
+                    view.showMessage("Error deleting tasks: " + e.getMessage(), MessageType.ERROR);
+                }
             }
         });
     }

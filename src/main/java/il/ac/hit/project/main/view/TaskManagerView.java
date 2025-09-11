@@ -661,4 +661,28 @@ public class TaskManagerView extends JPanel implements TasksObserver, TaskAttrib
             }
         });
     }
+
+    /** Display a user-facing message with a type; updates status bar and shows a dialog for warnings/errors. */
+    @Override
+    public void showMessage(String message, MessageType type) {
+        Runnable r = () -> {
+            // Update status bar text and color
+            statusBar.setText(message == null ? "" : message);
+            Color color = switch (type == null ? MessageType.INFO : type) {
+                case SUCCESS -> new Color(0, 128, 0);
+                case WARNING -> new Color(184, 134, 11);
+                case ERROR -> Color.RED;
+                case INFO -> Color.DARK_GRAY;
+            };
+            statusBar.setForeground(color);
+
+            // For warnings/errors, also show a modal dialog
+            if (type == MessageType.ERROR) {
+                JOptionPane.showMessageDialog(window, message, "Error", JOptionPane.ERROR_MESSAGE);
+            } else if (type == MessageType.WARNING) {
+                JOptionPane.showMessageDialog(window, message, "Warning", JOptionPane.WARNING_MESSAGE);
+            }
+        };
+        if (SwingUtilities.isEventDispatchThread()) r.run(); else SwingUtilities.invokeLater(r);
+    }
 }
