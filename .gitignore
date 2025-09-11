@@ -21,4 +21,4 @@
 Thumbs.db
 
 # Project helper artifacts (exclude from VCS)
-Stuff To Help/
+/Stuff To Help/
