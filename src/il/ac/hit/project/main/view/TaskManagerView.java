@@ -1,7 +1,6 @@
 package il.ac.hit.project.main.view;
 
 import il.ac.hit.project.main.model.task.*;
-import il.ac.hit.project.main.model.task.decorator.DeadlineReminderDecorator;
 import il.ac.hit.project.main.viewmodel.IViewModel;
 import il.ac.hit.project.main.viewmodel.TasksViewModel;
 import il.ac.hit.project.main.viewmodel.strategy.SortingOption;
@@ -409,10 +408,9 @@ public class TaskManagerView extends JPanel implements TasksObserver, TaskAttrib
         SwingUtilities.invokeLater(() -> {
             tableModel.setRowCount(0);
             for (ITask task : tasks) {
-                ITask decorated = new DeadlineReminderDecorator((ITaskDetails) task, 3);
                 String createdDate = ((ITaskDetails) task).getCreationDate() != null ? dateFormat.format(((ITaskDetails) task).getCreationDate()) : "N/A";
                 String updatedDate = ((ITaskDetails) task).getUpdatedDate() != null ? dateFormat.format(((ITaskDetails) task).getUpdatedDate()) : "N/A";
-                tableModel.addRow(new Object[]{ task.getId(), task.getTitle(), decorated.getDescription(), task.getState().getDisplayName(), ((ITaskDetails) task).getPriority().getDisplayName(), createdDate, updatedDate });
+                tableModel.addRow(new Object[]{ task.getId(), task.getTitle(), task.getDescription(), task.getState().getDisplayName(), ((ITaskDetails) task).getPriority().getDisplayName(), createdDate, updatedDate });
             }
             currentTasks = tasks; updateStatusBar(tasks); deleteAllButton.setEnabled(!tasks.isEmpty());
         });

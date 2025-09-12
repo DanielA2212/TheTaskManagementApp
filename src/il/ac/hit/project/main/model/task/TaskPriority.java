@@ -38,4 +38,33 @@ public enum TaskPriority {
     public String toString() {
         return displayName;
     }
+
+    /**
+     * For backward-compatible parsing of stored priority strings
+     * (display names or enum names).
+     * @param raw raw value from the database
+     * @return corresponding TaskPriority
+     */
+    public static TaskPriority fromDbValue(String raw) {
+        if (raw == null || raw.isEmpty()) {
+            return LOW; // default fallback
+        }
+        // First try exact enum name (expected canonical storage form)
+        try {
+            return TaskPriority.valueOf(raw);
+        } catch (IllegalArgumentException ignore) { /* fall through */ }
+        // Try case-insensitive enum name match
+        for (TaskPriority p : values()) {
+            if (p.name().equalsIgnoreCase(raw)) {
+                return p;
+            }
+        }
+        // Try case-insensitive display name (legacy stored form: "Low", "Medium", "High")
+        for (TaskPriority p : values()) {
+            if (p.displayName.equalsIgnoreCase(raw)) {
+                return p;
+            }
+        }
+        return LOW; // final fallback to keep system resilient
+    }
 }

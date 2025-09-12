@@ -103,11 +103,11 @@ public class TaskManagerViewTest {
     }
 
     /**
-     * Verifies that onTasksChanged populates table rows and applies description decorator (REMINDER tag for stale To Do).
-     * GIVEN two tasks (one stale To Do, one Completed) WHEN onTasksChanged THEN table has 2 rows and first description contains REMINDER.
+     * Verifies that onTasksChanged populates table rows and does not apply any description decorator.
+     * GIVEN two tasks (one stale To Do, one Completed) WHEN onTasksChanged THEN table has 2 rows and first description is unchanged.
      */
     @Test
-    public void testOnTasksChangedRendersRowsAndDecoratedDescription() throws Exception {
+    public void testOnTasksChangedRendersRowsWithoutDecorators() throws Exception {
         // Arrange
         ITasksDAO dao = mock(ITasksDAO.class);
         TaskManagerView view = new TaskManagerView();
@@ -122,16 +122,14 @@ public class TaskManagerViewTest {
         view.onTasksChanged(List.of(t1, t2));
         waitForRows(view, 2);
 
-        // Assert table contents
+        // Assert table contents (no decorator expectation now)
         DefaultTableModel model = getModel(view);
         assertEquals(2, model.getRowCount());
         assertEquals("Alpha", model.getValueAt(0, 1));
-        String decoratedDesc = (String) model.getValueAt(0, 2);
-        assertTrue(decoratedDesc.contains("REMINDER"), "First row description should include REMINDER tag for old ToDo");
+        String rawDesc = (String) model.getValueAt(0, 2);
+        assertEquals("Desc", rawDesc, "Description should be unchanged (decorators removed)");
         assertEquals("Completed", model.getValueAt(1, 3));
         assertEquals(TaskPriority.HIGH.getDisplayName(), model.getValueAt(1, 4));
-
-        // Created/Updated should be filled (best-effort check for non-empty strings)
         assertNotNull(model.getValueAt(0, 5));
         assertNotNull(model.getValueAt(0, 6));
     }

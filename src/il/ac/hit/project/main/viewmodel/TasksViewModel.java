@@ -52,7 +52,7 @@ public class TasksViewModel implements IViewModel {
     // ------------------------------------------------------------
     // Observer Wiring & Core State
     // ------------------------------------------------------------
-    private IView view;                     // reference to view (may be swapped in tests)
+    private IView view;                     // reference to view (maybe swapped in tests)
     private ITasksDAO tasksDAO;             // backing DAO (proxy or concrete)
     private final List<TasksObserver> observers = new ArrayList<>(); // bulk observers
     private List<ITask> tasks = new ArrayList<>();       // visible (after filter + sort)
@@ -66,7 +66,7 @@ public class TasksViewModel implements IViewModel {
     /**
      * Construct a new ViewModel.
      * @param tasksDAO model data source (non-null)
-     * @param view view reference (may be null initially)
+     * @param view view reference (maybe null initially)
      * @throws IllegalArgumentException if tasksDAO null
      */
     public TasksViewModel(ITasksDAO tasksDAO, IView view) {
@@ -326,44 +326,28 @@ public class TasksViewModel implements IViewModel {
 
     /**
      * Asynchronously add a new task (title required); notifies observers on success.
-     * @param title non-null/non-blank title
-     * @param description optional description (nullable)
-     * @param priority priority (null -> MEDIUM default)
-     * @throws IllegalArgumentException if title null/blank
+     * (Decorator pattern removed: creates plain Task only.)
      */
     public void addTask(String title, String description, TaskPriority priority) {
-        /* Purpose: create & persist new task asynchronously */
         if (title == null || title.isBlank()) throw new IllegalArgumentException("title cannot be null/blank");
-        final TaskPriority effPriority = (priority == null ? TaskPriority.MEDIUM : priority); // default fallback
+        final TaskPriority effPriority = (priority == null ? TaskPriority.MEDIUM : priority);
         getService().submit(() -> {
             try {
                 ITask newTask = new Task(0, title, description, ToDoState.getInstance(), new Date(), effPriority);
-                tasksDAO.addTask(newTask);               // persist new task
-                this.allTasks.add(newTask);              // update cache
-                Task.getAttributeSubject().notifyTaskAdded(newTask); // granular event
-                if (view != null) {
-                    view.showMessage("Task '" + title + "' added", MessageType.SUCCESS);
-                }
+                tasksDAO.addTask(newTask);
+                this.allTasks.add(newTask);
+                Task.getAttributeSubject().notifyTaskAdded(newTask);
+                if (view != null) view.showMessage("Task '" + title + "' added", MessageType.SUCCESS);
             } catch (TasksDAOException e) {
                 System.err.println("Error adding task: " + e.getMessage());
-                if (view != null) {
-                    view.showMessage("Error adding task: " + e.getMessage(), MessageType.ERROR);
-                }
+                if (view != null) view.showMessage("Error adding task: " + e.getMessage(), MessageType.ERROR);
             }
         });
     }
 
-    /**
-     * UI handler variant delegating to addTask (retained for clarity / tests).
-     * @param title title text
-     * @param description description text
-     * @param priority priority selection
-     */
+    /** UI delegate (no decorators). */
     public void addButtonPressed(String title, String description, TaskPriority priority){
-        /* Purpose: UI delegate wrapper for addTask */
-        if (!title.isEmpty()) { // simple UI validation
-            addTask(title, description, priority);
-        }
+        if (!title.isEmpty()) addTask(title, description, priority);
     }
 
     /**
@@ -621,7 +605,7 @@ public class TasksViewModel implements IViewModel {
         /* Purpose: swap underlying DAO (tests) */
         this.tasksDAO = tasksDAO;
     }
-    /** @return current bound view (may be null) */
+    /** @return current bound view (maybe null) */
     @Override public IView getView() {
         /* Purpose: expose bound view */
         return view;
