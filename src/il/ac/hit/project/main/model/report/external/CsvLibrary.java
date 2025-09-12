@@ -10,7 +10,7 @@ public class CsvLibrary {
     /**
      * Produce CSV given header and 2D rows.
      * @param header array of column names (must not be null; elements may be empty)
-     * @param rows 2D array of row values (may be empty but not null)
+     * @param rows 2D array of row values (maybe empty but not null)
      * @return constructed CSV string (never null)
      */
     public String writeCsv(String[] header, String[][] rows) {

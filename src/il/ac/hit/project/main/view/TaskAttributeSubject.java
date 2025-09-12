@@ -11,7 +11,6 @@ import java.util.Date;
  * Subject class for Task attribute changes using Observer pattern.
  * Publishes fine‑grained change events (state/title/priority/etc.) to registered observers.
  * Acts as a lightweight event bus decoupling model changes from UI refresh logic.
- * @author Course
  */
 public class TaskAttributeSubject {
     /** Singleton instance */
@@ -24,6 +23,7 @@ public class TaskAttributeSubject {
 
     /**
      * @return singleton instance of the attribute subject
+     * Purpose: expose global singleton
      */
     public static TaskAttributeSubject getInstance() {
         return instance;
@@ -32,6 +32,7 @@ public class TaskAttributeSubject {
     /**
      * Register an observer for task attribute changes.
      * @param observer observer to add (ignored if null)
+     * Purpose: register observer (null tolerated)
      */
     public void addObserver(TaskAttributeObserver observer) {
         observers.add(observer);
@@ -44,6 +45,7 @@ public class TaskAttributeSubject {
      * @param task affected task
      * @param oldState previous state
      * @param newState new state
+     * Purpose: broadcast state change
      */
     public void notifyStateChanged(ITask task, ITaskState oldState, ITaskState newState) {
         for (TaskAttributeObserver observer : observers) {
@@ -56,6 +58,7 @@ public class TaskAttributeSubject {
      * @param task affected task
      * @param oldTitle previous title
      * @param newTitle new title
+     * Purpose: broadcast title change
      */
     public void notifyTitleChanged(ITask task, String oldTitle, String newTitle) {
         for (TaskAttributeObserver observer : observers) {
@@ -68,6 +71,7 @@ public class TaskAttributeSubject {
      * @param task affected task
      * @param oldPriority previous priority
      * @param newPriority new priority
+     * Purpose: broadcast priority change
      */
     public void notifyPriorityChanged(ITask task, TaskPriority oldPriority, TaskPriority newPriority) {
         for (TaskAttributeObserver observer : observers) {
@@ -80,6 +84,7 @@ public class TaskAttributeSubject {
      * @param task affected task
      * @param oldDescription previous description
      * @param newDescription new description
+     * Purpose: broadcast description change
      */
     public void notifyDescriptionChanged(ITask task, String oldDescription, String newDescription) {
         for (TaskAttributeObserver observer : observers) {
@@ -92,6 +97,7 @@ public class TaskAttributeSubject {
      * @param task affected task
      * @param oldDate previous updated date
      * @param newDate new updated date
+     * Purpose: broadcast updated timestamp change
      */
     public void notifyUpdatedDateChanged(ITask task, Date oldDate, Date newDate) {
         for (TaskAttributeObserver observer : observers) {
@@ -102,6 +108,7 @@ public class TaskAttributeSubject {
     /**
      * Notify observers that a task was added.
      * @param task newly added task
+     * Purpose: broadcast addition
      */
     public void notifyTaskAdded(ITask task) {
         for (TaskAttributeObserver observer : observers) {
@@ -112,6 +119,7 @@ public class TaskAttributeSubject {
     /**
      * Notify observers that a task was removed.
      * @param task removed task
+     * Purpose: broadcast removal
      */
     public void notifyTaskRemoved(ITask task) {
         for (TaskAttributeObserver observer : observers) {

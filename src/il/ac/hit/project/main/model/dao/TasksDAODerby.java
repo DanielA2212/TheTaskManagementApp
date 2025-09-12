@@ -1,8 +1,6 @@
 package il.ac.hit.project.main.model.dao;
 
 import il.ac.hit.project.main.model.task.*;
-
-//Sql imports
 import java.sql.DriverManager;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -11,52 +9,58 @@ import java.sql.ResultSet;
 import java.sql.PreparedStatement;
 import java.sql.Timestamp;
 import java.sql.DatabaseMetaData;
-
-//Util imports
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Date;
 
 /**
- * Derby database implementation of ITasksDAO.
- * <p>Responsibilities:</p>
+ * Embedded Apache Derby implementation of {@link ITasksDAO}.
+ * <p>
+ * Design & Patterns:
  * <ul>
- *   <li>Managing embedded Derby connection lifecycle.</li>
- *   <li>Ensuring schema creation & evolution.</li>
- *   <li>Performing CRUD operations with Task hydration.</li>
+ *   <li><b>Singleton</b> – single shared connection & schema bootstrap.</li>
+ *   <li><b>DAO</b> – abstracts persistence from higher layers (ViewModel).</li>
+ *   <li><b>Resilience</b> – creates / evolves schema on first access (idempotent).</li>
  * </ul>
- * Implements Singleton pattern as required by project specifications
+ * Notes:
+ * <ul>
+ *   <li>All SQL statements are built with minimal concatenation to satisfy static analysis warnings.</li>
+ *   <li>Identity sequence is aligned after table creation / detection to keep IDs contiguous after resets.</li>
+ *   <li>Column additions are backward compatible for existing tables (schema evolution).</li>
+ * </ul>
  */
 @SuppressWarnings({"ALL"})
 public class TasksDAODerby implements ITasksDAO {
-    // Singleton instance
+    /** Singleton instance */
     private static TasksDAODerby instance = null;
+    /** Dedicated JDBC connection kept open for app lifetime */
     private final Connection connection;
+    /** Derby connection URL (create=true => auto create if absent) */
     private static final String DB_URL = "jdbc:derby:taskDB;create=true";
 
     /**
-     * Private constructor to prevent direct instantiation
-     * ensures proper connection to the DB.
+     * Private constructor: initializes connection and ensures schema exists.
+     * @throws TasksDAOException if connection or schema init fails
      */
     private TasksDAODerby() throws TasksDAOException {
         try {
-            connection = DriverManager.getConnection(DB_URL);
-            createTasksTable();
+            connection = DriverManager.getConnection(DB_URL); // open embedded connection
+            createTasksTable(); // bootstrap / evolve schema
         } catch (SQLException e) {
             throw new TasksDAOException("Failed to connect to database", e);
         }
     }
 
     /**
-     * Gets the singleton instance of TasksDAODerby.
-     * @return singleton instance
-     * @throws TasksDAOException on connection / initialization failure
+     * Obtain (and lazily create) singleton DAO instance.
+     * @return shared instance
+     * @throws TasksDAOException if construction fails
      */
     public static synchronized TasksDAODerby getInstance() throws TasksDAOException {
-        if (instance == null) {
+        if (instance == null) { // first call -> create instance
             instance = new TasksDAODerby();
         }
-        return instance;
+        return instance; // return cached instance
     }
 
     // ------------------------------------------------------------
@@ -64,12 +68,13 @@ public class TasksDAODerby implements ITasksDAO {
     // ------------------------------------------------------------
 
     /**
-     * Creates the tasks table if it doesn't exist; otherwise ensures schema is up-to-date.
-     * @throws SQLException on DDL failure
+     * Create tasks table (if missing) then align identity sequence and ensure columns.
+     * Uses SQLState "X0Y32" to detect existing table (Derby specific code).
+     * @throws SQLException on any non-ignorable DDL failure
      */
     @SuppressWarnings({"SqlNoDataSourceInspection", "SqlDialectInspection"})
     private void createTasksTable() throws SQLException {
-        // Build SQL piecemeal to avoid static SQL inspections
+        // Build SQL statement piecemeal to avoid static analyzer warnings about long literals
         StringBuilder sb = new StringBuilder();
         sb.append("CREATE ").append("TABLE tasks (")
           .append(" id INTEGER NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),")
@@ -81,82 +86,80 @@ public class TasksDAODerby implements ITasksDAO {
           .append(" updated_date TIMESTAMP NOT NULL,")
           .append(" PRIMARY KEY (id)")
           .append(")");
-        String createTableSQL = sb.toString();
+        String createTableSQL = sb.toString(); // final DDL
 
         try (Statement statement = connection.createStatement()) {
-            statement.executeUpdate(createTableSQL);
+            statement.executeUpdate(createTableSQL); // attempt create
             System.out.println("Tasks table created successfully");
-            alignIdentitySequence();
+            alignIdentitySequence();                 // align ids after fresh create
         } catch (SQLException e) {
-            if (!"X0Y32".equals(e.getSQLState())) { // Table already exists
+            if (!"X0Y32".equals(e.getSQLState())) { // Non "table exists" -> propagate
                 System.err.println("Table creation error: " + e.getMessage());
                 throw e;
             } else {
-                // Table exists; ensure it has required columns
-                ensureTasksTableSchema();
-                alignIdentitySequence();
+                ensureTasksTableSchema(); // evolve existing table (add missing columns)
+                alignIdentitySequence();  // still realign sequence (safe)
             }
         }
     }
 
     /**
-     * Align identity sequence so that the next generated id is MAX(id)+1 or 1 if the table is empty.
+     * Align identity sequence (RESTART WITH) so next id = MAX(id)+1 or 1 if table empty.
+     * Prevents id reuse after deletes & preserves monotonic growth.
      * @throws SQLException on failure
      */
     @SuppressWarnings({"SqlNoDataSourceInspection", "SqlDialectInspection"})
     private void alignIdentitySequence() throws SQLException {
-        int nextId = 1;
+        int nextId = 1; // default minimal id
         try (Statement stmt = connection.createStatement();
-             ResultSet rs = stmt.executeQuery("SELECT " + "MAX" + "(id) FROM tasks")) {
-            if (rs.next()) {
+             ResultSet rs = stmt.executeQuery("SELECT " + "MAX" + "(id) FROM tasks")) { // get current max id
+            if (rs.next()) { // has result row
                 int maxId = rs.getInt(1);
-                if (!rs.wasNull() && maxId > 0) {
-                    nextId = maxId + 1;
+                if (!rs.wasNull() && maxId > 0) { // found valid max
+                    nextId = maxId + 1; // advance by one
                 }
             }
         }
-        try (Statement stmt = connection.createStatement()) {
+        try (Statement stmt = connection.createStatement()) { // set restart value
             String alter = "ALTER " + "TABLE tasks ALTER COLUMN id RESTART WITH " + nextId;
             stmt.executeUpdate(alter);
         }
     }
 
     /**
-     * Ensures existing TASKS table has all required columns; adds missing ones with sensible defaults.
-     * @throws SQLException on failure
+     * Ensure legacy tasks table has all required columns; add if missing using DEFAULT constraints.
+     * @throws SQLException on DDL failure
      */
     private void ensureTasksTableSchema() throws SQLException {
-        DatabaseMetaData meta = connection.getMetaData();
-        // Derby stores unquoted identifiers in uppercase
+        DatabaseMetaData meta = connection.getMetaData(); // metadata snapshot
+        // Derby stores unquoted identifiers in uppercase (normalize checks)
         boolean hasDescription = hasColumn(meta, "TASKS", "DESCRIPTION");
-        boolean hasPriority = hasColumn(meta, "TASKS", "PRIORITY");
-        boolean hasState = hasColumn(meta, "TASKS", "STATE");
-        boolean hasCreated = hasColumn(meta, "TASKS", "CREATED_DATE");
-        boolean hasUpdated = hasColumn(meta, "TASKS", "UPDATED_DATE");
+        boolean hasPriority    = hasColumn(meta, "TASKS", "PRIORITY");
+        boolean hasState       = hasColumn(meta, "TASKS", "STATE");
+        boolean hasCreated     = hasColumn(meta, "TASKS", "CREATED_DATE");
+        boolean hasUpdated     = hasColumn(meta, "TASKS", "UPDATED_DATE");
 
         try (Statement stmt = connection.createStatement()) {
-            if (!hasDescription) {
-                stmt.executeUpdate("ALTER " + "TABLE tasks ADD COLUMN description CLOB");
-            }
-            if (!hasPriority) {
-                stmt.executeUpdate("ALTER " + "TABLE tasks ADD COLUMN priority VARCHAR(10) NOT NULL DEFAULT 'LOW'");
-            }
-            if (!hasState) {
-                stmt.executeUpdate("ALTER " + "TABLE tasks ADD COLUMN state VARCHAR(20) NOT NULL DEFAULT 'TODO'");
-            }
-            if (!hasCreated) {
-                stmt.executeUpdate("ALTER " + "TABLE tasks ADD COLUMN created_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP");
-            }
-            if (!hasUpdated) {
-                stmt.executeUpdate("ALTER " + "TABLE tasks ADD COLUMN updated_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP");
-            }
+            if (!hasDescription) { stmt.executeUpdate("ALTER " + "TABLE tasks ADD COLUMN description CLOB"); }
+            if (!hasPriority)    { stmt.executeUpdate("ALTER " + "TABLE tasks ADD COLUMN priority VARCHAR(10) NOT NULL DEFAULT 'LOW'"); }
+            if (!hasState)       { stmt.executeUpdate("ALTER " + "TABLE tasks ADD COLUMN state VARCHAR(20) NOT NULL DEFAULT 'TODO'"); }
+            if (!hasCreated)     { stmt.executeUpdate("ALTER " + "TABLE tasks ADD COLUMN created_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP"); }
+            if (!hasUpdated)     { stmt.executeUpdate("ALTER " + "TABLE tasks ADD COLUMN updated_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP"); }
         }
     }
 
+    /**
+     * Helper to check column existence via DatabaseMetaData.
+     * @param meta metadata reference
+     * @param table uppercase table name
+     * @param column uppercase column name
+     * @return true if column exists
+     * @throws SQLException on metadata access failure
+     */
     @SuppressWarnings({"SqlNoDataSourceInspection", "SqlDialectInspection", "SameParameterValue"})
     private boolean hasColumn(DatabaseMetaData meta, String table, String column) throws SQLException {
         try (ResultSet rs = meta.getColumns(null, null, table, column)) {
-            return rs.next();
+            return rs.next(); // returns at least one row if column present
         }
     }
 
@@ -164,11 +167,16 @@ public class TasksDAODerby implements ITasksDAO {
     // CRUD Operations
     // ------------------------------------------------------------
 
+    /**
+     * Insert a new task row populating all persistent columns; sets generated id back onto task.
+     * @param task non-null task instance
+     * @throws TasksDAOException on SQL error
+     */
     @Override
     @SuppressWarnings({"SqlNoDataSourceInspection", "SqlDialectInspection"})
     public void addTask(ITask task) throws TasksDAOException {
-        if (task == null) throw new IllegalArgumentException("task cannot be null");
-        ITaskDetails details = (ITaskDetails) task;
+        if (task == null) throw new IllegalArgumentException("task cannot be null"); // argument validation
+        ITaskDetails details = (ITaskDetails) task; // downcast for extended fields
 
         String insertSQL = "INSERT " + "INTO tasks (title, description, priority, state, created_date, updated_date) VALUES (?, ?, ?, ?, ?, ?)";
         try {
@@ -180,45 +188,55 @@ public class TasksDAODerby implements ITasksDAO {
                 pstmt.setTimestamp(5, new Timestamp(details.getCreationDate().getTime()));
                 pstmt.setTimestamp(6, new Timestamp(details.getUpdatedDate().getTime()));
 
-                pstmt.executeUpdate();
+                pstmt.executeUpdate(); // perform insert
 
-                try (ResultSet keys = pstmt.getGeneratedKeys()) {
+                try (ResultSet keys = pstmt.getGeneratedKeys()) { // capture identity
                     if (keys.next()) {
                         int generatedId = keys.getInt(1);
-                        details.setId(generatedId);
+                        details.setId(generatedId); // write back id to in-memory object
                     }
                 }
             }
-        } catch (SQLException e) {
+        } catch (SQLException e) { // wrap into DAO exception
             throw new TasksDAOException("Failed to add task", e);
         }
     }
 
+    /**
+     * Retrieve all tasks ordered by id ascending.
+     * @return array of hydrated task instances (never null)
+     * @throws TasksDAOException on SQL failure
+     */
     @Override
     @SuppressWarnings({"SqlNoDataSourceInspection", "SqlDialectInspection"})
     public ITask[] getTasks() throws TasksDAOException {
-        List<ITask> tasks = new ArrayList<>();
-        String selectSQL = "SELECT * " + "FROM tasks ORDER BY id";
+        List<ITask> tasks = new ArrayList<>(); // dynamic accumulation
+        String selectSQL = "SELECT * " + "FROM tasks ORDER BY id"; // stable order for UI mapping
 
         try (Statement stmt = connection.createStatement();
              ResultSet rs = stmt.executeQuery(selectSQL)) {
 
-            while (rs.next()) {
-                ITask task = createTaskFromResultSet(rs);
-                tasks.add(task);
+            while (rs.next()) { // iterate rows
+                ITask task = createTaskFromResultSet(rs); // map row to Task
+                tasks.add(task); // append
             }
-        } catch (SQLException e) {
+        } catch (SQLException e) { // propagate as DAO exception
             throw new TasksDAOException("Failed to get tasks", e);
         }
 
-        return tasks.toArray(new ITask[0]);
+        return tasks.toArray(new ITask[0]); // convert to array (spec requirement)
     }
 
+    /**
+     * Persist updated task fields (title, description, priority, state, updated_date).
+     * @param task non-null existing task
+     * @throws TasksDAOException on SQL failure
+     */
     @Override
     @SuppressWarnings({"SqlNoDataSourceInspection", "SqlDialectInspection"})
     public void updateTask(ITask task) throws TasksDAOException {
-        if (task == null) throw new IllegalArgumentException("task cannot be null");
-        ITaskDetails details = (ITaskDetails) task;
+        if (task == null) throw new IllegalArgumentException("task cannot be null"); // validation
+        ITaskDetails details = (ITaskDetails) task; // extended details
 
         String updateSQL = "UPDATE tasks SET title = ?, description = ?, priority = ?, state = ?, updated_date = ? WHERE id = ?";
 
@@ -230,53 +248,68 @@ public class TasksDAODerby implements ITasksDAO {
             pstmt.setTimestamp(5, new Timestamp(details.getUpdatedDate().getTime()));
             pstmt.setInt(6, task.getId());
 
-            pstmt.executeUpdate();
+            pstmt.executeUpdate(); // perform update
         } catch (SQLException e) {
             throw new TasksDAOException("Failed to update task", e);
         }
     }
 
+    /**
+     * Delete a single task by id.
+     * @param id positive identifier
+     * @throws TasksDAOException on SQL failure
+     */
     @Override
     @SuppressWarnings({"SqlNoDataSourceInspection", "SqlDialectInspection"})
     public void deleteTask(int id) throws TasksDAOException {
         if (id <= 0) throw new IllegalArgumentException("id must be positive");
 
-        String deleteSQL = "DELETE " + "FROM tasks WHERE id = ?";
+        String deleteSQL = "DELETE " + "FROM tasks WHERE id = ?"; // parameterized delete
 
         try (PreparedStatement pstmt = connection.prepareStatement(deleteSQL)) {
             pstmt.setInt(1, id);
-            pstmt.executeUpdate();
+            pstmt.executeUpdate(); // execute
         } catch (SQLException e) {
             throw new TasksDAOException("Failed to delete task", e);
         }
     }
 
+    /**
+     * Delete all tasks (truncation substitute preserving identity sequence alignment logic externally).
+     * @throws TasksDAOException on SQL failure
+     */
     @Override
     @SuppressWarnings({"SqlNoDataSourceInspection", "SqlDialectInspection"})
     public void deleteTasks() throws TasksDAOException {
-        String deleteSQL = "DELETE " + "FROM tasks";
+        String deleteSQL = "DELETE " + "FROM tasks"; // plain table delete
 
         try (Statement stmt = connection.createStatement()) {
-            stmt.executeUpdate(deleteSQL);
+            stmt.executeUpdate(deleteSQL); // bulk delete
         } catch (SQLException e) {
             throw new TasksDAOException("Failed to delete all tasks", e);
         }
     }
 
+    /**
+     * Retrieve a single task by id.
+     * @param id positive id
+     * @return hydrated task
+     * @throws TasksDAOException if not found or on SQL failure
+     */
     @Override
     @SuppressWarnings({"SqlNoDataSourceInspection", "SqlDialectInspection"})
     public ITask getTask(int id) throws TasksDAOException {
         if (id <= 0) throw new IllegalArgumentException("id must be positive");
 
-        String selectSQL = "SELECT * " + "FROM tasks WHERE id = ?";
+        String selectSQL = "SELECT * " + "FROM tasks WHERE id = ?"; // targeted select
 
         try (PreparedStatement pstmt = connection.prepareStatement(selectSQL)) {
             pstmt.setInt(1, id);
 
-            try (ResultSet rs = pstmt.executeQuery()) {
-                if (rs.next()) {
+            try (ResultSet rs = pstmt.executeQuery()) { // execute query
+                if (rs.next()) { // found row
                     return createTaskFromResultSet(rs);
-                } else {
+                } else { // missing row
                     throw new TasksDAOException("Task not found with id: " + id);
                 }
             }
@@ -286,10 +319,10 @@ public class TasksDAODerby implements ITasksDAO {
     }
 
     /**
-     * Helper method to create a Task object from ResultSet.
-     * @param rs result set positioned on a row
-     * @return hydrated task
-     * @throws SQLException on column access error
+     * Map a result set row to a concrete {@link Task} instance including state + timestamps.
+     * @param rs positioned result set
+     * @return task object
+     * @throws SQLException on column access failure
      */
     @SuppressWarnings({"SqlNoDataSourceInspection", "SqlDialectInspection"})
     private ITask createTaskFromResultSet(ResultSet rs) throws SQLException {
@@ -301,37 +334,35 @@ public class TasksDAODerby implements ITasksDAO {
         Timestamp createdDate = rs.getTimestamp("created_date");
         Timestamp updatedDate = rs.getTimestamp("updated_date");
 
-        // Create appropriate state based on state type
-        ITaskState state = createStateFromString(stateType);
+        ITaskState state = createStateFromString(stateType); // decode state strategy
 
-        Task task = new Task(id, title, description, state, new Date(createdDate.getTime()), priority);
-        task.setUpdatedDate(new Date(updatedDate.getTime()));
+        Task task = new Task(id, title, description, state, new Date(createdDate.getTime()), priority); // hydrate
+        task.setUpdatedDate(new Date(updatedDate.getTime())); // apply updated timestamp
 
-        return task;
+        return task; // return hydrated entity
     }
 
     /**
-     * Helper method to create ITaskState from string.
-     * @param stateType state column raw value
-     * @return matching state (defaults to ToDoState if unknown)
+     * Convert a raw state string to the corresponding ITaskState singleton (fallback TO_DO).
+     * @param stateType database string
+     * @return state singleton
      */
     private ITaskState createStateFromString(String stateType) {
         return switch (stateType) {
             case "TODO" -> ToDoState.getInstance();
             case "IN_PROGRESS" -> InProgressState.getInstance();
             case "COMPLETED" -> CompletedState.getInstance();
-            default -> ToDoState.getInstance(); // Default to TO DO if unknown
+            default -> ToDoState.getInstance(); // fallback state
         };
     }
 
     /**
-     * Closes the database connection.
-     * @throws TasksDAOException on close failure
+     * Close the underlying connection (not typically invoked – lifecycle bound to JVM).
+     * @throws TasksDAOException if closing fails
      */
-    @SuppressWarnings("unused")
     public void close() throws TasksDAOException {
         try {
-            if (connection != null && !connection.isClosed()) {
+            if (connection != null && !connection.isClosed()) { // ensure open
                 connection.close();
             }
         } catch (SQLException e) {

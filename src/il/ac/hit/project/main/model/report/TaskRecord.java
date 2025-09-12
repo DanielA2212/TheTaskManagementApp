@@ -55,7 +55,7 @@ public record TaskRecord(
     /**
      * Pattern matching for task categorization using TaskState enum
      * Demonstrates pattern matching as required by project specifications
-     * @return human readable category label
+     * @return human-readable category label
      * Categorizes the task based on its state and priority
      */
     public String categorize() {

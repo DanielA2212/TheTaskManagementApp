@@ -8,7 +8,6 @@ import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
 import org.apache.pdfbox.pdmodel.font.PDType0Font;
 import org.apache.pdfbox.pdmodel.font.Standard14Fonts;
-
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -120,7 +119,7 @@ public final class PdfReportWriter {
 
     private static org.apache.pdfbox.pdmodel.font.PDFont loadFont(PDDocument doc, boolean bold) {
         String name = bold ? "OpenSans-Bold.ttf" : "OpenSans-Regular.ttf";
-        File external = new File("TheFonts/" + name);
+        File external = new File("thefonts/" + name);
         if (external.exists()) {
             try { return PDType0Font.load(doc, external); } catch (IOException ignored) { }
         }

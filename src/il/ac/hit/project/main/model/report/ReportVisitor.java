@@ -7,7 +7,6 @@ import java.util.ArrayList;
 /**
  * Visitor that collects tasks into an internal list for generating multiple report formats.
  * Implements the Visitor pattern with Java records & pattern matching (TaskRecord + switch expressions).
- * @author Course
  */
 public class ReportVisitor implements TaskVisitor {
     /** Collected task records (in visit order) */
@@ -20,8 +19,9 @@ public class ReportVisitor implements TaskVisitor {
      */
     @Override
     public void visit(ITask task) {
+        /* Capture the current state of the task as an immutable TaskRecord */
         if (task == null) throw new IllegalArgumentException("task cannot be null");
-        taskRecords.add(TaskRecord.fromTask(task));
+        taskRecords.add(TaskRecord.fromTask(task)); // append snapshot
     }
 
     /**
@@ -29,6 +29,7 @@ public class ReportVisitor implements TaskVisitor {
      * @return report text (never null)
      */
     public String generateReport() {
+        /* Build a categorized + summarized textual report with CSV-like section */
         StringBuilder report = new StringBuilder();
         report.append("=== TASK MANAGEMENT REPORT ===\n\n");
 
@@ -37,9 +38,9 @@ public class ReportVisitor implements TaskVisitor {
         List<TaskRecord> todoTasks = new ArrayList<>();
         List<TaskRecord> inProgressTasks = new ArrayList<>();
         List<TaskRecord> completedTasks = new ArrayList<>();
-        for (TaskRecord record : taskRecords) {
-            if (record.isUrgent()) urgentTasks.add(record);
-            switch (record.state()) {
+        for (TaskRecord record : taskRecords) { // iterate collected snapshots
+            if (record.isUrgent()) urgentTasks.add(record); // urgency bucket
+            switch (record.state()) { // state buckets
                 case TO_DO -> todoTasks.add(record);
                 case IN_PROGRESS -> inProgressTasks.add(record);
                 case COMPLETED -> completedTasks.add(record);
@@ -57,7 +58,7 @@ public class ReportVisitor implements TaskVisitor {
         java.util.List<TaskRecord> completed = new java.util.ArrayList<>();
         java.util.List<TaskRecord> inProgress = new java.util.ArrayList<>();
         java.util.List<TaskRecord> todo = new java.util.ArrayList<>();
-        for (TaskRecord r : taskRecords) {
+        for (TaskRecord r : taskRecords) { // second pass for ordering
             switch (r.state()) {
                 case COMPLETED -> completed.add(r);
                 case IN_PROGRESS -> inProgress.add(r);
@@ -68,21 +69,23 @@ public class ReportVisitor implements TaskVisitor {
         java.util.Comparator<TaskRecord> cmp = java.util.Comparator
             .comparing(TaskRecord::creationDate, java.util.Comparator.nullsLast(java.util.Comparator.naturalOrder()))
             .thenComparingInt(TaskRecord::id);
-        completed.sort(cmp); inProgress.sort(cmp); todo.sort(cmp);
+        completed.sort(cmp); inProgress.sort(cmp); todo.sort(cmp); // stable ordering for output
 
         // -------- CSV-like section --------
         report.append("TASK CATEGORIZATION:\n");
         report.append("ID,Title,Description,State,Priority,CreationDate\n");
-        java.text.SimpleDateFormat csvDf = new java.text.SimpleDateFormat("MMM d, yyyy, h:mm:ss a", java.util.Locale.US);
-        java.util.function.Consumer<TaskRecord> lineWriter = rec -> {
-            String created = rec.creationDate() != null ? '"' + csvDf.format(rec.creationDate()) + '"' : "";
+        java.time.format.DateTimeFormatter csvDf =
+                java.time.format.DateTimeFormatter.ofPattern("MMM d, yyyy, h:mm:ss a", java.util.Locale.US);
+        java.util.function.Consumer<TaskRecord> lineWriter = rec -> { // lambda for DRY line writing
+            String created = rec.creationDate() != null ? '"' + csvDf.format(
+                    rec.creationDate().toInstant().atZone(java.time.ZoneId.systemDefault())) + '"' : "";
             report.append(rec.id()).append(',')
                   .append(escape(rec.title())).append(',')
                   .append(escape(rec.description())).append(',')
                   .append(rec.state().getDisplayName()).append(',')
                   .append(rec.priority().getDisplayName()).append(',')
                   .append(created).append('\n'); };
-        completed.forEach(lineWriter); inProgress.forEach(lineWriter); todo.forEach(lineWriter);
+        completed.forEach(lineWriter); inProgress.forEach(lineWriter); todo.forEach(lineWriter); // write ordered blocks
         return report.toString();
     }
 
@@ -91,22 +94,24 @@ public class ReportVisitor implements TaskVisitor {
      * @param s input string
      * @return escaped string
      */
-// Handles commas and quotes for CSV compliance
-    private String escape(String s) { if (s == null) return ""; return (s.contains(",") || s.contains("\"") ? '"' + s.replace("\"", "\"\"") + '"' : s); }
+    private String escape(String s) {
+        /* Escape commas and quotes to maintain CSV structure */
+        if (s == null) return ""; return (s.contains(",") || s.contains("\"") ? '"' + s.replace("\"", "\"\"") + '"' : s);
+    }
 
     /** @return defensive copy of collected task records */
-    public List<TaskRecord> getTaskRecords() { return new ArrayList<>(taskRecords); }
+    public List<TaskRecord> getTaskRecords() { /* Provide immutable-style access */ return new ArrayList<>(taskRecords); }
 
     /**
      * Generate the friend-style bucketed report (exact label formatting required by spec alignment).
      * @return bucketed textual report (never null)
      */
     public String generateFriendStyleReport() {
-        // -------- Bucket tasks by state --------
+        /* Build a human-friendly state-bucketed report used by UI & tests */
         List<TaskRecord> todo = new ArrayList<>();
         List<TaskRecord> inProgress = new ArrayList<>();
         List<TaskRecord> completed = new ArrayList<>();
-        for (TaskRecord r : taskRecords) {
+        for (TaskRecord r : taskRecords) { // distribute into buckets
             switch (r.state()) {
                 case TO_DO -> todo.add(r);
                 case IN_PROGRESS -> inProgress.add(r);
@@ -129,7 +134,7 @@ public class ReportVisitor implements TaskVisitor {
         return sb.toString();
     }
 
-    private String formatLine(TaskRecord r) {
+    private String formatLine(TaskRecord r) { /* Format single record for friend-style report */
         return "Task {" +
                 "ID= " + r.id() +
                 ", Title= '" + (r.title() == null ? "" : r.title()) + "'" +
@@ -141,5 +146,5 @@ public class ReportVisitor implements TaskVisitor {
                 '}';
     }
 
-    private String truncate(String s){ return s.length() <= 60 ? s : s.substring(0,57) + "..."; }
+    private String truncate(String s){ /* Truncate long descriptions for concise report lines */ return s.length() <= 60 ? s : s.substring(0,57) + "..."; }
 }

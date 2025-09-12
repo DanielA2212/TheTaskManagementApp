@@ -7,7 +7,6 @@ import java.util.Date;
  * Concrete implementation of ITask interface.
  * Represents a task with its properties (id, title, description, state, timestamps and priority).
  * Validates input through setters to ensure integrity as per code style guidelines.
- * @author Course
  */
 public class Task implements ITaskDetails {
     /** unique identifier (assigned by DAO) */
@@ -33,6 +32,7 @@ public class Task implements ITaskDetails {
      * @throws IllegalArgumentException on invalid args
      */
     public Task(String title, String description, TaskPriority priority) {
+        /* Initialize new task with default state (To Do) and timestamps */
         this.createdDate = new Date();
         this.updatedDate = new Date();
         // use setters (except id) so validation is centralized
@@ -52,6 +52,7 @@ public class Task implements ITaskDetails {
      * @param priority non-null priority
      */
     public Task(int id, String title, String description, ITaskState state, Date createdDate, TaskPriority priority) {
+        /* Reconstruct task from persistence layer (DAO) */
         this.id = id;
         this.createdDate = createdDate == null ? new Date() : createdDate;
         this.updatedDate = new Date();
@@ -63,16 +64,17 @@ public class Task implements ITaskDetails {
     }
 
     @Override
-    public int getId() { return id; }
+    public int getId() { /* Return immutable identifier once set by DAO */ return id; }
 
     @Override
-    public void setId(int id) { this.id = id; }
+    public void setId(int id) { /* Assign identifier (DAO callback after insert) */ this.id = id; }
 
     @Override
-    public String getTitle() { return title; }
+    public String getTitle() { /* Provide current title */ return title; }
 
     @Override
     public void setTitle(String title) {
+        /* Validate & update title; notify observers if changed */
         if (title == null || title.isBlank()) throw new IllegalArgumentException("title cannot be null/blank");
         String oldTitle = this.title;
         this.title = title;
@@ -83,10 +85,11 @@ public class Task implements ITaskDetails {
     }
 
     @Override
-    public String getDescription() { return description; }
+    public String getDescription() { /* Provide description text */ return description; }
 
     @Override
     public void setDescription(String description) {
+        /* Normalize null to empty string and notify on change */
         String normalized = description == null ? "" : description;
         String oldDescription = this.description;
         this.description = normalized;
@@ -100,10 +103,11 @@ public class Task implements ITaskDetails {
      * Gets the task state as TaskState enum (required by project specs)
      */
     @Override
-    public TaskState getState() { return TaskState.fromStateType(state.getStateType()); }
+    public TaskState getState() { /* Map strategy to enum for external API */ return TaskState.fromStateType(state.getStateType()); }
 
     @Override
     public void setState(ITaskState state) {
+        /* Replace state strategy instance and fire observer event */
         if (state == null) throw new IllegalArgumentException("state cannot be null");
         ITaskState oldState = this.state;
         this.state = state;
@@ -114,10 +118,11 @@ public class Task implements ITaskDetails {
     }
 
     @Override
-    public TaskPriority getPriority() { return priority; }
+    public TaskPriority getPriority() { /* Return priority enum */ return priority; }
 
     @Override
     public void setPriority(TaskPriority priority) {
+        /* Update priority with validation and notify observers */
         if (priority == null) throw new IllegalArgumentException("priority cannot be null");
         TaskPriority oldPriority = this.priority;
         this.priority = priority;
@@ -128,21 +133,22 @@ public class Task implements ITaskDetails {
     }
 
     @Override
-    public Date getCreationDate() { return createdDate; }
+    public Date getCreationDate() { /* Expose immutable creation timestamp */ return createdDate; }
 
     @Override
-    public Date getUpdatedDate() { return updatedDate; }
+    public Date getUpdatedDate() { /* Return last modification timestamp */ return updatedDate; }
 
     /**
      * Sets the last updated date of the task (hydration use only — no notifications).
      * @param updatedDate date to set
      */
-    public void setUpdatedDate(Date updatedDate) { this.updatedDate = updatedDate == null ? new Date() : updatedDate; }
+    public void setUpdatedDate(Date updatedDate) { /* Direct assignment used during DAO hydration */ this.updatedDate = updatedDate == null ? new Date() : updatedDate; }
 
     /**
      * Helper that updates updatedDate and notifies observers about the timestamp change.
      */
     private void touchAndNotifyUpdatedDate() {
+        /* Record old timestamp then update & broadcast change */
         Date oldDate = this.updatedDate;
         this.updatedDate = new Date();
         if (oldDate != null) {
@@ -151,16 +157,16 @@ public class Task implements ITaskDetails {
     }
 
     /** @return global attribute subject singleton */
-    public static TaskAttributeSubject getAttributeSubject() { return TaskAttributeSubject.getInstance(); }
+    public static TaskAttributeSubject getAttributeSubject() { /* Centralized observer hub */ return TaskAttributeSubject.getInstance(); }
 
     @Override
-    public String toString() {
+    public String toString() { /* Human-readable diagnostic representation */
         return String.format("Task{id=%d, title='%s', description='%s', state=%s, priority=%s, created=%s, updated=%s}",
                 id, title, description, state.getStateType(), priority, createdDate, updatedDate);
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(Object obj) { /* Identity equality based on id */
         if (this == obj) return true;
         if (obj == null || getClass() != obj.getClass()) return false;
         Task task = (Task) obj;
@@ -168,6 +174,6 @@ public class Task implements ITaskDetails {
     }
 
     @Override
-    public int hashCode() { return Integer.hashCode(id); }
+    public int hashCode() { /* Hash consistent with equals (id only) */ return Integer.hashCode(id); }
     // Additional methods and logic for task management follow the same commenting and JavaDoc conventions
 }

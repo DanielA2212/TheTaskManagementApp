@@ -70,6 +70,7 @@ public class TasksViewModel implements IViewModel {
      * @throws IllegalArgumentException if tasksDAO null
      */
     public TasksViewModel(ITasksDAO tasksDAO, IView view) {
+        /* Purpose: construct ViewModel, capture DAO & view, initialize executor & default strategy */
         if (tasksDAO == null) throw new IllegalArgumentException("tasksDAO cannot be null");
         this.tasksDAO = tasksDAO;
         this.view = view;
@@ -84,7 +85,8 @@ public class TasksViewModel implements IViewModel {
      * @param option desired sorting option (nullable)
      */
     public void changeSorting(SortingOption option) {
-        if (option != null) { // guard clause for null input
+        /* Purpose: switch active sorting strategy based on user selection */
+        if (option != null) {
             setSortingStrategy(option.getStrategy());
         }
     }
@@ -95,9 +97,11 @@ public class TasksViewModel implements IViewModel {
      * re-apply current filters/sorting to refresh the visible list.
      */
     public void registerAttributeObservers() {
+        /* Purpose: subscribe to fine-grained Task attribute events and trigger recompute */
         Task.getAttributeSubject().addObserver(new TaskAttributeObserver() {
             @Override
             public void onStateChanged(ITask task, ITaskState oldState, ITaskState newState) {
+                /* Purpose: handle state mutation */
                 System.out.println("Task " + task.getId() + " state changed from " +
                     oldState.getDisplayName() + " to " + newState.getDisplayName());
                 applyFilterAndSort(); // recompute with new state
@@ -154,6 +158,7 @@ public class TasksViewModel implements IViewModel {
      * @param observer observer instance (ignored if null)
      */
     public void addObserver(TasksObserver observer) {
+        /* Purpose: register bulk observer for list changes */
         observers.add(observer); // no null check -> consistent with existing simplicity
     }
 
@@ -162,6 +167,7 @@ public class TasksViewModel implements IViewModel {
      * If the bound view implements TasksObserver it is notified first for deterministic ordering.
      */
     public void notifyObservers() {
+        /* Purpose: broadcast visible list changes to all listeners */
         if (view instanceof TasksObserver vo) { // primary view update
             vo.onTasksChanged(tasks);
         }
@@ -180,6 +186,7 @@ public class TasksViewModel implements IViewModel {
      * Rebuilds the tasks field from the allTasks cache after composing active filters.
      */
     private void applyFilterAndSort() {
+        /* Purpose: recompute visible tasks from cache using filters & current sort */
         TaskFilter combinedFilter = createCombinedFilter(); // compose UI + programmatic
         this.tasks = allTasks.stream()
             .filter(combinedFilter::test)
@@ -194,6 +201,7 @@ public class TasksViewModel implements IViewModel {
      * @return combined AND filter representing current state
      */
     private TaskFilter createCombinedFilter() {
+        /* Purpose: AND-combine search, state, and programmatic filters */
         TaskFilter searchFilter = TaskFilters.bySearchText(currentSearchText); // text match filter
         TaskFilter stateFilter = TaskFilters.byStateDisplayName(currentStateFilter); // state display filter
         TaskFilter combinedUIFilter = searchFilter.and(stateFilter); // AND combine UI filters
@@ -206,6 +214,7 @@ public class TasksViewModel implements IViewModel {
      * @param searchText new search text (nullable)
      */
     public void filterTasks(String searchText) {
+        /* Purpose: update free-text filter & refresh visible list */
         this.currentSearchText = searchText != null ? searchText : ""; // normalize
         applyFilterAndSort();
         notifyObservers();
@@ -216,6 +225,7 @@ public class TasksViewModel implements IViewModel {
      * @param stateFilter display name or null for All
      */
     public void filterByState(String stateFilter) {
+        /* Purpose: update state display filter & refresh */
         this.currentStateFilter = stateFilter != null ? stateFilter : "All"; // default sentinel
         applyFilterAndSort();
         notifyObservers();
@@ -226,6 +236,7 @@ public class TasksViewModel implements IViewModel {
      * @param filter composite filter (null -> match all)
      */
     public void setFilter(TaskFilter filter) {
+        /* Purpose: set programmatic filter (tests / advanced scenarios) */
         this.currentFilter = filter != null ? filter : TaskFilter.all(); // fallback
         applyFilterAndSort();
         notifyObservers();
@@ -235,6 +246,7 @@ public class TasksViewModel implements IViewModel {
      * Clear all active filters (search + state + programmatic) returning to full dataset view.
      */
     public void clearFilters() {
+        /* Purpose: reset all filters to defaults */
         this.currentSearchText = "";
         this.currentStateFilter = "All";
         this.currentFilter = TaskFilter.all();
@@ -248,6 +260,7 @@ public class TasksViewModel implements IViewModel {
      * @throws IllegalArgumentException if strategy null
      */
     protected void setSortingStrategy(SortingStrategy strategy) {
+        /* Purpose: change active strategy & reapply ordering */
         if (strategy == null) throw new IllegalArgumentException("strategy cannot be null");
         this.currentSortingStrategy = strategy;
         applyFilterAndSort();
@@ -263,6 +276,7 @@ public class TasksViewModel implements IViewModel {
      * UI feedback provided via IView.showMessage.
      */
     public final void loadTasks() {
+        /* Purpose: async load from DAO into cache then refresh visible list */
         getService().submit(() -> {
             try {
                 ITask[] tasksArray = tasksDAO.getTasks(); // fetch snapshot
@@ -286,6 +300,7 @@ public class TasksViewModel implements IViewModel {
      * @return shared ExecutorService
      */
     public java.util.concurrent.ExecutorService getService() {
+        /* Purpose: expose executor for tests */
         return service;
     }
 
@@ -293,6 +308,7 @@ public class TasksViewModel implements IViewModel {
      * Gracefully shutdown executor service interrupting lingering tasks after timeout.
      */
     public void shutdown() {
+        /* Purpose: gracefully terminate executor service */
         try {
             service.shutdown(); // begin graceful shutdown
             if (!service.awaitTermination(5, TimeUnit.SECONDS)) { // wait briefly
@@ -316,6 +332,7 @@ public class TasksViewModel implements IViewModel {
      * @throws IllegalArgumentException if title null/blank
      */
     public void addTask(String title, String description, TaskPriority priority) {
+        /* Purpose: create & persist new task asynchronously */
         if (title == null || title.isBlank()) throw new IllegalArgumentException("title cannot be null/blank");
         final TaskPriority effPriority = (priority == null ? TaskPriority.MEDIUM : priority); // default fallback
         getService().submit(() -> {
@@ -343,6 +360,7 @@ public class TasksViewModel implements IViewModel {
      * @param priority priority selection
      */
     public void addButtonPressed(String title, String description, TaskPriority priority){
+        /* Purpose: UI delegate wrapper for addTask */
         if (!title.isEmpty()) { // simple UI validation
             addTask(title, description, priority);
         }
@@ -357,6 +375,7 @@ public class TasksViewModel implements IViewModel {
      * @param newPriority new priority (non-null)
      */
     public void updateTask(int id, String newTitle, String newDescription, ITaskState newState, TaskPriority newPriority) {
+        /* Purpose: mutate task fields & persist asynchronously */
         getService().submit(() -> {
             try {
                 Task found = (Task) allTasks.stream() // search cache first
@@ -399,6 +418,7 @@ public class TasksViewModel implements IViewModel {
      * UI delegate for updateTask.
      */
     public void updateButtonPressed(int id, String newTitle, String newDescription, ITaskState newState, TaskPriority newPriority) {
+        /* Purpose: UI delegate wrapper for updateTask */
         updateTask(id, newTitle, newDescription, newState, newPriority);
     }
 
@@ -407,6 +427,7 @@ public class TasksViewModel implements IViewModel {
      * @param taskId target id
      */
     public void moveTaskStateUp(int taskId) {
+        /* Purpose: advance task state along workflow */
         getService().submit(() -> {
             try {
                 Task task = (Task) tasksDAO.getTask(taskId); // fetch fresh instance
@@ -444,6 +465,7 @@ public class TasksViewModel implements IViewModel {
      * @param taskId task id
      */
     public void moveTaskStateDown(int taskId) {
+        /* Purpose: regress task state along workflow */
         getService().submit(() -> {
             try {
                 Task task = (Task) tasksDAO.getTask(taskId);
@@ -481,6 +503,7 @@ public class TasksViewModel implements IViewModel {
      * @param id task id
      */
     public void deleteTask(int id) {
+        /* Purpose: remove single task (async) and notify */
         getService().submit(() -> {
             try {
                 ITask taskToRemove = allTasks.stream() // locate in cache (for notification only)
@@ -515,6 +538,7 @@ public class TasksViewModel implements IViewModel {
      * Delete ALL tasks (bulk) clearing both caches and notifying observers.
      */
     public void deleteAllTasks() {
+        /* Purpose: bulk delete all tasks and clear caches */
         getService().submit(() -> {
             try {
                 tasksDAO.deleteTasks();       // remove all in storage
@@ -542,6 +566,7 @@ public class TasksViewModel implements IViewModel {
      * @return formatted multi-line report string
      */
     public String generateReportTextSync() {
+        /* Purpose: build friend-style report synchronously for UI display */
         ReportVisitor visitor = new ReportVisitor();
         for (ITask task : allTasks) { // visit all cached tasks
             visitor.visit(task);
@@ -555,6 +580,7 @@ public class TasksViewModel implements IViewModel {
      * @throws java.io.IOException if writing either file fails
      */
     public void exportReports(File destinationChosen) throws IOException {
+        /* Purpose: write CSV + PDF reports beside chosen file (synchronous IO) */
         String name = destinationChosen.getName(); // derive base name
         int dot = name.lastIndexOf('.');
         if (dot > 0) {
@@ -587,18 +613,22 @@ public class TasksViewModel implements IViewModel {
 
     /** Assign view reference used for user feedback. */
     @Override public void setView(IView view) {
+        /* Purpose: rebind view reference */
         this.view = view;
     }
     /** Assign DAO reference (swappable for tests). */
     @Override public void setModel(ITasksDAO tasksDAO) {
+        /* Purpose: swap underlying DAO (tests) */
         this.tasksDAO = tasksDAO;
     }
     /** @return current bound view (may be null) */
     @Override public IView getView() {
+        /* Purpose: expose bound view */
         return view;
     }
     /** @return backing DAO */
     @Override public ITasksDAO getModel() {
+        /* Purpose: expose DAO */
         return tasksDAO;
     }
 
@@ -612,6 +642,7 @@ public class TasksViewModel implements IViewModel {
      * @throws IllegalArgumentException if state null
      */
     private ITaskState createITaskStateFromTaskState(TaskState state) {
+        /* Purpose: map enum to concrete singleton strategy */
         if (state == null) throw new IllegalArgumentException("state cannot be null");
         return switch (state) {
             case TO_DO -> ToDoState.getInstance();

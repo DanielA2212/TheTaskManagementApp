@@ -6,25 +6,22 @@ import java.text.SimpleDateFormat;
 import java.util.List;
 
 /**
- * Adapter that adapts an external CSV library to our ReportExporter interface
- * This class implements the Adapter design pattern.
- * @author Course
+ * Adapter that adapts an external CSV library to our ReportExporter interface.
+ * Implements the Adapter design pattern to decouple application from third‑party API shape.
  */
 public class CsvReportAdapter implements ReportExporter {
-    /**
-     * Underlying external CSV library (never null)
-     */
+    /** Underlying external CSV library (never null) */
     private final CsvLibrary csvLibrary;
-    /**
-     * Date formatter for timestamp columns (thread confined)
-     */
+    /** Date formatter for timestamp columns (thread confined) */
     private final SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     /**
+     * Create a new adapter around the provided library instance.
      * @param csvLibrary non-null external library instance
      * @throws IllegalArgumentException if csvLibrary is null
      */
     public CsvReportAdapter(CsvLibrary csvLibrary) {
+        /* Purpose: capture dependency and validate argument */
         if (csvLibrary == null) throw new IllegalArgumentException("csvLibrary cannot be null");
         this.csvLibrary = csvLibrary;
     }
@@ -36,10 +33,11 @@ public class CsvReportAdapter implements ReportExporter {
      */
     @Override
     public String export(List<TaskRecord> records) {
-        List<TaskRecord> safe = records == null ? List.of() : records;
+        /* Purpose: transform domain TaskRecord list into 2D string matrix for CsvLibrary */
+        List<TaskRecord> safe = records == null ? List.of() : records; // normalize null
         String[] header = {"ID", "Title", "Description", "State", "Priority", "Created", "Updated", "Category"};
-        String[][] rows = new String[safe.size()][];
-        for (int i = 0; i < safe.size(); i++) {
+        String[][] rows = new String[safe.size()][]; // allocate matrix
+        for (int i = 0; i < safe.size(); i++) { // row population
             TaskRecord r = safe.get(i);
             rows[i] = new String[] {
                 String.valueOf(r.id()),
@@ -52,13 +50,14 @@ public class CsvReportAdapter implements ReportExporter {
                 r.categorize()
             };
         }
-        return csvLibrary.writeCsv(header, rows);
+        return csvLibrary.writeCsv(header, rows); // delegate to external lib
     }
 
     /**
-     * Helper to safely handle null strings for CSV export
+     * Helper to safely handle null strings for CSV export.
      * @param s input string
      * @return non-null string
      */
-    private String safe(String s) { return s == null ? "" : s; }
+    private String safe(String s) {  return s == null ? "" : s; }
+    /* Purpose: ensure null is represented as empty field */
 }

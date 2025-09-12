@@ -16,11 +16,8 @@ import java.io.IOException;
 import java.awt.event.ActionEvent;
 
 /**
- * Swing-based il.ac.hit.project.main.view component (View in MVVM) for managing tasks.
- * <p>Responsible only for UI concerns: rendering, user interaction, and delegating
- * actions to the ViewModel. Receives il.ac.hit.project.main.model updates via Observer interfaces
- * (TasksObserver + TaskAttributeObserver) to keep the table and form in sync.</p>
- * @author Course
+ * Swing-based view (View in MVVM) for managing tasks.
+ * Responsible strictly for presentation & delegating user actions to the ViewModel.
  */
 public class TaskManagerView extends JPanel implements TasksObserver, TaskAttributeObserver, IView {
     // ----------------------------- UI Fields -----------------------------
@@ -57,19 +54,15 @@ public class TaskManagerView extends JPanel implements TasksObserver, TaskAttrib
      * The caller must assign a ViewModel via setViewModel and then call start().
      */
     public TaskManagerView() {
-        // Create UI base components
+        /* Purpose: build and layout all Swing components, wire listeners (no model logic) */
         contentPane = new JPanel(new BorderLayout(10, 10));
         contentPane.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-
-        // Setting up input components
-        taskTitleInputF = new JTextField(20);
-        descriptionInputTA = new JTextArea(3, 20);
+        taskTitleInputF = new JTextField(20); // title field
+        descriptionInputTA = new JTextArea(3, 20); // description area
         descriptionInputTA.setLineWrap(true);
         descriptionInputTA.setWrapStyleWord(true);
-        searchField = new JTextField(20); // Initialize search field
-        installSearchPlaceholder();
-
-        // Setting up control buttons
+        searchField = new JTextField(20); // search box
+        installSearchPlaceholder(); // placeholder UX
         addButton = new JButton("Add Task");
         updateButton = new JButton("Update Task");
         deleteButton = new JButton("Delete Selected");
@@ -79,50 +72,25 @@ public class TaskManagerView extends JPanel implements TasksObserver, TaskAttrib
         upButton = new JButton("Next State ↑");
         downButton = new JButton("Previous State ↓");
         clearSelectionButton = new JButton("Clear Selection");
-        searchClearButton = new JButton("X"); // Initialize search clear button
-
-        // Setting up combo boxes
+        searchClearButton = new JButton("X");
         stateFilterComboBox = new JComboBox<>(new String[]{"All", "To Do", "In Progress", "Completed"});
-
-        // Updated to use ITaskState interface with concrete implementations
-        taskStateComboBox = new JComboBox<>(new ITaskState[]{
-                ToDoState.getInstance(),
-                InProgressState.getInstance(),
-                CompletedState.getInstance()
-        });
+        taskStateComboBox = new JComboBox<>(new ITaskState[]{ ToDoState.getInstance(), InProgressState.getInstance(), CompletedState.getInstance() });
         taskStateComboBox.setRenderer(new DefaultListCellRenderer() {
-            @Override
-            public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
-                super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-                if (value instanceof ITaskState state) {
-                    setText(state.getDisplayName());
-                }
-                return this;
-            }
-        });
-
+            @Override public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+                super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus); if (value instanceof ITaskState s) setText(s.getDisplayName());
+                return this; } });
         taskPriorityComboBox = new JComboBox<>(TaskPriority.values());
         taskPriorityComboBox.setRenderer(new DefaultListCellRenderer() {
-            @Override
-            public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
-                super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-                if (value instanceof TaskPriority priority) {
-                    setText(priority.getDisplayName());
-                }
-                return this;
-            }
-        });
-
+            @Override public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+                super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus); if (value instanceof TaskPriority p) setText(p.getDisplayName());
+                return this; } });
         sortComboBox = new JComboBox<>(SortingOption.values());
 
         // Create task table with column headers
         String[] columnNames = {"ID", "Title", "Description", "State", "Priority", "Created", "Updated"};
-        tableModel = new DefaultTableModel(columnNames, 0) {
-            @Override
-            public boolean isCellEditable(int row, int column) { return false; }
-        };
+        tableModel = new DefaultTableModel(columnNames, 0) { @Override public boolean isCellEditable(int r, int c) { return false; } };
         taskTable = new JTable(tableModel);
-        styleTaskTable();
+        styleTaskTable(); // configure table look
 
         // Set up table selection listener (lambda for brevity)
         taskTable.getSelectionModel().addListSelectionListener(e -> {
@@ -154,18 +122,18 @@ public class TaskManagerView extends JPanel implements TasksObserver, TaskAttrib
         contentPane.add(statusBar, BorderLayout.SOUTH);
     }
 
-    private void styleTaskTable() {
+    private void styleTaskTable() { /* Purpose: apply sizing, alignment, and renderers to JTable */
+        // Centered renderer for all columns
         taskTable.setFillsViewportHeight(true);
         taskTable.setRowHeight(22);
         taskTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        // Set preferred widths for ID, State, Priority; center alignment for all columns
         taskTable.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
         taskTable.getTableHeader().setReorderingAllowed(false);
 
-        // Centered renderer for all columns
         DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
         centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
 
-        // Set preferred widths for ID, State, Priority; center alignment for all columns
         int[] widths = {5, 20, 20};
         for (int i = 0; i < tableModel.getColumnCount(); i++) {
             if (i == 0) {
@@ -179,7 +147,7 @@ public class TaskManagerView extends JPanel implements TasksObserver, TaskAttrib
         }
     }
 
-    private void installSearchPlaceholder() {
+    private void installSearchPlaceholder() { /* Purpose: show gray placeholder text and restore when empty */
         searchField.setForeground(Color.GRAY);
         searchField.setText(SEARCH_PLACEHOLDER);
         searchField.addFocusListener(new java.awt.event.FocusAdapter() {
@@ -202,6 +170,7 @@ public class TaskManagerView extends JPanel implements TasksObserver, TaskAttrib
     // ----------------------------- Observer Callbacks (Granular) -----------------------------
     /** {@inheritDoc} */
     @Override public void onTitleChanged(ITask task, String oldTitle, String newTitle) {
+        /* Purpose: update UI title cell & form */
         SwingUtilities.invokeLater(() -> {
             updateSpecificTaskInTable(task, 1, newTitle);
             if (selectedTask != null && selectedTask.getId() == task.getId()) taskTitleInputF.setText(newTitle);
@@ -209,6 +178,7 @@ public class TaskManagerView extends JPanel implements TasksObserver, TaskAttrib
     }
     /** {@inheritDoc} */
     @Override public void onStateChanged(ITask task, ITaskState oldState, ITaskState newState) {
+        /* Purpose: refresh state cell & combo */
         SwingUtilities.invokeLater(() -> {
             updateSpecificTaskInTable(task, 3, newState.getDisplayName());
             if (selectedTask != null && selectedTask.getId() == task.getId()) taskStateComboBox.setSelectedItem(newState);
@@ -216,6 +186,7 @@ public class TaskManagerView extends JPanel implements TasksObserver, TaskAttrib
     }
     /** {@inheritDoc} */
     @Override public void onPriorityChanged(ITask task, TaskPriority oldPriority, TaskPriority newPriority) {
+        /* Purpose: sync priority column & combo */
         SwingUtilities.invokeLater(() -> {
             updateSpecificTaskInTable(task, 4, newPriority.getDisplayName());
             if (selectedTask != null && selectedTask.getId() == task.getId()) taskPriorityComboBox.setSelectedItem(newPriority);
@@ -223,6 +194,7 @@ public class TaskManagerView extends JPanel implements TasksObserver, TaskAttrib
     }
     /** {@inheritDoc} */
     @Override public void onDescriptionChanged(ITask task, String oldDescription, String newDescription) {
+        /* Purpose: update description column */
         SwingUtilities.invokeLater(() -> {
             updateSpecificTaskInTable(task, 2, newDescription);
             if (selectedTask != null && selectedTask.getId() == task.getId()) descriptionInputTA.setText(newDescription);
@@ -230,10 +202,11 @@ public class TaskManagerView extends JPanel implements TasksObserver, TaskAttrib
     }
     /** {@inheritDoc} */
     @Override public void onUpdatedDateChanged(ITask task, java.util.Date oldDate, java.util.Date newDate) {
+        /* Purpose: refresh updated timestamp cell */
         SwingUtilities.invokeLater(() -> updateSpecificTaskInTable(task, 6, dateFormat.format(newDate)));
     }
 
-    private void updateSpecificTaskInTable(ITask task, int column, Object newValue) {
+    private void updateSpecificTaskInTable(ITask task, int column, Object newValue) { /* Purpose: locate row by task id and update one cell */
         for (int row = 0; row < tableModel.getRowCount(); row++) {
             if (((Integer) tableModel.getValueAt(row, 0)) == task.getId()) {
                 tableModel.setValueAt(newValue, row, column);
@@ -242,7 +215,7 @@ public class TaskManagerView extends JPanel implements TasksObserver, TaskAttrib
         }
     }
 
-    private void setupLayout() {
+    private void setupLayout() { /* Purpose: assemble input, search/filter, buttons, and table into main content pane */
         JPanel inputPanel = new JPanel(new GridBagLayout());
         inputPanel.setBorder(BorderFactory.createTitledBorder("Task Details"));
         GridBagConstraints gbc = new GridBagConstraints();
@@ -294,7 +267,7 @@ public class TaskManagerView extends JPanel implements TasksObserver, TaskAttrib
         contentPane.add(new JScrollPane(taskTable), BorderLayout.CENTER);
     }
 
-    private void setupButtonActions() {
+    private void setupButtonActions() { /* Purpose: attach action listeners to UI controls */
         addButton.addActionListener(this::onAddButton);
         clearSelectionButton.addActionListener(this::onClearSelection);
         updateButton.addActionListener(this::onUpdateButton);
@@ -311,7 +284,7 @@ public class TaskManagerView extends JPanel implements TasksObserver, TaskAttrib
         searchField.addActionListener(this::onSearchEnter);
     }
 
-    private void onAddButton(ActionEvent e) {
+    private void onAddButton(ActionEvent e) { /* Purpose: delegate add task to ViewModel */
         String title = taskTitleInputF.getText().trim();
         String description = descriptionInputTA.getText().trim();
         TaskPriority priority = (TaskPriority) taskPriorityComboBox.getSelectedItem();
@@ -321,8 +294,12 @@ public class TaskManagerView extends JPanel implements TasksObserver, TaskAttrib
             deleteAllButton.setEnabled(true);
         }
     }
-    private void onClearSelection(ActionEvent e) { taskTable.clearSelection(); selectedTask = null; clearForm(); }
-    private void onUpdateButton(ActionEvent e) {
+    private void onClearSelection(ActionEvent e) { /* Purpose: clear table selection and form */
+        taskTable.clearSelection();
+        selectedTask = null;
+        clearForm();
+    }
+    private void onUpdateButton(ActionEvent e) { /* Purpose: persist edits to existing task */
         if (selectedTask != null && viewModel instanceof TasksViewModel tvm) {
             String title = taskTitleInputF.getText().trim();
             String description = descriptionInputTA.getText().trim();
@@ -331,7 +308,7 @@ public class TaskManagerView extends JPanel implements TasksObserver, TaskAttrib
             if (!title.isEmpty()) { tvm.updateButtonPressed(selectedTask.getId(), title, description, state, priority); clearForm(); }
         }
     }
-    private void onDeleteButton(ActionEvent e) {
+    private void onDeleteButton(ActionEvent e) { /* Purpose: delete currently selected task */
         if (selectedTask != null && viewModel instanceof TasksViewModel tvm) {
             boolean lastOne = currentTasks != null && currentTasks.size() == 1;
             tvm.deleteButtonPressed(selectedTask.getId());
@@ -339,22 +316,26 @@ public class TaskManagerView extends JPanel implements TasksObserver, TaskAttrib
             if (lastOne) deleteAllButton.setEnabled(false);
         }
     }
-    private void onDeleteAllButton(ActionEvent e) {
+    private void onDeleteAllButton(ActionEvent e) { /* Purpose: confirm and bulk delete all tasks */
         if (viewModel instanceof TasksViewModel tvm) {
             int result = JOptionPane.showConfirmDialog(window, "Are you sure you want to delete all tasks?", "Confirm Delete All", JOptionPane.YES_NO_OPTION);
             if (result == JOptionPane.YES_OPTION) { tvm.deleteAllTasks(); deleteAllButton.setEnabled(false); }
         }
     }
-    private void onUpButton(ActionEvent e) { if (selectedTask != null && viewModel instanceof TasksViewModel tvm) tvm.upButtonPressed(selectedTask.getId()); }
-    private void onDownButton(ActionEvent e) { if (selectedTask != null && viewModel instanceof TasksViewModel tvm) tvm.downButtonPressed(selectedTask.getId()); }
-    private void onReportButton(ActionEvent e) {
+    private void onUpButton(ActionEvent e) { /* Purpose: advance state of selected task */
+        if (selectedTask != null && viewModel instanceof TasksViewModel tvm) tvm.upButtonPressed(selectedTask.getId());
+    }
+    private void onDownButton(ActionEvent e) { /* Purpose: regress state of selected task */
+        if (selectedTask != null && viewModel instanceof TasksViewModel tvm) tvm.downButtonPressed(selectedTask.getId());
+    }
+    private void onReportButton(ActionEvent e) { /* Purpose: generate and display textual report */
         if (viewModel instanceof TasksViewModel tvm) {
             String text = tvm.generateReportTextSync();
             JTextArea ta = new JTextArea(text, 20, 60); ta.setCaretPosition(0); ta.setEditable(false);
             JOptionPane.showMessageDialog(window, new JScrollPane(ta), "Report", JOptionPane.INFORMATION_MESSAGE);
         }
     }
-    private void onExportCsvButton(ActionEvent e) {
+    private void onExportCsvButton(ActionEvent e) { /* Purpose: choose file and export CSV + PDF */
         if (viewModel instanceof TasksViewModel tvm) {
             JFileChooser chooser = new JFileChooser(); chooser.setDialogTitle("Export Reports (CSV + PDF)");
             if (chooser.showSaveDialog(window) == JFileChooser.APPROVE_OPTION) {
@@ -371,18 +352,26 @@ public class TaskManagerView extends JPanel implements TasksObserver, TaskAttrib
             }
         }
     }
-    private void onStateFilterChanged(ActionEvent e) { if (viewModel instanceof TasksViewModel tvm) tvm.filterByState((String) stateFilterComboBox.getSelectedItem()); }
-    private void onSortChanged(ActionEvent e) { if (viewModel instanceof TasksViewModel tvm) tvm.changeSorting((SortingOption) sortComboBox.getSelectedItem()); }
-    private void onSearchClear(ActionEvent e) { if (viewModel instanceof TasksViewModel tvm) { searchField.setText(""); tvm.clearFilters(); } }
-    private void onSearchEnter(ActionEvent e) { applySearchAndFilters(); }
+    private void onStateFilterChanged(ActionEvent e) { /* Purpose: update state filter UI -> ViewModel */
+        if (viewModel instanceof TasksViewModel tvm) tvm.filterByState((String) stateFilterComboBox.getSelectedItem());
+    }
+    private void onSortChanged(ActionEvent e) { /* Purpose: change sorting strategy */
+        if (viewModel instanceof TasksViewModel tvm) tvm.changeSorting((SortingOption) sortComboBox.getSelectedItem());
+    }
+    private void onSearchClear(ActionEvent e) { /* Purpose: clear search field & reset filters */
+        if (viewModel instanceof TasksViewModel tvm) { searchField.setText(""); tvm.clearFilters(); }
+    }
+    private void onSearchEnter(ActionEvent e) { /* Purpose: apply search filter when Enter pressed */
+        applySearchAndFilters();
+    }
 
-    private void applySearchAndFilters() {
+    private void applySearchAndFilters() { /* Purpose: apply current text + state filters */
         String searchText = searchField.getText().trim(); if (SEARCH_PLACEHOLDER.equals(searchText)) searchText = "";
         String selectedState = (String) stateFilterComboBox.getSelectedItem();
         if (viewModel instanceof TasksViewModel tvm) { tvm.filterTasks(searchText); tvm.filterByState(selectedState); }
     }
 
-    private void updateFormFields() {
+    private void updateFormFields() { /* Purpose: populate form inputs with selected task data */
         if (selectedTask != null) {
             taskTitleInputF.setText(selectedTask.getTitle());
             descriptionInputTA.setText(selectedTask.getDescription());
@@ -391,15 +380,32 @@ public class TaskManagerView extends JPanel implements TasksObserver, TaskAttrib
         }
     }
 
-    private ITaskState toITaskState(TaskState taskState) { return switch (taskState) { case TO_DO -> ToDoState.getInstance(); case IN_PROGRESS -> InProgressState.getInstance(); case COMPLETED -> CompletedState.getInstance(); }; }
+    private ITaskState toITaskState(TaskState taskState) { /* Purpose: map enum TaskState to strategy singleton */
+        return switch (taskState) { case TO_DO -> ToDoState.getInstance(); case IN_PROGRESS -> InProgressState.getInstance(); case COMPLETED -> CompletedState.getInstance(); };
+    }
 
-    private void updateButtonStates() { boolean hasSelection = selectedTask != null; updateButton.setEnabled(hasSelection); deleteButton.setEnabled(hasSelection); upButton.setEnabled(hasSelection); downButton.setEnabled(hasSelection); clearSelectionButton.setEnabled(hasSelection); }
+    private void updateButtonStates() { /* Purpose: enable/disable buttons based on selection */
+        boolean hasSelection = selectedTask != null;
+        updateButton.setEnabled(hasSelection);
+        deleteButton.setEnabled(hasSelection);
+        upButton.setEnabled(hasSelection);
+        downButton.setEnabled(hasSelection);
+        clearSelectionButton.setEnabled(hasSelection);
+    }
 
-    private void clearForm() {
-        taskTitleInputF.setText(""); descriptionInputTA.setText(""); taskStateComboBox.setSelectedIndex(0); taskPriorityComboBox.setSelectedIndex(0); taskTable.clearSelection(); selectedTask = null; updateButtonStates(); }
+    private void clearForm() { /* Purpose: reset input controls to defaults */
+        taskTitleInputF.setText("");
+        descriptionInputTA.setText("");
+        taskStateComboBox.setSelectedIndex(0);
+        taskPriorityComboBox.setSelectedIndex(0);
+        taskTable.clearSelection();
+        selectedTask = null;
+        updateButtonStates();
+    }
 
     /** {@inheritDoc} */
     @Override public void onTasksChanged(List<ITask> tasks) {
+        /* Purpose: refresh table model with provided task list */
         SwingUtilities.invokeLater(() -> {
             tableModel.setRowCount(0);
             for (ITask task : tasks) {
@@ -412,24 +418,48 @@ public class TaskManagerView extends JPanel implements TasksObserver, TaskAttrib
         });
     }
 
-    private void updateStatusBar(List<ITask> tasks) { statusBar.setText("Showing " + (tasks == null ? 0 : tasks.size()) + " tasks"); }
+    private void updateStatusBar(List<ITask> tasks) { /* Purpose: show quick count summary */
+        statusBar.setText("Showing " + (tasks == null ? 0 : tasks.size()) + " tasks");
+    }
 
     /** {@inheritDoc} */
-    @Override public IViewModel getViewModel() { return viewModel; }
+    @Override public IViewModel getViewModel() { /* Purpose: expose bound ViewModel */
+        return viewModel;
+    }
     /** {@inheritDoc} */
-    @Override public void setViewModel(IViewModel viewModel) { this.viewModel = viewModel; if (viewModel instanceof TasksViewModel tvm) tvm.addObserver(this); }
+    @Override public void setViewModel(IViewModel viewModel) { /* Purpose: bind ViewModel & register as observer */
+        this.viewModel = viewModel;
+        if (viewModel instanceof TasksViewModel tvm) tvm.addObserver(this);
+    }
     /** {@inheritDoc} */
-    @Override public void start() { Task.getAttributeSubject().addObserver(this); SwingUtilities.invokeLater(() -> window.setVisible(true)); }
+    @Override public void start() { /* Purpose: register attribute observer & show window */
+        Task.getAttributeSubject().addObserver(this);
+        SwingUtilities.invokeLater(() -> window.setVisible(true));
+    }
 
-    private void loadTasks() { if (viewModel instanceof TasksViewModel tvm) tvm.loadTasks(); }
+    private void loadTasks() { /* Purpose: delegate initial loading to ViewModel */
+        if (viewModel instanceof TasksViewModel tvm) tvm.loadTasks();
+    }
 
     /** {@inheritDoc} */
-    @Override public void onTaskAdded(ITask task) { SwingUtilities.invokeLater(this::loadTasks); }
+    @Override public void onTaskAdded(ITask task) { /* Purpose: react to granular add event (reload for simplicity) */
+        SwingUtilities.invokeLater(this::loadTasks);
+    }
     /** {@inheritDoc} */
-    @Override public void onTaskRemoved(ITask task) { SwingUtilities.invokeLater(() -> { loadTasks(); if (selectedTask != null && selectedTask.getId() == task.getId()) { taskTable.clearSelection(); selectedTask = null; clearForm(); } }); }
+    @Override public void onTaskRemoved(ITask task) { /* Purpose: handle removal & clear selection if needed */
+        SwingUtilities.invokeLater(() -> {
+            loadTasks();
+            if (selectedTask != null && selectedTask.getId() == task.getId()) {
+                taskTable.clearSelection();
+                selectedTask = null;
+                clearForm();
+            }
+        });
+    }
 
     /** Display a user-facing message with a type; updates status bar and shows a dialog for warnings/errors. */
     @Override public void showMessage(String message, MessageType type) {
+        /* Purpose: surface feedback (status bar + dialog for warn/error) */
         Runnable r = () -> {
             statusBar.setText(message == null ? "" : message);
             Color color = switch (type == null ? MessageType.INFO : type) { case SUCCESS -> new Color(0, 128, 0); case WARNING -> new Color(184, 134, 11); case ERROR -> Color.RED; case INFO -> Color.DARK_GRAY; };
