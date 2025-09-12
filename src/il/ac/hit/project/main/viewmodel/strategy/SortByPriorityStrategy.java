@@ -7,6 +7,9 @@ import java.util.Comparator;
 
 /**
  * Strategy implementation for sorting tasks by priority (High -> Medium -> Low)
+ * Ordering uses natural enum order of TaskPriority (LOW < MEDIUM < HIGH);
+ * UI labels invert by interpreting meaning rather than reversing list here.
+ * @author Course
  */
 public class SortByPriorityStrategy implements SortingStrategy {
 

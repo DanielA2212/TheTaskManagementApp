@@ -16,6 +16,7 @@ import java.util.Date;
  * @param priority priority of the task (High, Medium, Low)
  * @param creationDate creation date of the task
  * @param updatedDate last updated date of the task
+ * @author Course
  */
 public record TaskRecord(
     int id,

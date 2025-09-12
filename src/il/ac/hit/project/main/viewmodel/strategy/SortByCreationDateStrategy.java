@@ -6,7 +6,8 @@ import java.util.List;
 import java.util.Comparator;
 
 /**
- * Strategy implementation for sorting tasks by creation date
+ * Strategy implementation for sorting tasks by creation date.
+ * @author Course
  */
 public class SortByCreationDateStrategy implements SortingStrategy {
 

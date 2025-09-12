@@ -3,6 +3,7 @@ package il.ac.hit.project.main.model.task;
 /**
  * InProgressState implementation of the State pattern.
  * Represents a task that is currently being worked on.
+ * @author Course
  */
 public class InProgressState implements ITaskState {
     /** singleton instance */

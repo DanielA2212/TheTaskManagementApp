@@ -22,8 +22,10 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 /**
- * Unit tests for the TasksDAODerby implementation
- * Tests CRUD operations with the database
+ * Unit tests for the TasksDAODerby implementation.
+ * Exercises CRUD operations against an embedded Derby instance (integration style).
+ * Ensures isolation via test-specific derby.system.home.
+ * @author Course
  */
 public class TasksDAODerbyTest {
 
@@ -64,6 +66,10 @@ public class TasksDAODerbyTest {
         tasksDAO.deleteTasks();
     }
 
+    /**
+     * Adds a task then retrieves all tasks verifying persistence (title, description, priority).
+     * @throws TasksDAOException on DAO error
+     */
     @Test
     public void testAddAndGetTask() throws TasksDAOException {
         // Create a new task
@@ -82,6 +88,10 @@ public class TasksDAODerbyTest {
         assertEquals(TaskPriority.HIGH, ((ITaskDetails) tasks[0]).getPriority());
     }
 
+    /**
+     * Persists a task, mutates fields, updates via DAO and verifies changes reloaded by id.
+     * @throws TasksDAOException on DAO error
+     */
     @Test
     public void testUpdateTask() throws TasksDAOException {
         // Create and add a task
@@ -110,6 +120,10 @@ public class TasksDAODerbyTest {
         assertEquals(TaskPriority.HIGH, updatedTask.getPriority());
     }
 
+    /**
+     * Persists two tasks, deletes one by id, and verifies only the other remains.
+     * @throws TasksDAOException on DAO error
+     */
     @Test
     public void testDeleteTask() throws TasksDAOException {
         // Create and add two tasks
@@ -132,6 +146,10 @@ public class TasksDAODerbyTest {
         assertEquals("Task 2", remainingTasks[0].getTitle());
     }
 
+    /**
+     * Persists multiple tasks then calls deleteTasks() ensuring table is emptied.
+     * @throws TasksDAOException on DAO error
+     */
     @Test
     public void testDeleteAllTasks() throws TasksDAOException {
         // Create and add multiple tasks

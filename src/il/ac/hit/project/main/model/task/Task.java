@@ -7,6 +7,7 @@ import java.util.Date;
  * Concrete implementation of ITask interface.
  * Represents a task with its properties (id, title, description, state, timestamps and priority).
  * Validates input through setters to ensure integrity as per code style guidelines.
+ * @author Course
  */
 public class Task implements ITaskDetails {
     /** unique identifier (assigned by DAO) */

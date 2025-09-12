@@ -5,17 +5,18 @@ import java.util.List;
 import java.util.Comparator;
 
 /**
- * Strategy implementation for sorting tasks by title alphabetically
+ * Strategy implementation for sorting tasks by title alphabetically.
+ * @author Course
  */
 public class SortByTitleStrategy implements SortingStrategy {
 
     @Override
-    public void sort(List<ITask> tasks) {
+    public void sort(List<ITask> tasks) { // in-place alphabetical sort
         tasks.sort(Comparator.comparing(ITask::getTitle, String.CASE_INSENSITIVE_ORDER));
     }
 
     @Override
-    public String getDisplayName() {
+    public String getDisplayName() { // label for UI combo box
         return "Sort By Title";
     }
 }

@@ -11,12 +11,29 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * Tests for the different SortingStrategy implementations (Strategy pattern).
+ * Verifies ordering by title (case-insensitive), creation date, and enum priority order.
+ * @author Course
+ */
 public class SortingStrategyTest {
 
+    /**
+     * Helper factory for quickly building Task instances with custom fields.
+     * @param id id to assign
+     * @param title task title
+     * @param p priority
+     * @param created creation timestamp
+     * @param state state singleton
+     * @return configured Task
+     */
     private Task task(int id, String title, TaskPriority p, Date created, ITaskState state) {
         return new Task(id, title, "", state, created, p);
     }
 
+    /**
+     * Ensures alphabetical sort (case-insensitive) orders strings correctly.
+     */
     @Test
     public void testSortByTitle() {
         List<ITask> tasks = new ArrayList<>();
@@ -31,6 +48,9 @@ public class SortingStrategyTest {
         assertEquals("Zeta", tasks.get(2).getTitle());
     }
 
+    /**
+     * Ensures chronological ordering ascending by creation date.
+     */
     @Test
     public void testSortByCreationDate() {
         List<ITask> tasks = new ArrayList<>();
@@ -45,6 +65,9 @@ public class SortingStrategyTest {
         assertEquals(1, tasks.get(2).getId());
     }
 
+    /**
+     * Verifies priority sort follows enum ordinal LOW < MEDIUM < HIGH.
+     */
     @Test
     public void testSortByPriorityAscendingByEnumOrder() {
         List<ITask> tasks = new ArrayList<>();

@@ -12,9 +12,14 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Verifies proper CSV escaping (quotes, commas) through the adapter.
+ * Tests that commas trigger field quoting and embedded quotes are doubled per RFC4180-like behavior.
+ * @author Course
  */
 public class CsvReportAdapterEscapingTest {
 
+    /**
+     * Builds a record with commas and quotes then asserts exported CSV contains expected quoting/escaping.
+     */
     @Test
     void testCommaAndQuoteEscaping() {
         TaskRecord rec = new TaskRecord(7,

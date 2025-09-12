@@ -5,6 +5,7 @@ import java.util.List;
 
 /**
  * Strategy pattern interface for different task sorting algorithms.
+ * @author Course
  */
 public interface SortingStrategy {
     /**

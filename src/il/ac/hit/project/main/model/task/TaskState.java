@@ -1,8 +1,9 @@
 package il.ac.hit.project.main.model.task;
 
 /**
- * Enum representing the state of a task
- * Required by the project specifications for interface compliance
+ * Enum representing the state of a task.
+ * Required by the project specifications for interface compliance.
+ * @author Course
  */
 public enum TaskState {
     /**

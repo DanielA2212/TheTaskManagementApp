@@ -3,6 +3,7 @@ package il.ac.hit.project.main.model.task;
 /**
  * ToDoState implementation of the State pattern.
  * Represents a task that is yet to be started (initial state).
+ * @author Course
  */
 public class ToDoState implements ITaskState {
     /** singleton instance */

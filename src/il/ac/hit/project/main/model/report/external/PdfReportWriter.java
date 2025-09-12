@@ -20,6 +20,7 @@ import java.util.Locale;
  * Utility for exporting task records to a simple PDF report.
  * <p>Acts as an external reporting component adapted through the application.
  * Uses PDFBox for PDF generation. Stateless & thread-safe.</p>
+ * @author Course
  */
 // Utility for exporting task records to a simple PDF report
 // This class is stateless and thread-safe

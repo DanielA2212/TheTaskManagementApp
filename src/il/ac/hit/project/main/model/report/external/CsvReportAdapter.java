@@ -7,7 +7,8 @@ import java.util.List;
 
 /**
  * Adapter that adapts an external CSV library to our ReportExporter interface
- * This class implements the Adapter design pattern
+ * This class implements the Adapter design pattern.
+ * @author Course
  */
 public class CsvReportAdapter implements ReportExporter {
     /**

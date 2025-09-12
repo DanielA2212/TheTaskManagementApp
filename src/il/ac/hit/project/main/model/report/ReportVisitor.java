@@ -7,11 +7,10 @@ import java.util.ArrayList;
 /**
  * Visitor that collects tasks into an internal list for generating multiple report formats.
  * Implements the Visitor pattern with Java records & pattern matching (TaskRecord + switch expressions).
+ * @author Course
  */
 public class ReportVisitor implements TaskVisitor {
-    /**
-     * Collected task records (in visit order)
-     */
+    /** Collected task records (in visit order) */
     private final List<TaskRecord> taskRecords = new ArrayList<>();
 
     /**
@@ -33,7 +32,7 @@ public class ReportVisitor implements TaskVisitor {
         StringBuilder report = new StringBuilder();
         report.append("=== TASK MANAGEMENT REPORT ===\n\n");
 
-        // Pattern matching categorization using switch (match/case style)
+        // -------- Categorize tasks (pattern matching) --------
         List<TaskRecord> urgentTasks = new ArrayList<>();
         List<TaskRecord> todoTasks = new ArrayList<>();
         List<TaskRecord> inProgressTasks = new ArrayList<>();
@@ -54,7 +53,7 @@ public class ReportVisitor implements TaskVisitor {
         report.append(String.format("To Do: %d | In Progress: %d | Completed: %d\n\n",
                 todoTasks.size(), inProgressTasks.size(), completedTasks.size()));
 
-        // Recompute categorization lists for ordered CSV-style output
+        // -------- Re-categorize for ordered CSV output --------
         java.util.List<TaskRecord> completed = new java.util.ArrayList<>();
         java.util.List<TaskRecord> inProgress = new java.util.ArrayList<>();
         java.util.List<TaskRecord> todo = new java.util.ArrayList<>();
@@ -71,6 +70,7 @@ public class ReportVisitor implements TaskVisitor {
             .thenComparingInt(TaskRecord::id);
         completed.sort(cmp); inProgress.sort(cmp); todo.sort(cmp);
 
+        // -------- CSV-like section --------
         report.append("TASK CATEGORIZATION:\n");
         report.append("ID,Title,Description,State,Priority,CreationDate\n");
         java.text.SimpleDateFormat csvDf = new java.text.SimpleDateFormat("MMM d, yyyy, h:mm:ss a", java.util.Locale.US);
@@ -94,9 +94,7 @@ public class ReportVisitor implements TaskVisitor {
 // Handles commas and quotes for CSV compliance
     private String escape(String s) { if (s == null) return ""; return (s.contains(",") || s.contains("\"") ? '"' + s.replace("\"", "\"\"") + '"' : s); }
 
-    /**
-     * @return defensive copy of collected task records
-     */
+    /** @return defensive copy of collected task records */
     public List<TaskRecord> getTaskRecords() { return new ArrayList<>(taskRecords); }
 
     /**
@@ -104,6 +102,7 @@ public class ReportVisitor implements TaskVisitor {
      * @return bucketed textual report (never null)
      */
     public String generateFriendStyleReport() {
+        // -------- Bucket tasks by state --------
         List<TaskRecord> todo = new ArrayList<>();
         List<TaskRecord> inProgress = new ArrayList<>();
         List<TaskRecord> completed = new ArrayList<>();
@@ -114,6 +113,7 @@ public class ReportVisitor implements TaskVisitor {
                 case COMPLETED -> completed.add(r);
             }
         }
+        // -------- Build output --------
         StringBuilder sb = new StringBuilder();
         sb.append("--- Report ---\n");
         sb.append("Completed: ").append(completed.size()).append('\n');

@@ -2,7 +2,8 @@ package il.ac.hit.project.main.model.task;
 
 /**
  * Priority levels for tasks (ascending urgency).
- * Used to categorize tasks by importance
+ * Used to categorize tasks by importance.
+ * @author Course
  */
 public enum TaskPriority {
     /** Low importance / can be deferred */

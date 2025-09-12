@@ -8,12 +8,18 @@ import java.util.List;
 import java.util.Date;
 
 /**
- * Subject class for Task attribute changes using Observer pattern
+ * Subject class for Task attribute changes using Observer pattern.
+ * Publishes fine‑grained change events (state/title/priority/etc.) to registered observers.
+ * Acts as a lightweight event bus decoupling model changes from UI refresh logic.
+ * @author Course
  */
 public class TaskAttributeSubject {
+    /** Singleton instance */
     private static final TaskAttributeSubject instance = new TaskAttributeSubject();
+    /** Registered observers list (no duplicates enforcement for simplicity) */
     private final List<TaskAttributeObserver> observers = new ArrayList<>();
 
+    /** Private constructor for singleton */
     private TaskAttributeSubject() {}
 
     /**
@@ -30,6 +36,8 @@ public class TaskAttributeSubject {
     public void addObserver(TaskAttributeObserver observer) {
         observers.add(observer);
     }
+
+    // -------------------- Notification Helpers (iterate snapshot order) --------------------
 
     /**
      * Notify observers about a state change.

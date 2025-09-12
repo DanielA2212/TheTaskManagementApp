@@ -21,7 +21,10 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 /**
- * UI tests for TaskManagerView. These tests run UI logic without showing a window.
+ * UI tests for TaskManagerView (View layer) exercising table rendering, selection binding,
+ * decorator side-effects, and update dispatch to ViewModel without showing a real window.
+ * Uses reflection to access private Swing components for assertions.
+ * @author Course
  */
 public class TaskManagerViewTest {
 
@@ -99,6 +102,10 @@ public class TaskManagerViewTest {
         return new Task(id, title, desc, state, created, p);
     }
 
+    /**
+     * Verifies that onTasksChanged populates table rows and applies description decorator (REMINDER tag for stale To Do).
+     * GIVEN two tasks (one stale To Do, one Completed) WHEN onTasksChanged THEN table has 2 rows and first description contains REMINDER.
+     */
     @Test
     public void testOnTasksChangedRendersRowsAndDecoratedDescription() throws Exception {
         // Arrange
@@ -129,6 +136,10 @@ public class TaskManagerViewTest {
         assertNotNull(model.getValueAt(0, 6));
     }
 
+    /**
+     * Ensures row selection binds form fields and clicking Update triggers ViewModel updateButtonPressed with edited values.
+     * GIVEN a single task WHEN user selects row, edits fields, and clicks Update THEN ViewModel receives updated parameters.
+     */
     @Test
     public void testSelectingRowBindsFormAndUpdateButtonTriggersViewModel() throws Exception {
         // Arrange

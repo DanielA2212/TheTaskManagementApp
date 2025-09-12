@@ -5,11 +5,15 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Unit tests for the Task class
- * Tests basic functionality, state transitions, and property changes
+ * Unit tests for the Task class.
+ * Tests basic construction, property mutation, and state transitions (enum + strategy mapping).
+ * @author Course
  */
 public class TaskTest {
 
+    /**
+     * Ensures constructor initializes fields with provided values and default state is TO_DO.
+     */
     @Test
     public void testTaskCreation() {
         // Create a new task
@@ -22,6 +26,9 @@ public class TaskTest {
         assertEquals(TaskState.TO_DO, task.getState());
     }
 
+    /**
+     * Verifies forward traversal through states TO_DO -> IN_PROGRESS -> COMPLETED and finality of COMPLETED.
+     */
     @Test
     public void testStateTransitions() {
         // Create a task in TODO state
@@ -45,6 +52,9 @@ public class TaskTest {
         assertEquals(TaskState.COMPLETED, task.getState().next());
     }
 
+    /**
+     * Validates setters (title, description, priority) update internal fields appropriately.
+     */
     @Test
     public void testTaskProperties() {
         // Create a task
@@ -61,9 +71,7 @@ public class TaskTest {
         assertEquals(TaskPriority.HIGH, task.getPriority());
     }
 
-    /**
-     * Helper method to convert TaskState enum to ITaskState
-     */
+    /** Helper method to convert TaskState enum to ITaskState implementation. */
     private ITaskState createITaskStateFromTaskState(TaskState taskState) {
         return switch (taskState) {
             case TO_DO -> ToDoState.getInstance();

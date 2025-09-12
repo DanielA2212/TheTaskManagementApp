@@ -3,6 +3,7 @@ package il.ac.hit.project.main.model.task;
 /**
  * CompletedState implementation of the State pattern.
  * Represents a task that has been finished.
+ * @author Course
  */
 public class CompletedState implements ITaskState {
     /** singleton instance */

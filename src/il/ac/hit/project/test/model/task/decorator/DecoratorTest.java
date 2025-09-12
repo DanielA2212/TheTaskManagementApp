@@ -7,8 +7,14 @@ import org.junit.jupiter.api.Test;
 import java.util.Date;
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * Tests for task Decorators (PriorityTagDecorator & DeadlineReminderDecorator) verifying formatting and conditional reminders.
+ * Ensures priority tag prefixes and reminder tag only for stale non-completed tasks.
+ * @author Course
+ */
 public class DecoratorTest {
 
+    /** Verifies HIGH priority title is prefixed with [HIGH]. */
     @Test
     public void testPriorityTagDecorator() {
         Task base = new Task("Title", "Desc", TaskPriority.HIGH);
@@ -17,6 +23,9 @@ public class DecoratorTest {
         assertTrue(decorated.getTitle().startsWith("[HIGH] "));
     }
 
+    /**
+     * Ensures DeadlineReminderDecorator appends REMINDER when task is older than threshold and not completed.
+     */
     @Test
     public void testDeadlineReminderDecoratorAddsReminderWhenOldAndPending() {
         Task base = new Task(1, "Title", "Desc", ToDoState.getInstance(), new Date(System.currentTimeMillis() - 10L*24*3600*1000), TaskPriority.MEDIUM);
@@ -24,6 +33,7 @@ public class DecoratorTest {
         assertTrue(decorated.getDescription().contains("REMINDER"));
     }
 
+    /** Confirms no REMINDER tag added for completed tasks even if older than threshold. */
     @Test
     public void testDeadlineReminderDecoratorNoReminderWhenCompleted() {
         Task base = new Task(1, "Title", "Desc", CompletedState.getInstance(), new Date(System.currentTimeMillis() - 10L*24*3600*1000), TaskPriority.MEDIUM);
@@ -31,4 +41,3 @@ public class DecoratorTest {
         assertFalse(decorated.getDescription().contains("REMINDER"));
     }
 }
-

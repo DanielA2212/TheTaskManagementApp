@@ -6,6 +6,11 @@ import il.ac.hit.project.main.viewmodel.combinator.TaskFilters;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * Tests for TaskFilters (Combinator pattern) verifying composed predicates (search + state + priority).
+ * Ensures AND/OR/negation compositions behave as expected.
+ * @author Course
+ */
 public class TaskFiltersTest {
 
     private Task newTask(int id, String title, String desc, ITaskState state, TaskPriority priority) {
@@ -15,6 +20,9 @@ public class TaskFiltersTest {
         return t;
     }
 
+    /**
+     * Verifies search-only, state-only, and combined search+state filters produce expected boolean results.
+     */
     @Test
     public void testBySearchTextAndStateDisplayName() {
         Task t1 = newTask(1, "Fix bug", "urgent fix", ToDoState.getInstance(), TaskPriority.HIGH);
@@ -35,6 +43,9 @@ public class TaskFiltersTest {
         assertFalse(combined.test(t3));
     }
 
+    /**
+     * Ensures urgentTasks (HIGH & !COMPLETED) and pendingTasks (To Do OR InProgress) behave correctly.
+     */
     @Test
     public void testUrgentAndPendingFilters() {
         Task t1 = newTask(1, "High work", "", InProgressState.getInstance(), TaskPriority.HIGH);
@@ -51,4 +62,3 @@ public class TaskFiltersTest {
         assertFalse(pending.test(t2));
     }
 }
-

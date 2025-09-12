@@ -1,7 +1,9 @@
 package il.ac.hit.project.main.viewmodel.strategy;
 
 /**
- * Enum to represent different sorting options for the Strategy pattern
+ * Enum to represent different sorting options for the Strategy pattern.
+ * Provides mapping from a user-friendly label to a concrete SortingStrategy.
+ * @author Course
  */
 public enum SortingOption {
     BY_CREATION_DATE("Sort by Creation Date", new SortByCreationDateStrategy()),

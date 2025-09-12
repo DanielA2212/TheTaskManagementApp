@@ -5,6 +5,7 @@ import java.util.List;
 
 /**
  * Observer for bulk task list changes emitted by the ViewModel.
+ * @author Course
  */
 public interface TasksObserver {
     /**

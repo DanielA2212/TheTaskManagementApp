@@ -8,6 +8,7 @@ import java.util.Date;
 
 /**
  * Base Decorator for ITask that delegates all behavior to the wrapped task by default.
+ * @author Course
  */
 public class TaskDecorator implements ITaskDetails {
     /** wrapped task instance (never null) */

@@ -10,6 +10,7 @@ import il.ac.hit.project.main.model.task.ITaskDetails;
 /**
  * Utility factory for common TaskFilter compositions (Combinator pattern).
  * All methods are null-safe: null inputs yield permissive filters.
+ * @author Course
  */
 public class TaskFilters {
 

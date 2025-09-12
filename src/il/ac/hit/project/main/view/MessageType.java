@@ -2,6 +2,7 @@ package il.ac.hit.project.main.view;
 
 /**
  * Message severity/type for user-facing notifications.
+ * @author Course
  */
 public enum MessageType {
     INFO,
@@ -9,4 +10,3 @@ public enum MessageType {
     WARNING,
     ERROR
 }
-

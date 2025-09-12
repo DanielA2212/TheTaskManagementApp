@@ -16,12 +16,13 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 /**
- * Unit tests for the TasksViewModel
- * Tests filtering, sorting, and task management functionality
+ * Unit tests for the TasksViewModel.
+ * Tests filtering, sorting, and task management functionality (async operations + combinator filters).
+ * @author Course
  */
 public class TasksViewModelTest {
 
-    // Mock objects
+    // Mock objects & captured state -------------------------------------------------
     private ITasksDAO mockDAO;
     private TasksViewModel viewModel;
     private List<ITask> observedTasks;
@@ -52,6 +53,11 @@ public class TasksViewModelTest {
         viewModel.addObserver(tasks -> observedTasks = new ArrayList<>(tasks));
     }
 
+    /**
+     * Verifies that loadTasks() calls DAO, populates observer list, and notifies observers.
+     * GIVEN mocked DAO with 3 tasks WHEN loadTasks is invoked THEN observed task list size is 3.
+     * @throws Exception on unexpected interruption
+     */
     @Test
     public void testLoadTasks() throws Exception {
         // Load tasks
@@ -68,6 +74,11 @@ public class TasksViewModelTest {
         assertEquals(3, observedTasks.size());
     }
 
+    /**
+     * Ensures search text filter narrows tasks by title substring (case-sensitive as implemented).
+     * GIVEN tasks loaded WHEN filterTasks("Important") THEN only the matching task remains.
+     * @throws Exception on async wait interruption
+     */
     @Test
     public void testFilterBySearchText() throws Exception {
         // Load tasks first
@@ -82,6 +93,11 @@ public class TasksViewModelTest {
         assertEquals("Important Task", observedTasks.getFirst().getTitle());
     }
 
+    /**
+     * Validates state display filtering correctly shows only tasks in the selected state.
+     * GIVEN tasks loaded WHEN filterByState("Completed") THEN only completed tasks remain.
+     * @throws Exception on async wait interruption
+     */
     @Test
     public void testFilterByState() throws Exception {
         // Load tasks first
@@ -96,6 +112,11 @@ public class TasksViewModelTest {
         assertEquals("Completed Task", observedTasks.getFirst().getTitle());
     }
 
+    /**
+     * Confirms addTask delegates to DAO asynchronously and triggers add call.
+     * GIVEN new task input WHEN addTask called THEN DAO.addTask is invoked.
+     * @throws Exception on async wait interruption
+     */
     @Test
     public void testAddTask() throws Exception {
         // Add a new task
@@ -108,6 +129,11 @@ public class TasksViewModelTest {
         verify(mockDAO).addTask(any(ITask.class));
     }
 
+    /**
+     * Verifies deleteTask delegates to DAO and removes the correct id.
+     * GIVEN preloaded tasks WHEN deleteTask(1) THEN DAO.deleteTask(1) is invoked.
+     * @throws Exception on async wait
+     */
     @Test
     public void testDeleteTask() throws Exception {
         // Load tasks first
@@ -124,6 +150,11 @@ public class TasksViewModelTest {
         verify(mockDAO).deleteTask(1);
     }
 
+    /**
+     * Tests custom combinator filters (AND composition) for high priority unfinished tasks.
+     * GIVEN tasks loaded WHEN combined filter (High AND To Do) applied THEN only matching task appears.
+     * @throws Exception on async wait
+     */
     @Test
     public void testCombinatorPattern() throws Exception {
         // Load tasks first

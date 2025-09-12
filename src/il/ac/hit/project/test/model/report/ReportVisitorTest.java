@@ -7,6 +7,11 @@ import il.ac.hit.project.main.model.task.*;
 import org.junit.jupiter.api.Test;
 import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
+/**
+ * Tests the ReportVisitor aggregation and CSV adapter export integration.
+ * Verifies summary counts, categorization section presence, and CSV header/row content.
+ * @author Course
+ */
 public class ReportVisitorTest {
 
     private Task task(int id, String title, String desc, TaskPriority p, ITaskState state) {
@@ -16,6 +21,9 @@ public class ReportVisitorTest {
         return t;
     }
 
+    /**
+     * Visits three tasks (one per state) and asserts report summary and categorization output.
+     */
     @Test
     public void testReportVisitorGeneratesSummaryAndCategories() {
         Task t1 = task(1, "Fix bug", "", TaskPriority.HIGH, ToDoState.getInstance());
@@ -32,6 +40,9 @@ public class ReportVisitorTest {
         assertTrue(report.contains("Fix bug"));
     }
 
+    /**
+     * Ensures CsvReportAdapter produces header and includes visited task titles.
+     */
     @Test
     public void testCsvAdapterExportsRecords() {
         Task t1 = task(1, "A", "d1", TaskPriority.HIGH, ToDoState.getInstance());

@@ -11,9 +11,15 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Smoke test for PdfReportWriter ensuring a non-empty PDF file is generated.
+ * Writes a temporary PDF then asserts file existence and minimal size > 100 bytes.
+ * @author Course
  */
 public class PdfReportWriterSmokeTest {
 
+    /**
+     * Generates a PDF for two tasks (one completed) and validates output file.
+     * @throws Exception on IO or PDF generation errors
+     */
     @Test
     void testPdfExportProducesFile() throws Exception {
         Task t1 = new Task("Alpha", "Desc", TaskPriority.HIGH);
@@ -36,4 +42,3 @@ public class PdfReportWriterSmokeTest {
         }
     }
 }
-

@@ -3,6 +3,7 @@ package il.ac.hit.project.main.model.task;
 /**
  * Interface for Task objects as per project instructions (unchangeable interface).
  * Defines the contract for all Task implementations.
+ * @author Course
  */
 public interface ITask {
     /**
