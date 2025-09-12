@@ -87,8 +87,14 @@ public class TaskManagerView extends JPanel implements TasksObserver, TaskAttrib
 
         // Create task table with column headers
         String[] columnNames = {"ID", "Title", "Description", "State", "Priority", "Created", "Updated"};
-        tableModel = new DefaultTableModel(columnNames, 0) { @Override public boolean isCellEditable(int r, int c) { return false; } };
+        tableModel = new DefaultTableModel(columnNames, 0) {
+            @Override public boolean isCellEditable(int r, int c) {
+                return false; } };
         taskTable = new JTable(tableModel);
+
+        // Center header text
+        DefaultTableCellRenderer headerRenderer = (DefaultTableCellRenderer) taskTable.getTableHeader().getDefaultRenderer();
+        headerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
         styleTaskTable(); // configure table look
 
         // Set up table selection listener (lambda for brevity)
