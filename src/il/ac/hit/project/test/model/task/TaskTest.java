@@ -31,7 +31,7 @@ public class TaskTest {
      */
     @Test
     public void testStateTransitions() {
-        // Create a task in TODO state
+        // Create a task in TO DO state
         Task task = new Task("Test Task", "Test Description", TaskPriority.MEDIUM);
 
         // Get the initial state

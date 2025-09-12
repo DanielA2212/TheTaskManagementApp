@@ -165,7 +165,7 @@ public class TasksViewModelTest {
         TaskFilter highPriorityFilter = task -> ((il.ac.hit.project.main.model.task.ITaskDetails) task).getPriority() == TaskPriority.HIGH;
         TaskFilter todoFilter = task -> task.getState() == TaskState.TO_DO;
 
-        // Apply combined filter (high priority AND todo)
+        // Apply combined filter (high priority AND to do)
         TaskFilter combinedFilter = highPriorityFilter.and(todoFilter);
         viewModel.setFilter(combinedFilter);
 
