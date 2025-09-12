@@ -7,7 +7,7 @@ import java.util.List;
  * Observer for bulk task list changes emitted by the ViewModel.
  * @author Course
  */
-public interface TasksObserver {
+public interface ITasksObserver {
     /**
      * Notified when the visible (filtered + sorted) task collection changes.
      * @param tasks immutable snapshot (never null, may be empty)

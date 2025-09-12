@@ -18,7 +18,7 @@ import java.awt.event.ActionEvent;
  * Swing-based view (View in MVVM) for managing tasks.
  * Responsible strictly for presentation & delegating user actions to the ViewModel.
  */
-public class TaskManagerView extends JPanel implements TasksObserver, TaskAttributeObserver, IView {
+public class TaskManagerView extends JPanel implements ITasksObserver, ITaskAttributeObserver, IView {
     // ----------------------------- UI Fields -----------------------------
     private final JFrame window;
     private final JPanel contentPane;
@@ -426,10 +426,6 @@ public class TaskManagerView extends JPanel implements TasksObserver, TaskAttrib
         statusBar.setText("Showing " + (tasks == null ? 0 : tasks.size()) + " tasks");
     }
 
-    /** {@inheritDoc} */
-    @Override public IViewModel getViewModel() { /* Purpose: expose bound ViewModel */
-        return viewModel;
-    }
     /** {@inheritDoc} */
     @Override public void setViewModel(IViewModel viewModel) { /* Purpose: bind ViewModel & register as observer */
         this.viewModel = viewModel;

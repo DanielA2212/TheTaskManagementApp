@@ -7,7 +7,7 @@ import java.util.List;
  * Strategy pattern interface for different task sorting algorithms.
  * @author Course
  */
-public interface SortingStrategy {
+public interface ISortingStrategy {
     /**
      * Sort the supplied task list in-place.
      * @param tasks mutable list of tasks (must not be null)

@@ -16,7 +16,7 @@ public class TaskAttributeSubject {
     /** Singleton instance */
     private static final TaskAttributeSubject instance = new TaskAttributeSubject();
     /** Registered observers list (no duplicates enforcement for simplicity) */
-    private final List<TaskAttributeObserver> observers = new ArrayList<>();
+    private final List<ITaskAttributeObserver> observers = new ArrayList<>();
 
     /** Private constructor for singleton */
     private TaskAttributeSubject() {}
@@ -34,7 +34,7 @@ public class TaskAttributeSubject {
      * @param observer observer to add (ignored if null)
      * Purpose: register observer (null tolerated)
      */
-    public void addObserver(TaskAttributeObserver observer) {
+    public void addObserver(ITaskAttributeObserver observer) {
         observers.add(observer);
     }
 
@@ -48,7 +48,7 @@ public class TaskAttributeSubject {
      * Purpose: broadcast state change
      */
     public void notifyStateChanged(ITask task, ITaskState oldState, ITaskState newState) {
-        for (TaskAttributeObserver observer : observers) {
+        for (ITaskAttributeObserver observer : observers) {
             observer.onStateChanged(task, oldState, newState);
         }
     }
@@ -61,7 +61,7 @@ public class TaskAttributeSubject {
      * Purpose: broadcast title change
      */
     public void notifyTitleChanged(ITask task, String oldTitle, String newTitle) {
-        for (TaskAttributeObserver observer : observers) {
+        for (ITaskAttributeObserver observer : observers) {
             observer.onTitleChanged(task, oldTitle, newTitle);
         }
     }
@@ -74,7 +74,7 @@ public class TaskAttributeSubject {
      * Purpose: broadcast priority change
      */
     public void notifyPriorityChanged(ITask task, TaskPriority oldPriority, TaskPriority newPriority) {
-        for (TaskAttributeObserver observer : observers) {
+        for (ITaskAttributeObserver observer : observers) {
             observer.onPriorityChanged(task, oldPriority, newPriority);
         }
     }
@@ -87,7 +87,7 @@ public class TaskAttributeSubject {
      * Purpose: broadcast description change
      */
     public void notifyDescriptionChanged(ITask task, String oldDescription, String newDescription) {
-        for (TaskAttributeObserver observer : observers) {
+        for (ITaskAttributeObserver observer : observers) {
             observer.onDescriptionChanged(task, oldDescription, newDescription);
         }
     }
@@ -100,7 +100,7 @@ public class TaskAttributeSubject {
      * Purpose: broadcast updated timestamp change
      */
     public void notifyUpdatedDateChanged(ITask task, Date oldDate, Date newDate) {
-        for (TaskAttributeObserver observer : observers) {
+        for (ITaskAttributeObserver observer : observers) {
             observer.onUpdatedDateChanged(task, oldDate, newDate);
         }
     }
@@ -111,7 +111,7 @@ public class TaskAttributeSubject {
      * Purpose: broadcast addition
      */
     public void notifyTaskAdded(ITask task) {
-        for (TaskAttributeObserver observer : observers) {
+        for (ITaskAttributeObserver observer : observers) {
             observer.onTaskAdded(task);
         }
     }
@@ -122,7 +122,7 @@ public class TaskAttributeSubject {
      * Purpose: broadcast removal
      */
     public void notifyTaskRemoved(ITask task) {
-        for (TaskAttributeObserver observer : observers) {
+        for (ITaskAttributeObserver observer : observers) {
             observer.onTaskRemoved(task);
         }
     }

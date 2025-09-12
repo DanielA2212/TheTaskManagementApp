@@ -2,7 +2,8 @@ package il.ac.hit.project.main.viewmodel;
 
 import il.ac.hit.project.main.model.dao.ITasksDAO;
 import il.ac.hit.project.main.model.dao.TasksDAOException;
-import il.ac.hit.project.main.model.report.ReportVisitor;
+import il.ac.hit.project.main.model.report.ReportVisitorI;
+import il.ac.hit.project.main.model.report.external.IReportExporter;
 import il.ac.hit.project.main.model.task.TaskPriority;
 import il.ac.hit.project.main.model.task.ITask;
 import il.ac.hit.project.main.model.task.Task;
@@ -11,17 +12,16 @@ import il.ac.hit.project.main.model.task.ToDoState;
 import il.ac.hit.project.main.model.task.InProgressState;
 import il.ac.hit.project.main.model.task.CompletedState;
 import il.ac.hit.project.main.model.task.TaskState;
-import il.ac.hit.project.main.view.TasksObserver;
-import il.ac.hit.project.main.view.TaskAttributeObserver;
+import il.ac.hit.project.main.view.ITasksObserver;
+import il.ac.hit.project.main.view.ITaskAttributeObserver;
 import il.ac.hit.project.main.view.IView;
 import il.ac.hit.project.main.view.MessageType;
-import il.ac.hit.project.main.viewmodel.combinator.TaskFilter;
+import il.ac.hit.project.main.viewmodel.combinator.ITaskFilter;
 import il.ac.hit.project.main.viewmodel.combinator.TaskFilters;
-import il.ac.hit.project.main.viewmodel.strategy.SortingStrategy;
-import il.ac.hit.project.main.viewmodel.strategy.SortByCreationDateStrategy;
+import il.ac.hit.project.main.viewmodel.strategy.ISortingStrategy;
+import il.ac.hit.project.main.viewmodel.strategy.SortByCreationDateStrategyI;
 import il.ac.hit.project.main.viewmodel.strategy.SortingOption;
-import il.ac.hit.project.main.model.report.external.ReportExporter;
-import il.ac.hit.project.main.model.report.external.CsvReportAdapter;
+import il.ac.hit.project.main.model.report.external.CsvIReportAdapter;
 import il.ac.hit.project.main.model.report.external.PdfReportWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -41,7 +41,7 @@ import java.util.stream.Collectors;
  * Responsibilities:
  * - Mediates between View (UI) and Model (DAO).
  * - Maintains in-memory task cache and applies filters (Combinator pattern) and sorting (Strategy pattern).
- * - Publishes changes to observers (Observer pattern via TasksObserver and TaskAttributeObserver).
+ * - Publishes changes to observers (Observer pattern via ITasksObserver and ITaskAttributeObserver).
  * - Coordinates async operations via an ExecutorService.
  * </p>
  * All public methods include validation and never block the Swing EDT directly; long operations
@@ -54,12 +54,12 @@ public class TasksViewModel implements IViewModel {
     // ------------------------------------------------------------
     private IView view;                     // reference to view (maybe swapped in tests)
     private ITasksDAO tasksDAO;             // backing DAO (proxy or concrete)
-    private final List<TasksObserver> observers = new ArrayList<>(); // bulk observers
+    private final List<ITasksObserver> observers = new ArrayList<>(); // bulk observers
     private List<ITask> tasks = new ArrayList<>();       // visible (after filter + sort)
     private List<ITask> allTasks = new ArrayList<>();    // full cache from DAO
     private final ExecutorService service;               // async executor
-    private SortingStrategy currentSortingStrategy;      // active strategy
-    private TaskFilter currentFilter = TaskFilter.all(); // programmatic filter (composed)
+    private ISortingStrategy currentISortingStrategy;      // active strategy
+    private ITaskFilter currentFilter = ITaskFilter.all(); // programmatic filter (composed)
     private String currentSearchText = "";              // UI search value
     private String currentStateFilter = "All";          // UI state filter value
 
@@ -75,7 +75,7 @@ public class TasksViewModel implements IViewModel {
         this.tasksDAO = tasksDAO;
         this.view = view;
         this.service = Executors.newFixedThreadPool(8); // fixed pool for predictable concurrency
-        this.currentSortingStrategy = new SortByCreationDateStrategy(); // default sort
+        this.currentISortingStrategy = new SortByCreationDateStrategyI(); // default sort
         // Initial loading and observer registration occurs after construction in Main
     }
 
@@ -93,12 +93,12 @@ public class TasksViewModel implements IViewModel {
 
     /**
      * Register granular attribute observers (must be called post-construction).
-     * Wires a TaskAttributeObserver to react to fine-grained model updates and
+     * Wires a ITaskAttributeObserver to react to fine-grained model updates and
      * re-apply current filters/sorting to refresh the visible list.
      */
     public void registerAttributeObservers() {
         /* Purpose: subscribe to fine-grained Task attribute events and trigger recompute */
-        Task.getAttributeSubject().addObserver(new TaskAttributeObserver() {
+        Task.getAttributeSubject().addObserver(new ITaskAttributeObserver() {
             @Override
             public void onStateChanged(ITask task, ITaskState oldState, ITaskState newState) {
                 /* Purpose: handle state mutation */
@@ -157,21 +157,21 @@ public class TasksViewModel implements IViewModel {
      * Add a bulk tasks observer (duplicates allowed for simplicity).
      * @param observer observer instance (ignored if null)
      */
-    public void addObserver(TasksObserver observer) {
+    public void addObserver(ITasksObserver observer) {
         /* Purpose: register bulk observer for list changes */
         observers.add(observer); // no null check -> consistent with existing simplicity
     }
 
     /**
      * Notify all registered bulk tasks observers after the internal visible list is updated.
-     * If the bound view implements TasksObserver it is notified first for deterministic ordering.
+     * If the bound view implements ITasksObserver it is notified first for deterministic ordering.
      */
     public void notifyObservers() {
         /* Purpose: broadcast visible list changes to all listeners */
-        if (view instanceof TasksObserver vo) { // primary view update
+        if (view instanceof ITasksObserver vo) { // primary view update
             vo.onTasksChanged(tasks);
         }
-        for (TasksObserver observer : observers) { // propagate to extras
+        for (ITasksObserver observer : observers) { // propagate to extras
             if (observer == view) { continue; } // avoid duplicate notify
             observer.onTasksChanged(tasks);
         }
@@ -187,12 +187,12 @@ public class TasksViewModel implements IViewModel {
      */
     private void applyFilterAndSort() {
         /* Purpose: recompute visible tasks from cache using filters & current sort */
-        TaskFilter combinedFilter = createCombinedFilter(); // compose UI + programmatic
+        ITaskFilter combinedFilter = createCombinedFilter(); // compose UI + programmatic
         this.tasks = allTasks.stream()
             .filter(combinedFilter::test)
             .collect(Collectors.toList()); // new list maintains order for table mapping
-        if (currentSortingStrategy != null) { // strategy may be swapped at runtime
-            currentSortingStrategy.sort(this.tasks);
+        if (currentISortingStrategy != null) { // strategy may be swapped at runtime
+            currentISortingStrategy.sort(this.tasks);
         }
     }
 
@@ -200,11 +200,11 @@ public class TasksViewModel implements IViewModel {
      * Compose active UI + programmatic filters (Combinator pattern).
      * @return combined AND filter representing current state
      */
-    private TaskFilter createCombinedFilter() {
+    private ITaskFilter createCombinedFilter() {
         /* Purpose: AND-combine search, state, and programmatic filters */
-        TaskFilter searchFilter = TaskFilters.bySearchText(currentSearchText); // text match filter
-        TaskFilter stateFilter = TaskFilters.byStateDisplayName(currentStateFilter); // state display filter
-        TaskFilter combinedUIFilter = searchFilter.and(stateFilter); // AND combine UI filters
+        ITaskFilter searchFilter = TaskFilters.bySearchText(currentSearchText); // text match filter
+        ITaskFilter stateFilter = TaskFilters.byStateDisplayName(currentStateFilter); // state display filter
+        ITaskFilter combinedUIFilter = searchFilter.and(stateFilter); // AND combine UI filters
         return combinedUIFilter.and(currentFilter); // include programmatic filter
     }
 
@@ -235,9 +235,9 @@ public class TasksViewModel implements IViewModel {
      * Set programmatic filter (tests / advanced scenarios).
      * @param filter composite filter (null -> match all)
      */
-    public void setFilter(TaskFilter filter) {
+    public void setFilter(ITaskFilter filter) {
         /* Purpose: set programmatic filter (tests / advanced scenarios) */
-        this.currentFilter = filter != null ? filter : TaskFilter.all(); // fallback
+        this.currentFilter = filter != null ? filter : ITaskFilter.all(); // fallback
         applyFilterAndSort();
         notifyObservers();
     }
@@ -249,7 +249,7 @@ public class TasksViewModel implements IViewModel {
         /* Purpose: reset all filters to defaults */
         this.currentSearchText = "";
         this.currentStateFilter = "All";
-        this.currentFilter = TaskFilter.all();
+        this.currentFilter = ITaskFilter.all();
         applyFilterAndSort();
         notifyObservers();
     }
@@ -259,10 +259,10 @@ public class TasksViewModel implements IViewModel {
      * @param strategy strategy instance (must not be null)
      * @throws IllegalArgumentException if strategy null
      */
-    protected void setSortingStrategy(SortingStrategy strategy) {
+    protected void setSortingStrategy(ISortingStrategy strategy) {
         /* Purpose: change active strategy & reapply ordering */
         if (strategy == null) throw new IllegalArgumentException("strategy cannot be null");
-        this.currentSortingStrategy = strategy;
+        this.currentISortingStrategy = strategy;
         applyFilterAndSort();
         notifyObservers();
     }
@@ -551,7 +551,7 @@ public class TasksViewModel implements IViewModel {
      */
     public String generateReportTextSync() {
         /* Purpose: build friend-style report synchronously for UI display */
-        ReportVisitor visitor = new ReportVisitor();
+        ReportVisitorI visitor = new ReportVisitorI();
         for (ITask task : allTasks) { // visit all cached tasks
             visitor.visit(task);
         }
@@ -575,14 +575,14 @@ public class TasksViewModel implements IViewModel {
         File csvFile = new File(parent, name + ".csv");
         File pdfFile = new File(parent, name + ".pdf");
 
-        ReportVisitor visitor = new ReportVisitor();
+        ReportVisitorI visitor = new ReportVisitorI();
         for (ITask task : allTasks) { // collect records
             visitor.visit(task);
         }
         var records = visitor.getTaskRecords();
 
         // CSV (Adapter pattern wraps library)
-        ReportExporter exporter = new CsvReportAdapter(new il.ac.hit.project.main.model.report.external.CsvLibrary());
+        IReportExporter exporter = new CsvIReportAdapter(new il.ac.hit.project.main.model.report.external.CsvLibrary());
         String csv = exporter.export(records);
         try (FileWriter fw = new FileWriter(csvFile)) { fw.write(csv); }
 

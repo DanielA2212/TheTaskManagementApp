@@ -1,5 +1,7 @@
 package il.ac.hit.project.main.viewmodel;
 
+import il.ac.hit.project.main.view.ITasksObserver;
+
 /**
  * ViewModel contract in MVVM. Mediates between il.ac.hit.project.main.model (ITasksDAO) and il.ac.hit.project.main.view.
  * Implementations must notify registered observers when the visible task list changes.
@@ -10,7 +12,7 @@ public interface IViewModel {
      * Register an observer for task list changes.
      * @param observer observer to add (ignored if null implementation dependent)
      */
-    void addObserver(il.ac.hit.project.main.view.TasksObserver observer);
+    void addObserver(ITasksObserver observer);
     /**
      * Notify all registered observers that the visible task collection changed.
      */

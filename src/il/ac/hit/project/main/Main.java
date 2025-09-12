@@ -4,8 +4,8 @@ import il.ac.hit.project.main.model.dao.ITasksDAO;
 import il.ac.hit.project.main.model.dao.TasksDAODerby;
 import il.ac.hit.project.main.model.dao.TasksDAOException;
 import il.ac.hit.project.main.model.dao.TasksDAOProxy;
-import il.ac.hit.project.main.view.IView;
 import il.ac.hit.project.main.view.TaskManagerView;
+import il.ac.hit.project.main.view.IView;
 import il.ac.hit.project.main.viewmodel.IViewModel;
 import il.ac.hit.project.main.viewmodel.TasksViewModel;
 

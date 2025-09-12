@@ -22,7 +22,7 @@ import static org.mockito.Mockito.*;
 
 /**
  * UI tests for TaskManagerView (View layer) exercising table rendering, selection binding,
- * decorator side-effects, and update dispatch to ViewModel without showing a real window.
+ * decorator side effects, and update dispatch to ViewModel without showing a real window.
  * Uses reflection to access private Swing components for assertions.
  * @author Course
  */

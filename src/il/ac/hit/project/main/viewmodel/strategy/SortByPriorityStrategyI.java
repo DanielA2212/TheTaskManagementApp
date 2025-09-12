@@ -11,7 +11,7 @@ import java.util.Comparator;
  * UI labels invert by interpreting meaning rather than reversing list here.
  * @author Course
  */
-public class SortByPriorityStrategy implements SortingStrategy {
+public class SortByPriorityStrategyI implements ISortingStrategy {
 
     @Override
     public void sort(List<ITask> tasks) {

@@ -8,7 +8,7 @@ import java.util.Comparator;
  * Strategy implementation for sorting tasks by title alphabetically.
  * @author Course
  */
-public class SortByTitleStrategy implements SortingStrategy {
+public class SortByTitleStrategyI implements ISortingStrategy {
 
     @Override
     public void sort(List<ITask> tasks) { // in-place alphabetical sort

@@ -9,7 +9,7 @@ import java.util.Date;
  * Observer interface for Task attribute changes.
  * Each callback supplies both old and new values where applicable.
  */
-public interface TaskAttributeObserver {
+public interface ITaskAttributeObserver {
     /**
      * Called when a task's state changes.
      * @param task affected task

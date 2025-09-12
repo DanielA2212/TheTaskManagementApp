@@ -6,10 +6,10 @@ import java.text.SimpleDateFormat;
 import java.util.List;
 
 /**
- * Adapter that adapts an external CSV library to our ReportExporter interface.
+ * Adapter that adapts an external CSV library to our IReportExporter interface.
  * Implements the Adapter design pattern to decouple application from third‑party API shape.
  */
-public class CsvReportAdapter implements ReportExporter {
+public class CsvIReportAdapter implements IReportExporter {
     /** Underlying external CSV library (never null) */
     private final CsvLibrary csvLibrary;
     /** Date formatter for timestamp columns (thread confined) */
@@ -20,7 +20,7 @@ public class CsvReportAdapter implements ReportExporter {
      * @param csvLibrary non-null external library instance
      * @throws IllegalArgumentException if csvLibrary is null
      */
-    public CsvReportAdapter(CsvLibrary csvLibrary) {
+    public CsvIReportAdapter(CsvLibrary csvLibrary) {
         /* Purpose: capture dependency and validate argument */
         if (csvLibrary == null) throw new IllegalArgumentException("csvLibrary cannot be null");
         this.csvLibrary = csvLibrary;

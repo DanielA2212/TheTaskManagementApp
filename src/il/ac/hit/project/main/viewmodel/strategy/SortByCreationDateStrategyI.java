@@ -9,7 +9,7 @@ import java.util.Comparator;
  * Strategy implementation for sorting tasks by creation date.
  * @author Course
  */
-public class SortByCreationDateStrategy implements SortingStrategy {
+public class SortByCreationDateStrategyI implements ISortingStrategy {
 
     @Override
     public void sort(List<ITask> tasks) {

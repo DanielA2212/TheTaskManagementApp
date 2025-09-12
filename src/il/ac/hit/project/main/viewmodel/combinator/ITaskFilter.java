@@ -6,7 +6,7 @@ import il.ac.hit.project.main.model.task.ITask;
  * Functional interface for filtering tasks using Combinator pattern
  */
 @FunctionalInterface
-public interface TaskFilter {
+public interface ITaskFilter {
     /**
      * Tests if a task matches the filter criteria
      * @param task the task to test
@@ -18,7 +18,7 @@ public interface TaskFilter {
      * Combines this filter with another using AND logic.
      * Null other returns this filter.
      */
-    default TaskFilter and(TaskFilter other) {
+    default ITaskFilter and(ITaskFilter other) {
         if (other == null) return this;
         return task -> this.test(task) && other.test(task);
     }
@@ -27,7 +27,7 @@ public interface TaskFilter {
      * Combines this filter with another using OR logic.
      * Null other returns this filter.
      */
-    default TaskFilter or(TaskFilter other) {
+    default ITaskFilter or(ITaskFilter other) {
         if (other == null) return this;
         return task -> this.test(task) || other.test(task);
     }
@@ -35,7 +35,7 @@ public interface TaskFilter {
     /**
      * Negates this filter.
      */
-    default TaskFilter negate() {
+    default ITaskFilter negate() {
         return task -> !this.test(task);
     }
 
@@ -43,7 +43,7 @@ public interface TaskFilter {
      * Returns a filter that matches all tasks
      * @return a filter that always returns true
      */
-    static TaskFilter all() {
+    static ITaskFilter all() {
         return _ -> true;
     }
 }

@@ -1,9 +1,9 @@
 package viewmodel.strategy;
 
 import il.ac.hit.project.main.model.task.*;
-import il.ac.hit.project.main.viewmodel.strategy.SortByCreationDateStrategy;
-import il.ac.hit.project.main.viewmodel.strategy.SortByPriorityStrategy;
-import il.ac.hit.project.main.viewmodel.strategy.SortByTitleStrategy;
+import il.ac.hit.project.main.viewmodel.strategy.SortByCreationDateStrategyI;
+import il.ac.hit.project.main.viewmodel.strategy.SortByPriorityStrategyI;
+import il.ac.hit.project.main.viewmodel.strategy.SortByTitleStrategyI;
 import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.Date;
@@ -12,7 +12,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Tests for the different SortingStrategy implementations (Strategy pattern).
+ * Tests for the different ISortingStrategy implementations (Strategy pattern).
  * Verifies ordering by title (case-insensitive), creation date, and enum priority order.
  * @author Course
  */
@@ -41,7 +41,7 @@ public class SortingStrategyTest {
         tasks.add(task(2, "alpha", TaskPriority.LOW, new Date(1000), ToDoState.getInstance()));
         tasks.add(task(3, "Beta", TaskPriority.HIGH, new Date(3000), ToDoState.getInstance()));
 
-        new SortByTitleStrategy().sort(tasks);
+        new SortByTitleStrategyI().sort(tasks);
 
         assertEquals("alpha", tasks.get(0).getTitle());
         assertEquals("Beta", tasks.get(1).getTitle());
@@ -58,7 +58,7 @@ public class SortingStrategyTest {
         tasks.add(task(2, "B", TaskPriority.LOW, new Date(1000), ToDoState.getInstance()));
         tasks.add(task(3, "C", TaskPriority.HIGH, new Date(2000), ToDoState.getInstance()));
 
-        new SortByCreationDateStrategy().sort(tasks);
+        new SortByCreationDateStrategyI().sort(tasks);
 
         assertEquals(2, tasks.get(0).getId());
         assertEquals(3, tasks.get(1).getId());
@@ -75,7 +75,7 @@ public class SortingStrategyTest {
         tasks.add(task(2, "B", TaskPriority.LOW, new Date(0), ToDoState.getInstance()));
         tasks.add(task(3, "C", TaskPriority.MEDIUM, new Date(0), ToDoState.getInstance()));
 
-        new SortByPriorityStrategy().sort(tasks);
+        new SortByPriorityStrategyI().sort(tasks);
 
         // Enum order is LOW < MEDIUM < HIGH
         assertEquals(TaskPriority.LOW, ((ITaskDetails) tasks.get(0)).getPriority());

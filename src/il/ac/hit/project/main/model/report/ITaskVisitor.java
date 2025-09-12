@@ -7,7 +7,7 @@ import il.ac.hit.project.main.model.task.ITask;
 /**
  * Visitor contract for processing tasks (Visitor pattern).
  */
-public interface TaskVisitor {
+public interface ITaskVisitor {
     /**
      * Visit a task instance.
      * @param task non-null task to process
