@@ -15,16 +15,11 @@ import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+
 /**
- * Application bootstrap class for the Task Management App.
- * <p>
- * Responsibilities:
- * <ul>
- *   <li>Configure Swing look & feel and font smoothing.</li>
- *   <li>Wire Model (DAO) + ViewModel + View following MVVM.</li>
- *   <li>Establish cross-layer observers and perform initial data load.</li>
- *   <li>Install a JVM shutdown hook to gracefully terminate background executors and the embedded Derby DB.</li>
- * </ul>
+ * Application entry point for TheTaskManagementApp.
+ * Boots the Derby DB, constructs ViewModel/DAO and shows TaskManagerView.
+ * Requires JDK 24+ (records/switch expressions).
  * This class intentionally keeps logic minimal: once constructed the runtime behavior is delegated to the ViewModel & View.
  */
 public class Main {
