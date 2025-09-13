@@ -2,7 +2,7 @@ package il.ac.hit.project.main.viewmodel;
 
 import il.ac.hit.project.main.model.dao.ITasksDAO;
 import il.ac.hit.project.main.model.dao.TasksDAOException;
-import il.ac.hit.project.main.model.report.ReportVisitorI;
+import il.ac.hit.project.main.model.report.ReportVisitor;
 import il.ac.hit.project.main.model.report.external.IReportExporter;
 import il.ac.hit.project.main.model.task.TaskPriority;
 import il.ac.hit.project.main.model.task.ITask;
@@ -551,7 +551,7 @@ public class TasksViewModel implements IViewModel {
      */
     public String generateReportTextSync() {
         /* Purpose: build friend-style report synchronously for UI display */
-        ReportVisitorI visitor = new ReportVisitorI();
+        ReportVisitor visitor = new ReportVisitor();
         for (ITask task : allTasks) { // visit all cached tasks
             visitor.visit(task);
         }
@@ -575,7 +575,7 @@ public class TasksViewModel implements IViewModel {
         File csvFile = new File(parent, name + ".csv");
         File pdfFile = new File(parent, name + ".pdf");
 
-        ReportVisitorI visitor = new ReportVisitorI();
+        ReportVisitor visitor = new ReportVisitor();
         for (ITask task : allTasks) { // collect records
             visitor.visit(task);
         }

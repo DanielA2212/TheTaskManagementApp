@@ -106,7 +106,8 @@ public class TasksDAODerby implements ITasksDAO {
     private void alignIdentitySequence() throws SQLException {
         int nextId = 1; // default minimal id
         try (Statement stmt = connection.createStatement();
-             ResultSet rs = stmt.executeQuery("SELECT " + "MAX" + "(id) FROM tasks")) { // get current max id
+             ResultSet rs = stmt.executeQuery("SELECT " + "MAX" + "(id) FROM tasks"))
+        { // get current max id
             if (rs.next()) {
                 int maxId = rs.getInt(1);
                 if (!rs.wasNull() && maxId > 0) {
@@ -134,11 +135,16 @@ public class TasksDAODerby implements ITasksDAO {
         boolean hasUpdated     = hasColumn(meta, "UPDATED_DATE");
 
         try (Statement stmt = connection.createStatement()) {
-            if (!hasDescription) { stmt.executeUpdate("ALTER " + "TABLE tasks ADD COLUMN description CLOB"); }
-            if (!hasPriority)    { stmt.executeUpdate("ALTER " + "TABLE tasks ADD COLUMN priority VARCHAR(10) NOT NULL DEFAULT 'LOW'"); }
-            if (!hasState)       { stmt.executeUpdate("ALTER " + "TABLE tasks ADD COLUMN state VARCHAR(20) NOT NULL DEFAULT 'TODO'"); }
-            if (!hasCreated)     { stmt.executeUpdate("ALTER " + "TABLE tasks ADD COLUMN created_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP"); }
-            if (!hasUpdated)     { stmt.executeUpdate("ALTER " + "TABLE tasks ADD COLUMN updated_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP"); }
+            if (!hasDescription) { stmt.executeUpdate("ALTER " +
+                    "TABLE tasks ADD COLUMN description CLOB"); }
+            if (!hasPriority)    { stmt.executeUpdate("ALTER " +
+                    "TABLE tasks ADD COLUMN priority VARCHAR(10) NOT NULL DEFAULT 'LOW'"); }
+            if (!hasState)       { stmt.executeUpdate("ALTER " +
+                    "TABLE tasks ADD COLUMN state VARCHAR(20) NOT NULL DEFAULT 'TODO'"); }
+            if (!hasCreated)     { stmt.executeUpdate("ALTER " +
+                    "TABLE tasks ADD COLUMN created_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP"); }
+            if (!hasUpdated)     { stmt.executeUpdate("ALTER " +
+                    "TABLE tasks ADD COLUMN updated_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP"); }
         }
     }
 
@@ -170,7 +176,8 @@ public class TasksDAODerby implements ITasksDAO {
         if (task == null) throw new IllegalArgumentException("task cannot be null"); // argument validation
         ITaskDetails details = (ITaskDetails) task; // downcast for extended fields
 
-        String insertSQL = "INSERT " + "INTO tasks (title, description, priority, state, created_date, updated_date) VALUES (?, ?, ?, ?, ?, ?)";
+        String insertSQL = "INSERT " +
+                "INTO tasks (title, description, priority, state, created_date, updated_date) VALUES (?, ?, ?, ?, ?, ?)";
         try {
             try (PreparedStatement pstmt = connection.prepareStatement(insertSQL, Statement.RETURN_GENERATED_KEYS)) {
                 pstmt.setString(1, task.getTitle());

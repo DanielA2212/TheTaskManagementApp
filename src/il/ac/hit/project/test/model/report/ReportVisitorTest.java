@@ -1,6 +1,6 @@
 package model.report;
 
-import il.ac.hit.project.main.model.report.ReportVisitorI;
+import il.ac.hit.project.main.model.report.ReportVisitor;
 import il.ac.hit.project.main.model.report.external.CsvIReportAdapter;
 import il.ac.hit.project.main.model.report.external.IReportExporter;
 import il.ac.hit.project.main.model.task.*;
@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 /**
- * Tests the ReportVisitorI aggregation and CSV adapter export integration.
+ * Tests the ReportVisitor aggregation and CSV adapter export integration.
  * Verifies summary counts, categorization section presence, and CSV header/row content.
  * @author Course
  */
@@ -27,7 +27,7 @@ public class ReportVisitorTest {
         Task t2 = task(2, "Implement feature", "work", TaskPriority.MEDIUM, InProgressState.getInstance());
         Task t3 = task(3, "Cleanup", "done", TaskPriority.LOW, CompletedState.getInstance());
 
-        ReportVisitorI visitor = new ReportVisitorI();
+        ReportVisitor visitor = new ReportVisitor();
         List.of(t1, t2, t3).forEach(visitor::visit);
         String report = visitor.generateReport();
 
@@ -45,7 +45,7 @@ public class ReportVisitorTest {
         Task t1 = task(1, "A", "d1", TaskPriority.HIGH, ToDoState.getInstance());
         Task t2 = task(2, "B", "d2", TaskPriority.LOW, CompletedState.getInstance());
 
-        ReportVisitorI visitor = new ReportVisitorI();
+        ReportVisitor visitor = new ReportVisitor();
         visitor.visit(t1);
         visitor.visit(t2);
 

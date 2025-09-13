@@ -8,7 +8,7 @@ import java.util.ArrayList;
  * Visitor that collects tasks into an internal list for generating multiple report formats.
  * Implements the Visitor pattern with Java records & pattern matching (TaskRecord + switch expressions).
  */
-public class ReportVisitorI implements ITaskVisitor {
+public class ReportVisitor implements ITaskVisitor {
     /** Collected task records (in visit order) */
     private final List<TaskRecord> taskRecords = new ArrayList<>();
 

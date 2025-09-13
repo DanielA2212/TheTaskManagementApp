@@ -1,6 +1,6 @@
 package model.report;
 
-import il.ac.hit.project.main.model.report.ReportVisitorI;
+import il.ac.hit.project.main.model.report.ReportVisitor;
 import il.ac.hit.project.main.model.report.external.PdfReportWriter;
 import il.ac.hit.project.main.model.task.*;
 import org.junit.jupiter.api.Test;
@@ -25,7 +25,7 @@ public class PdfReportWriterSmokeTest {
         Task t1 = new Task(0, "Alpha", "Desc", ToDoState.getInstance(), null, TaskPriority.HIGH);
         Task t2 = new Task(0, "Beta", "Desc", CompletedState.getInstance(), null, TaskPriority.LOW);
 
-        ReportVisitorI visitor = new ReportVisitorI();
+        ReportVisitor visitor = new ReportVisitor();
         visitor.visit(t1);
         visitor.visit(t2);
 
