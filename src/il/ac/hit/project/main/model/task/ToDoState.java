@@ -11,28 +11,32 @@ public class ToDoState implements ITaskState {
     private ToDoState() { /* enforce singleton */ }
 
     /** @return global singleton instance */
-    public static ToDoState getInstance() { return instance; }
+    public static ToDoState getInstance() {
+        return instance; }
     /* Provide shared instance */
 
     /** @return display name ("To Do") */
     @Override
-    public String getDisplayName() { return "To Do"; }
-    /* Human readable label */
+    public String getDisplayName() {
+        return "To Do"; }
 
     /** @return state type enum */
     @Override
-    public StateType getStateType() { return StateType.TODO; }
-    /* Map to canonical enum */
+    public StateType getStateType() {
+        return StateType.TODO; }
 
     @Override
-    public String toString() { return getDisplayName(); }
+    public String toString() {
+        return getDisplayName(); }
 
     /** equality based on type only */
     @Override
-    public boolean equals(Object obj) { return obj instanceof ToDoState; }
+    public boolean equals(Object obj) {
+        return obj instanceof ToDoState; }
     /* Singleton semantic equality */
 
     /** hash code consistent with equals */
     @Override
-    public int hashCode() { return getStateType().hashCode(); }
+    public int hashCode() {
+        return getStateType().hashCode(); }
 }

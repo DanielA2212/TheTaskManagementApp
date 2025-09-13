@@ -20,7 +20,6 @@ import java.util.Date;
  * <ul>
  *   <li><b>Singleton</b> – single shared connection & schema bootstrap.</li>
  *   <li><b>DAO</b> – abstracts persistence from higher layers (ViewModel).</li>
- *   <li><b>Resilience</b> – creates / evolves schema on first access (idempotent).</li>
  * </ul>
  * Notes:
  * <ul>
@@ -45,7 +44,7 @@ public class TasksDAODerby implements ITasksDAO {
     private TasksDAODerby() throws TasksDAOException {
         try {
             connection = DriverManager.getConnection(DB_URL); // open embedded connection
-            createTasksTable(); // bootstrap / evolve schema
+            createTasksTable(); // bootstrap
         } catch (SQLException e) {
             throw new TasksDAOException("Failed to connect to database", e);
         }
@@ -69,10 +68,8 @@ public class TasksDAODerby implements ITasksDAO {
 
     /**
      * Create tasks table (if missing) then align identity sequence and ensure columns.
-     * Uses SQLState "X0Y32" to detect existing table (Derby specific code).
      * @throws SQLException on any non-ignorable DDL failure
      */
-
     private void createTasksTable() throws SQLException {
         // Build SQL statement piecemeal to avoid static analyzer warnings about long literals
         String createTableSQL = "CREATE " + "TABLE tasks (" +
@@ -84,7 +81,7 @@ public class TasksDAODerby implements ITasksDAO {
                 " created_date TIMESTAMP NOT NULL," +
                 " updated_date TIMESTAMP NOT NULL," +
                 " PRIMARY KEY (id)" +
-                ")"; // final DDL
+                ")";
 
         try (Statement statement = connection.createStatement()) {
             statement.executeUpdate(createTableSQL); // attempt create
@@ -106,15 +103,14 @@ public class TasksDAODerby implements ITasksDAO {
      * Prevents id reuse after deletes & preserves monotonic growth.
      * @throws SQLException on failure
      */
-
     private void alignIdentitySequence() throws SQLException {
         int nextId = 1; // default minimal id
         try (Statement stmt = connection.createStatement();
              ResultSet rs = stmt.executeQuery("SELECT " + "MAX" + "(id) FROM tasks")) { // get current max id
-            if (rs.next()) { // has result row
+            if (rs.next()) {
                 int maxId = rs.getInt(1);
-                if (!rs.wasNull() && maxId > 0) { // found valid max
-                    nextId = maxId + 1; // advance by one
+                if (!rs.wasNull() && maxId > 0) {
+                    nextId = maxId + 1;
                 }
             }
         }
@@ -154,7 +150,6 @@ public class TasksDAODerby implements ITasksDAO {
      * @return true if column exists
      * @throws SQLException on metadata access failure
      */
-
     private boolean hasColumn(DatabaseMetaData meta, String column) throws SQLException {
         try (ResultSet rs = meta.getColumns(null, null, "TASKS", column)) {
             return rs.next(); // returns at least one row if column present
@@ -171,7 +166,6 @@ public class TasksDAODerby implements ITasksDAO {
      * @throws TasksDAOException on SQL error
      */
     @Override
-
     public void addTask(ITask task) throws TasksDAOException {
         if (task == null) throw new IllegalArgumentException("task cannot be null"); // argument validation
         ITaskDetails details = (ITaskDetails) task; // downcast for extended fields
@@ -206,7 +200,6 @@ public class TasksDAODerby implements ITasksDAO {
      * @throws TasksDAOException on SQL failure
      */
     @Override
-
     public ITask[] getTasks() throws TasksDAOException {
         List<ITask> tasks = new ArrayList<>(); // dynamic accumulation
         String selectSQL = "SELECT * " + "FROM tasks ORDER BY id"; // stable order for UI mapping
@@ -222,7 +215,7 @@ public class TasksDAODerby implements ITasksDAO {
             throw new TasksDAOException("Failed to get tasks", e);
         }
 
-        return tasks.toArray(new ITask[0]); // convert to array (spec requirement)
+        return tasks.toArray(new ITask[0]); // convert to array
     }
 
     /**
@@ -231,7 +224,6 @@ public class TasksDAODerby implements ITasksDAO {
      * @throws TasksDAOException on SQL failure
      */
     @Override
-
     public void updateTask(ITask task) throws TasksDAOException {
         if (task == null) throw new IllegalArgumentException("task cannot be null"); // validation
         ITaskDetails details = (ITaskDetails) task; // extended details
@@ -258,7 +250,6 @@ public class TasksDAODerby implements ITasksDAO {
      * @throws TasksDAOException on SQL failure
      */
     @Override
-
     public void deleteTask(int id) throws TasksDAOException {
         if (id <= 0) throw new IllegalArgumentException("id must be positive");
 
@@ -273,7 +264,7 @@ public class TasksDAODerby implements ITasksDAO {
     }
 
     /**
-     * Delete all tasks (truncation substitute preserving identity sequence alignment logic externally).
+     * Delete all tasks.
      * @throws TasksDAOException on SQL failure
      */
     @Override
@@ -320,7 +311,6 @@ public class TasksDAODerby implements ITasksDAO {
      * @return task object
      * @throws SQLException on column access failure
      */
-
     private ITask createTaskFromResultSet(ResultSet rs) throws SQLException {
         int id = rs.getInt("id");
         String title = rs.getString("title");
@@ -332,10 +322,10 @@ public class TasksDAODerby implements ITasksDAO {
 
         ITaskState state = createStateFromString(stateType); // decode state strategy
 
-        Task task = new Task(id, title, description, state, new Date(createdDate.getTime()), priority); // hydrate
+        Task task = new Task(id, title, description, state, new Date(createdDate.getTime()), priority);
         task.setUpdatedDate(new Date(updatedDate.getTime())); // apply updated timestamp
 
-        return task; // return hydrated entity
+        return task;
     }
 
     /**

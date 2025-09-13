@@ -6,22 +6,15 @@ import java.util.Date;
 /**
  * Concrete implementation of ITask interface.
  * Represents a task with its properties (id, title, description, state, timestamps and priority).
- * Validates input through setters to ensure integrity as per code style guidelines.
+ * Validates input through setters to ensure integrity.
  */
 public class Task implements ITaskDetails {
-    /** unique identifier (assigned by DAO) */
     private int id;
-    /** short human-readable title (non-null, non-blank) */
     private String title;
-    /** detailed description (never null) */
     private String description;
-    /** current internal state strategy implementation (never null) */
     private ITaskState state;
-    /** immutable creation timestamp */
     private final Date createdDate;
-    /** last update timestamp (never null) */
     private Date updatedDate;
-    /** task priority (never null) */
     private TaskPriority priority;
 
     /**
@@ -64,13 +57,19 @@ public class Task implements ITaskDetails {
     }
 
     @Override
-    public int getId() { /* Return immutable identifier once set by DAO */ return id; }
+    public int getId() {
+        return id; }
+    /* Return immutable identifier once set by DAO */
 
     @Override
-    public void setId(int id) { /* Assign identifier (DAO callback after insert) */ this.id = id; }
+    public void setId(int id) {
+        this.id = id; }
+    /* Assign identifier (DAO callback after insert) */
 
     @Override
-    public String getTitle() { /* Provide current title */ return title; }
+    public String getTitle() {
+        return title; }
+    /* Provide current title */
 
     @Override
     public void setTitle(String title) {
@@ -85,7 +84,9 @@ public class Task implements ITaskDetails {
     }
 
     @Override
-    public String getDescription() { /* Provide description text */ return description; }
+    public String getDescription() {
+        return description; }
+    /* Provide description text */
 
     @Override
     public void setDescription(String description) {
@@ -103,7 +104,9 @@ public class Task implements ITaskDetails {
      * Gets the task state as TaskState enum (required by project specs)
      */
     @Override
-    public TaskState getState() { /* Map strategy to enum for external API */ return TaskState.fromStateType(state.getStateType()); }
+    public TaskState getState() {
+        return TaskState.fromStateType(state.getStateType()); }
+    /* Map strategy to enum for external API */
 
     @Override
     public void setState(ITaskState state) {
@@ -118,7 +121,9 @@ public class Task implements ITaskDetails {
     }
 
     @Override
-    public TaskPriority getPriority() { /* Return priority enum */ return priority; }
+    public TaskPriority getPriority() {
+        return priority; }
+    /* Return priority enum */
 
     @Override
     public void setPriority(TaskPriority priority) {
@@ -133,16 +138,21 @@ public class Task implements ITaskDetails {
     }
 
     @Override
-    public Date getCreationDate() { /* Expose immutable creation timestamp */ return createdDate; }
+    public Date getCreationDate() {
+        return createdDate; }
 
     @Override
-    public Date getUpdatedDate() { /* Return last modification timestamp */ return updatedDate; }
+    public Date getUpdatedDate() {
+        return updatedDate; }
+    /* Return last modification timestamp */
 
     /**
      * Sets the last updated date of the task (hydration use only — no notifications).
      * @param updatedDate date to set
      */
-    public void setUpdatedDate(Date updatedDate) { /* Direct assignment used during DAO hydration */ this.updatedDate = updatedDate == null ? new Date() : updatedDate; }
+    public void setUpdatedDate(Date updatedDate) {
+        this.updatedDate = updatedDate == null ? new Date() : updatedDate; }
+    /* Direct assignment used during DAO hydration */
 
     /**
      * Helper that updates updatedDate and notifies observers about the timestamp change.
@@ -157,10 +167,12 @@ public class Task implements ITaskDetails {
     }
 
     /** @return global attribute subject singleton */
-    public static TaskAttributeSubject getAttributeSubject() { /* Centralized observer hub */ return TaskAttributeSubject.getInstance(); }
+    public static TaskAttributeSubject getAttributeSubject() {
+        return TaskAttributeSubject.getInstance(); }
+    /* Centralized observer hub */
 
     @Override
-    public String toString() { /* Human-readable diagnostic representation */
+    public String toString() { /* Diagnostic representation */
         return String.format("Task{id=%d, title='%s', description='%s', state=%s, priority=%s, created=%s, updated=%s}",
                 id, title, description, state.getStateType(), priority, createdDate, updatedDate);
     }
@@ -174,6 +186,7 @@ public class Task implements ITaskDetails {
     }
 
     @Override
-    public int hashCode() { /* Hash consistent with equals (id only) */ return Integer.hashCode(id); }
-    // Additional methods and logic for task management follow the same commenting and JavaDoc conventions
+    public int hashCode() {
+        return Integer.hashCode(id); }
+    /* Hash consistent with equals (id only) */
 }

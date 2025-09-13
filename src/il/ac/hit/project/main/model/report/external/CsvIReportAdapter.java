@@ -1,7 +1,6 @@
 package il.ac.hit.project.main.model.report.external;
 
 import il.ac.hit.project.main.model.report.TaskRecord;
-
 import java.text.SimpleDateFormat;
 import java.util.List;
 

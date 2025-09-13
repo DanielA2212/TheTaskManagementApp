@@ -69,14 +69,14 @@ public class ReportVisitorI implements ITaskVisitor {
         java.util.Comparator<TaskRecord> cmp = java.util.Comparator
             .comparing(TaskRecord::creationDate, java.util.Comparator.nullsLast(java.util.Comparator.naturalOrder()))
             .thenComparingInt(TaskRecord::id);
-        completed.sort(cmp); inProgress.sort(cmp); todo.sort(cmp); // stable ordering for output
+        completed.sort(cmp); inProgress.sort(cmp); todo.sort(cmp); // stable sort
 
         // -------- CSV-like section --------
         report.append("TASK CATEGORIZATION:\n");
         report.append("ID,Title,Description,State,Priority,CreationDate\n");
         java.time.format.DateTimeFormatter csvDf =
                 java.time.format.DateTimeFormatter.ofPattern("MMM d, yyyy, h:mm:ss a", java.util.Locale.US);
-        java.util.function.Consumer<TaskRecord> lineWriter = rec -> { // lambda for DRY line writing
+        java.util.function.Consumer<TaskRecord> lineWriter = rec -> {
             String created = rec.creationDate() != null ? '"' + csvDf.format(
                     rec.creationDate().toInstant().atZone(java.time.ZoneId.systemDefault())) + '"' : "";
             report.append(rec.id()).append(',')
@@ -146,5 +146,7 @@ public class ReportVisitorI implements ITaskVisitor {
                 '}';
     }
 
-    private String truncate(String s){ /* Truncate long descriptions for concise report lines */ return s.length() <= 60 ? s : s.substring(0,57) + "..."; }
+    private String truncate(String s){
+        return s.length() <= 60 ? s : s.substring(0,57) + "..."; }
+    /* Truncate long descriptions for concise report lines */
 }

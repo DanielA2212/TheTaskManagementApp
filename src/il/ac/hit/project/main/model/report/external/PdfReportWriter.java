@@ -21,8 +21,6 @@ import java.util.Locale;
  * Uses PDFBox for PDF generation. Stateless & thread-safe.</p>
  * @author Course
  */
-// Utility for exporting task records to a simple PDF report
-// This class is stateless and thread-safe
 public final class PdfReportWriter {
     private PdfReportWriter() {}
 
@@ -90,7 +88,8 @@ public final class PdfReportWriter {
      * @param df date formatter
      * @throws IOException if writing fails
      */
-    private static void writeBucket(PDPageContentStream cs, org.apache.pdfbox.pdmodel.font.PDFont font, String title, List<TaskRecord> bucket, SimpleDateFormat df) throws IOException {
+    private static void writeBucket(PDPageContentStream cs, org.apache.pdfbox.pdmodel.font.PDFont font,
+                                    String title, List<TaskRecord> bucket, SimpleDateFormat df) throws IOException {
         cs.setFont(font, 11);
         cs.showText(title); cs.newLine();
         for (TaskRecord r : bucket) {

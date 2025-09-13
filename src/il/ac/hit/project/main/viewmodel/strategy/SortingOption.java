@@ -19,7 +19,7 @@ public enum SortingOption {
     }
 
     /**
-     * @return human-friendly label for UI selectors
+     * @return label for UI selectors
      */
     public String getDisplayName() {
         return displayName;

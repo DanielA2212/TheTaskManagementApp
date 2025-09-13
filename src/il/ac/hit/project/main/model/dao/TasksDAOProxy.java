@@ -31,7 +31,7 @@ public class TasksDAOProxy implements ITasksDAO {
      */
     public TasksDAOProxy(ITasksDAO tasksDAO) {
         if (tasksDAO == null) throw new IllegalArgumentException("tasksDAO cannot be null");
-        this.tasksDAO = tasksDAO; // store delegate
+        this.tasksDAO = tasksDAO;
     }
 
     /** invalidate all caches (called after any mutation) */

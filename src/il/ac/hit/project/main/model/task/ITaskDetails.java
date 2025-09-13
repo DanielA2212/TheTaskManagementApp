@@ -3,7 +3,7 @@ package il.ac.hit.project.main.model.task;
 import java.util.Date;
 
 /**
- * Extended interface for internal use that inherits from the unchangeable ITask.
+ * Extended interface for internal use that inherits from ITask.
  * Adds additional getters and mutators required by the application.
  */
 public interface ITaskDetails extends ITask {

@@ -14,7 +14,7 @@ public enum TaskPriority {
     HIGH("High");
 
     /**
-     * Human-readable display name for the priority
+     * Display name for the priority
      */
     private final String displayName;
 

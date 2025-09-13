@@ -2,10 +2,10 @@ package il.ac.hit.project.main.model.report;
 
 import il.ac.hit.project.main.model.task.ITask;
 
-// Visitor contract for processing tasks (Visitor pattern)
-// Used to decouple task processing logic from task data structure
+
 /**
  * Visitor contract for processing tasks (Visitor pattern).
+ * Used to decouple task processing logic from task data structure
  */
 public interface ITaskVisitor {
     /**
