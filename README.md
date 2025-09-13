@@ -1,6 +1,6 @@
 # Task Management Application (Design Patterns Final Project)
 
-## Overview.
+## Overview
 Java Swing MVVM desktop app persisting tasks in embedded Apache Derby while showcasing multiple GoF / enterprise patterns.
 
 ## Implemented Patterns
