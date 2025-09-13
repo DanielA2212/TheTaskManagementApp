@@ -22,9 +22,8 @@ public class PdfReportWriterSmokeTest {
      */
     @Test
     void testPdfExportProducesFile() throws Exception {
-        Task t1 = new Task("Alpha", "Desc", TaskPriority.HIGH);
-        Task t2 = new Task("Beta", "Desc", TaskPriority.LOW);
-        t2.setState(CompletedState.getInstance());
+        Task t1 = new Task(0, "Alpha", "Desc", ToDoState.getInstance(), null, TaskPriority.HIGH);
+        Task t2 = new Task(0, "Beta", "Desc", CompletedState.getInstance(), null, TaskPriority.LOW);
 
         ReportVisitorI visitor = new ReportVisitorI();
         visitor.visit(t1);

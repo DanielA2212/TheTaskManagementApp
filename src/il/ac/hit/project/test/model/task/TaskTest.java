@@ -12,12 +12,12 @@ import static org.junit.jupiter.api.Assertions.*;
 public class TaskTest {
 
     /**
-     * Ensures constructor initializes fields with provided values and default state is TO_DO.
+     * Ensures constructor initializes fields with provided values and state reflects provided strategy.
      */
     @Test
     public void testTaskCreation() {
         // Create a new task
-        Task task = new Task("Test Task", "Test Description", TaskPriority.MEDIUM);
+        Task task = new Task(0, "Test Task", "Test Description", ToDoState.getInstance(), null, TaskPriority.MEDIUM);
 
         // Verify initial state
         assertEquals("Test Task", task.getTitle());
@@ -32,7 +32,7 @@ public class TaskTest {
     @Test
     public void testStateTransitions() {
         // Create a task in TO DO state
-        Task task = new Task("Test Task", "Test Description", TaskPriority.MEDIUM);
+        Task task = new Task(0, "Test Task", "Test Description", ToDoState.getInstance(), null, TaskPriority.MEDIUM);
 
         // Get the initial state
         TaskState initialState = task.getState();
@@ -58,7 +58,7 @@ public class TaskTest {
     @Test
     public void testTaskProperties() {
         // Create a task
-        Task task = new Task("Initial Title", "Initial Description", TaskPriority.LOW);
+        Task task = new Task(0, "Initial Title", "Initial Description", ToDoState.getInstance(), null, TaskPriority.LOW);
 
         // Change properties
         task.setTitle("Updated Title");

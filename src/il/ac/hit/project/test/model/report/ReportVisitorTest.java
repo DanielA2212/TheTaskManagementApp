@@ -15,10 +15,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class ReportVisitorTest {
 
     private Task task(int id, String title, String desc, TaskPriority p, ITaskState state) {
-        Task t = new Task(title, desc, p);
-        t.setId(id);
-        t.setState(state);
-        return t;
+        return new Task(id, title, desc, state, null, p);
     }
 
     /**

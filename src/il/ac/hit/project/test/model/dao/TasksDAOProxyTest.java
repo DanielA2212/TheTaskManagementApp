@@ -59,7 +59,7 @@ public class TasksDAOProxyTest {
     void testInvalidationOnAdd() throws TasksDAOException {
         proxy.getTasks();
         assertEquals(1, stub.getTasksCalls);
-        proxy.addTask(new Task("New", "x", TaskPriority.HIGH));
+        proxy.addTask(new Task(0, "New", "x", ToDoState.getInstance(), null, TaskPriority.HIGH));
         proxy.getTasks();
         assertEquals(2, stub.getTasksCalls, "Cache should be invalidated after add");
     }

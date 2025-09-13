@@ -14,10 +14,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class TaskFiltersTest {
 
     private Task newTask(int id, String title, String desc, ITaskState state, TaskPriority priority) {
-        Task t = new Task(title, desc, priority);
-        t.setId(id);
-        t.setState(state);
-        return t;
+        return new Task(id, title, desc, state, null, priority);
     }
 
     /**

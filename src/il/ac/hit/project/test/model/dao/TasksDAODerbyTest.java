@@ -7,6 +7,7 @@ import il.ac.hit.project.main.model.task.ITask;
 import il.ac.hit.project.main.model.task.ITaskDetails;
 import il.ac.hit.project.main.model.task.Task;
 import il.ac.hit.project.main.model.task.TaskPriority;
+import il.ac.hit.project.main.model.task.ToDoState;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -73,7 +74,7 @@ public class TasksDAODerbyTest {
     @Test
     public void testAddAndGetTask() throws TasksDAOException {
         // Create a new task
-        Task task = new Task("Test Task", "Test Description", TaskPriority.HIGH);
+        Task task = new Task(0, "Test Task", "Test Description", ToDoState.getInstance(), null, TaskPriority.HIGH);
 
         // Add to database
         tasksDAO.addTask(task);
@@ -95,7 +96,7 @@ public class TasksDAODerbyTest {
     @Test
     public void testUpdateTask() throws TasksDAOException {
         // Create and add a task
-        Task task = new Task("Original Title", "Original Description", TaskPriority.MEDIUM);
+        Task task = new Task(0, "Original Title", "Original Description", ToDoState.getInstance(), null, TaskPriority.MEDIUM);
         tasksDAO.addTask(task);
 
         // Get the task ID
@@ -127,8 +128,8 @@ public class TasksDAODerbyTest {
     @Test
     public void testDeleteTask() throws TasksDAOException {
         // Create and add two tasks
-        Task task1 = new Task("Task 1", "Description 1", TaskPriority.LOW);
-        Task task2 = new Task("Task 2", "Description 2", TaskPriority.HIGH);
+        Task task1 = new Task(0, "Task 1", "Description 1", ToDoState.getInstance(), null, TaskPriority.LOW);
+        Task task2 = new Task(0, "Task 2", "Description 2", ToDoState.getInstance(), null, TaskPriority.HIGH);
         tasksDAO.addTask(task1);
         tasksDAO.addTask(task2);
 
@@ -153,9 +154,9 @@ public class TasksDAODerbyTest {
     @Test
     public void testDeleteAllTasks() throws TasksDAOException {
         // Create and add multiple tasks
-        tasksDAO.addTask(new Task("Task 1", "Description 1", TaskPriority.LOW));
-        tasksDAO.addTask(new Task("Task 2", "Description 2", TaskPriority.MEDIUM));
-        tasksDAO.addTask(new Task("Task 3", "Description 3", TaskPriority.HIGH));
+        tasksDAO.addTask(new Task(0, "Task 1", "Description 1", ToDoState.getInstance(), null, TaskPriority.LOW));
+        tasksDAO.addTask(new Task(0, "Task 2", "Description 2", ToDoState.getInstance(), null, TaskPriority.MEDIUM));
+        tasksDAO.addTask(new Task(0, "Task 3", "Description 3", ToDoState.getInstance(), null, TaskPriority.HIGH));
 
         // Verify tasks were added
         ITask[] initialTasks = tasksDAO.getTasks();

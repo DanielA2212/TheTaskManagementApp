@@ -17,23 +17,6 @@ public class Task implements ITaskDetails {
     private Date updatedDate;
     private TaskPriority priority;
 
-    /**
-     * Primary constructor for creating a new task (id assigned later by DAO).
-     * @param title non-null, non-blank title
-     * @param description description, if null replaced with empty string
-     * @param priority non-null priority
-     * @throws IllegalArgumentException on invalid args
-     */
-    public Task(String title, String description, TaskPriority priority) {
-        /* Initialize new task with default state (To Do) and timestamps */
-        this.createdDate = new Date();
-        this.updatedDate = new Date();
-        // use setters (except id) so validation is centralized
-        setTitle(title);
-        setDescription(description);
-        setPriority(priority);
-        setState(ToDoState.getInstance());
-    }
 
     /**
      * Full constructor used by DAO hydration.
@@ -45,14 +28,12 @@ public class Task implements ITaskDetails {
      * @param priority non-null priority
      */
     public Task(int id, String title, String description, ITaskState state, Date createdDate, TaskPriority priority) {
-        /* Reconstruct task from persistence layer (DAO) */
-        this.id = id;
+        setId(id);
         this.createdDate = createdDate == null ? new Date() : createdDate;
         this.updatedDate = new Date();
         setTitle(title);
         setDescription(description);
-        if (state == null) throw new IllegalArgumentException("state cannot be null");
-        this.state = state; // direct (avoid double notification during hydration)
+        setState(state);
         setPriority(priority);
     }
 
@@ -147,12 +128,11 @@ public class Task implements ITaskDetails {
     /* Return last modification timestamp */
 
     /**
-     * Sets the last updated date of the task (hydration use only — no notifications).
+     * Sets the last updated date of the task.
      * @param updatedDate date to set
      */
     public void setUpdatedDate(Date updatedDate) {
         this.updatedDate = updatedDate == null ? new Date() : updatedDate; }
-    /* Direct assignment used during DAO hydration */
 
     /**
      * Helper that updates updatedDate and notifies observers about the timestamp change.

@@ -34,13 +34,12 @@ public class TasksViewModelTest {
         IView mockView = mock(IView.class);
 
         // Sample tasks for testing
-        Task task1 = new Task("Task 1", "Description 1", TaskPriority.LOW);
+        Task task1 = new Task(0, "Task 1", "Description 1", ToDoState.getInstance(), null, TaskPriority.LOW);
         task1.setId(1);
-        Task task2 = new Task("Important Task", "Urgent", TaskPriority.HIGH);
+        Task task2 = new Task(0, "Important Task", "Urgent", ToDoState.getInstance(), null, TaskPriority.HIGH);
         task2.setId(2);
-        Task task3 = new Task("Completed Task", "Done", TaskPriority.MEDIUM);
+        Task task3 = new Task(0, "Completed Task", "Done", CompletedState.getInstance(), null, TaskPriority.MEDIUM);
         task3.setId(3);
-        task3.setState(CompletedState.getInstance());
 
         // Set up mock DAO behavior
         when(mockDAO.getTasks()).thenReturn(new ITask[]{task1, task2, task3});
