@@ -6,16 +6,16 @@ import java.util.List;
 import java.util.Comparator;
 
 /**
- * Strategy implementation for sorting tasks by priority (High -> Medium -> Low)
- * Ordering uses natural enum order of TaskPriority (LOW < MEDIUM < HIGH);
- * UI labels invert by interpreting meaning rather than reversing list here.
+ * Strategy implementation for sorting tasks by priority (High -> Medium -> Low).
+ * Orders by TaskPriority in descending order so HIGH comes first and LOW last.
  * @author Course
  */
 public class SortByPriorityStrategyI implements ISortingStrategy {
 
     @Override
     public void sort(List<ITask> tasks) {
-        tasks.sort(Comparator.comparing(t -> ((ITaskDetails) t).getPriority()));
+        // Sort by priority descending: HIGH -> MEDIUM -> LOW
+        tasks.sort(Comparator.comparing((ITask t) -> ((ITaskDetails) t).getPriority()).reversed());
     }
 
     @Override

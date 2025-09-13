@@ -19,13 +19,6 @@ public enum SortingOption {
     }
 
     /**
-     * @return human-friendly label for UI selectors
-     */
-    public String getDisplayName() {
-        return displayName;
-    }
-
-    /**
      * @return associated concrete sorting strategy
      */
     public ISortingStrategy getStrategy() {

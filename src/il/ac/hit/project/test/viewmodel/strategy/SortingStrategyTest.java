@@ -66,10 +66,10 @@ public class SortingStrategyTest {
     }
 
     /**
-     * Verifies priority sort follows enum ordinal LOW < MEDIUM < HIGH.
+     * Verifies priority sort follows desired order HIGH > MEDIUM > LOW.
      */
     @Test
-    public void testSortByPriorityAscendingByEnumOrder() {
+    public void testSortByPriorityHighFirst() {
         List<ITask> tasks = new ArrayList<>();
         tasks.add(task(1, "A", TaskPriority.HIGH, new Date(0), ToDoState.getInstance()));
         tasks.add(task(2, "B", TaskPriority.LOW, new Date(0), ToDoState.getInstance()));
@@ -77,9 +77,9 @@ public class SortingStrategyTest {
 
         new SortByPriorityStrategyI().sort(tasks);
 
-        // Enum order is LOW < MEDIUM < HIGH
-        assertEquals(TaskPriority.LOW, ((ITaskDetails) tasks.get(0)).getPriority());
+        // Desired order is HIGH -> MEDIUM -> LOW
+        assertEquals(TaskPriority.HIGH, ((ITaskDetails) tasks.get(0)).getPriority());
         assertEquals(TaskPriority.MEDIUM, ((ITaskDetails) tasks.get(1)).getPriority());
-        assertEquals(TaskPriority.HIGH, ((ITaskDetails) tasks.get(2)).getPriority());
+        assertEquals(TaskPriority.LOW, ((ITaskDetails) tasks.get(2)).getPriority());
     }
 }
